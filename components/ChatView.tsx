@@ -1,0 +1,456 @@
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
+import type { Denomination, Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
+import { MessageSender } from '../types';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon } from './icons';
+import MessageInput from './MessageInput';
+import EmptyState from './EmptyState';
+import MessageBubble from './MessageBubble';
+import Toast from './Toast';
+import type { Chat } from '@google/genai';
+
+// --- Audio Utility ---
+const playNotificationSound = () => {
+    try {
+        const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(659.25, context.currentTime); // E5
+        gainNode.gain.setValueAtTime(0.08, context.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 0.5);
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        oscillator.start(context.currentTime);
+        oscillator.stop(context.currentTime + 0.5);
+    } catch (e) {
+        console.warn("Could not play notification sound.", e);
+    }
+};
+
+
+const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile }> = ({ denomination, onOpenSettings, profile }) => {
+  const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
+  const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [chat, setChat] = useState<Chat | null>(null);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // --- Voice Input State ---
+  const [isRecording, setIsRecording] = useState(false);
+  const [isSpeechSupported, setIsSpeechSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const draftBeforeRecordingRef = useRef('');
+
+  // --- Toast State ---
+  const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const activeChat = chats.find(c => c.id === activeChatId);
+
+  const handleNewChat = useCallback(() => {
+    const newChatId = Date.now().toString();
+    const newChat: ChatSession = {
+      id: newChatId,
+      title: 'New Chat',
+      messages: [],
+      createdAt: Date.now(),
+      draft: '',
+      draftFile: null,
+    };
+    setChats(prev => [newChat, ...prev]);
+    setActiveChatId(newChatId);
+    setIsSidebarOpen(false);
+  }, [setChats, setActiveChatId]);
+  
+  useEffect(() => {
+    if (chats.length === 0) {
+      handleNewChat();
+    } else if (!activeChatId || !chats.find(c => c.id === activeChatId)) {
+      const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
+      setActiveChatId(sortedChats[0]?.id || null);
+    }
+  }, [chats, activeChatId, setActiveChatId, handleNewChat]);
+
+  useEffect(() => {
+    if (activeChat) {
+      const chatInstance = startChat(denomination, activeChat.messages, profile);
+      setChat(chatInstance);
+    }
+  }, [activeChatId, chats, denomination, profile]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [activeChat?.messages]);
+  
+  const handleInputChange = useCallback((value: string) => {
+    if (!activeChatId) return;
+    setChats(prevChats => 
+      prevChats.map(c => 
+        c.id === activeChatId ? { ...c, draft: value } : c
+      )
+    );
+  }, [activeChatId, setChats]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && activeChatId) {
+      if(file.size > 2 * 1024 * 1024) { // 2MB limit
+          alert("File is too large. Please select a file smaller than 2MB.");
+          return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        setChats(prevChats => 
+          prevChats.map(c => 
+            c.id === activeChatId ? { ...c, draftFile: { data: base64String, mimeType: file.type, name: file.name } } : c
+          )
+        );
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    if (!activeChatId) return;
+    setChats(prevChats => 
+      prevChats.map(c => 
+        c.id === activeChatId ? { ...c, draftFile: null } : c
+      )
+    );
+  };
+
+  // --- Voice Input Logic ---
+  useEffect(() => {
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognitionAPI) {
+      setIsSpeechSupported(true);
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result) => result.transcript)
+          .join('');
+        handleInputChange(draftBeforeRecordingRef.current + transcript);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        let message = "An unknown voice input error occurred.";
+        switch (event.error) {
+            case 'not-allowed':
+            case 'service-not-allowed':
+                message = "Microphone access denied. Please allow microphone access in your browser settings.";
+                break;
+            case 'no-speech':
+                message = "No speech was detected. Please try again.";
+                break;
+            case 'network':
+                message = "A network error occurred during speech recognition. Please check your connection.";
+                break;
+            case 'aborted':
+                // This is a user-initiated stop, not an error.
+                return;
+        }
+        setToastInfo({ message, type: 'error' });
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+    } else {
+        console.warn("Speech Recognition not supported by this browser.");
+        setIsSpeechSupported(false);
+    }
+  }, [handleInputChange]);
+
+  const handleToggleRecording = () => {
+    if (!isSpeechSupported || !recognitionRef.current) return;
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      draftBeforeRecordingRef.current = activeChat?.draft ? activeChat.draft + ' ' : '';
+      handleInputChange(draftBeforeRecordingRef.current);
+      recognitionRef.current.start();
+      setIsRecording(true);
+    }
+  };
+
+  const handleSendMessage = async (query: string) => {
+    if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: MessageSender.User,
+      text: query,
+      file: activeChat.draftFile ? { data: activeChat.draftFile.data, mimeType: activeChat.draftFile.mimeType, name: activeChat.draftFile.name } : undefined,
+      createdAt: Date.now(),
+    };
+    
+    const isNewChat = activeChat.messages.length === 0;
+
+    setIsLoading(true);
+    
+    const aiMessageId = (Date.now() + 1).toString();
+    const placeholderAiMessage: Message = {
+        id: aiMessageId,
+        sender: MessageSender.AI,
+        isStreaming: true,
+        response: { summary: "...", scripturalResults: [], webResults: [] },
+        createdAt: Date.now(),
+    };
+
+    setChats(prevChats => prevChats.map(c => 
+      c.id === activeChatId ? { ...c, messages: [...c.messages, userMessage, placeholderAiMessage], draft: '', draftFile: null } : c
+    ));
+    
+    if (profile.enableHaptics && navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    
+    try {
+        const stream = await sendMessageStream(chat, query, activeChat.draftFile);
+        let fullTextResponse = "";
+        const allGroundingChunks: GroundingChunk[] = [];
+
+        for await (const chunk of stream) {
+            fullTextResponse += chunk.text;
+            if (chunk.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+                allGroundingChunks.push(...chunk.candidates[0].groundingMetadata.groundingChunks);
+            }
+             setChats(currentChats => currentChats.map(c => {
+                if (c.id === activeChatId) {
+                    return { ...c, messages: c.messages.map(msg => 
+                        msg.id === aiMessageId ? { ...msg, response: { ...msg.response!, summary: fullTextResponse } } : msg
+                    )};
+                }
+                return c;
+            }));
+        }
+
+        const uniqueUris = new Set<string>();
+        const groundingChunks = allGroundingChunks.filter(chunk => {
+            if (chunk.web?.uri && !uniqueUris.has(chunk.web.uri)) {
+                uniqueUris.add(chunk.web.uri);
+                return true;
+            }
+            return false;
+        });
+        
+        const webResults: WebSource[] = (groundingChunks || [])
+            .filter(chunk => chunk.web && chunk.web.uri && chunk.web.title)
+            .map(chunk => ({ title: chunk.web!.title!, url: chunk.web!.uri!, snippet: "" }));
+
+        let parsedData = parseMarkdownResponse(fullTextResponse);
+        parsedData.webResults = webResults;
+        parsedData.groundingChunks = groundingChunks;
+        
+        const finalResponse: Message = { id: aiMessageId, sender: MessageSender.AI, response: parsedData, rawResponseText: fullTextResponse, isStreaming: false, createdAt: placeholderAiMessage.createdAt };
+
+        setChats(currentChats => currentChats.map(c => {
+          if (c.id === activeChatId) {
+            return { ...c, messages: c.messages.map(msg => msg.id === aiMessageId ? finalResponse : msg) };
+          }
+          return c;
+        }));
+
+        if (isNewChat) {
+            const summaryForTitle = parsedData?.summary || fullTextResponse;
+            generateTitle(query, summaryForTitle).then(newTitle => {
+                setChats(prev => prev.map(c => c.id === activeChatId ? { ...c, title: newTitle } : c));
+            });
+        }
+        
+        if (profile.enableSound) playNotificationSound();
+
+    } catch (error) {
+        console.error("Error during streaming:", error);
+        const errorResponse: Message = { id: aiMessageId, sender: MessageSender.AI, response: { summary: "An error occurred. Please check your connection or API key.", scripturalResults: [], webResults: [] }, isStreaming: false };
+        setChats(currentChats => currentChats.map(c => {
+            if (c.id === activeChatId) {
+                return { ...c, messages: c.messages.map(msg => msg.id === aiMessageId ? errorResponse : msg) };
+            }
+            return c;
+        }));
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if(isRecording) {
+        handleToggleRecording();
+    }
+    handleSendMessage(activeChat?.draft || '');
+  };
+  
+  const handleQueryFromHint = (query: string) => {
+    handleSendMessage(query);
+  }
+
+  const handleSelectChat = (chatId: string) => {
+    setActiveChatId(chatId);
+    setIsSidebarOpen(false);
+  };
+  
+  const handleDeleteChat = (e: React.MouseEvent, chatIdToDelete: string) => {
+    e.stopPropagation();
+    setChats(prev => {
+        const remainingChats = prev.filter(c => c.id !== chatIdToDelete);
+        if (activeChatId === chatIdToDelete) {
+            const sortedChats = remainingChats.sort((a,b) => b.createdAt - a.createdAt);
+            setActiveChatId(sortedChats[0]?.id || null);
+            if (sortedChats.length === 0) {
+              setTimeout(handleNewChat, 0);
+            }
+        }
+        return remainingChats;
+    });
+  };
+
+  const handleStartEditing = (e: React.MouseEvent, session: ChatSession) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setEditingChatId(session.id);
+    setEditingTitle(session.title);
+  };
+
+  const handleSaveTitle = (chatId: string) => {
+    if (editingTitle.trim()) {
+        setChats(prev => prev.map(c => c.id === chatId ? { ...c, title: editingTitle.trim() } : c));
+    }
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, chatId: string) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSaveTitle(chatId);
+    } else if (e.key === 'Escape') {
+        setEditingChatId(null);
+        setEditingTitle('');
+    }
+  };
+
+  return (
+    <div className="flex h-screen w-screen bg-transparent overflow-hidden">
+        {/* Backdrop for mobile sidebar */}
+        <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
+
+        <aside className={`absolute md:static top-0 left-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-r border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+            <div className="p-2 border-b border-[var(--color-border)]">
+                <button onClick={handleNewChat} className="flex items-center justify-center gap-2 w-full p-3 rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-border)] font-semibold transition-colors active:scale-95">
+                    <PlusIcon />
+                    New Chat
+                </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+                {chats.sort((a,b) => b.createdAt - a.createdAt).map(session => (
+                    <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
+                        <MessageSquareIcon className="w-5 h-5 flex-shrink-0" />
+                        {editingChatId === session.id ? (
+                          <form onSubmit={(e) => { e.preventDefault(); handleSaveTitle(session.id); }} className="flex-1">
+                              <input
+                                  type="text"
+                                  value={editingTitle}
+                                  onChange={(e) => setEditingTitle(e.target.value)}
+                                  onBlur={() => handleSaveTitle(session.id)}
+                                  onKeyDown={(e) => handleKeyDown(e, session.id)}
+                                  className="w-full bg-transparent focus:bg-[var(--color-card-bg)] text-sm font-medium p-1 -m-1 rounded focus:outline-none ring-1 ring-[var(--color-accent)] text-[var(--color-text-primary)]"
+                                  autoFocus
+                              />
+                          </form>
+                        ) : (
+                          <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 truncate text-sm font-medium">{session.title}</span>
+                        )}
+                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0">
+                           {editingChatId !== session.id && (
+                                <button
+                                    onClick={(e) => handleStartEditing(e, session)}
+                                    className="p-1.5 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                                    aria-label="Rename chat"
+                                >
+                                    <PencilIcon className="w-4 h-4" />
+                                </button>
+                            )}
+                            <button
+                                onClick={(e) => handleDeleteChat(e, session.id)}
+                                className="p-1.5 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                                aria-label="Delete chat"
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </a>
+                ))}
+            </nav>
+        </aside>
+
+        <div className={`flex flex-col flex-1 h-screen relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
+            <header className="flex items-center justify-between p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
+                        <MenuIcon />
+                    </button>
+                    <div className="w-12 h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
+                        <DeenBridgeLogoIcon />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
+                        <p className="text-sm text-[var(--color-text-secondary)]">{denomination} Tradition</p>
+                    </div>
+                </div>
+                <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">
+                <SettingsIcon />
+                </button>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
+                {!activeChat || activeChat.messages.length === 0 ? (
+                <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
+                ) : (
+                activeChat.messages.map((message) => (
+                    <MessageBubble key={message.id} message={message} denomination={denomination} />
+                ))
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+            
+            <MessageInput 
+                input={activeChat?.draft || ''}
+                setInput={handleInputChange}
+                handleSubmit={handleSubmit}
+                isLoading={isLoading}
+                isRecording={isRecording}
+                onToggleRecording={handleToggleRecording}
+                isSpeechSupported={isSpeechSupported}
+                file={activeChat?.draftFile || null}
+                onFileChange={handleFileChange}
+                onRemoveFile={handleRemoveFile}
+            />
+        </div>
+        {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
+    </div>
+  );
+};
+
+export default ChatView;
