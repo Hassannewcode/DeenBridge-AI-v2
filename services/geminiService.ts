@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
 import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile } from '../types';
 import { CORE_POINTS } from '../constants';
@@ -10,6 +9,23 @@ if (!process.env.API_KEY) {
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+const withSilentRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error: any) {
+    if (retries > 0) {
+      const isRateLimitError = error.toString().includes('429') || error.toString().includes('RESOURCE_EXHAUSTED');
+      if (isRateLimitError) {
+        console.warn(`Rate limit reached on a background task. Retrying in ${delay / 1000}s...`);
+        await new Promise(res => setTimeout(res, delay));
+        return withSilentRetry(fn, retries - 1, delay * 2);
+      }
+    }
+    throw error;
+  }
+};
+
 
 const generateSystemInstruction = (denomination: Denomination, profile: UserProfile): string => {
   const points = CORE_POINTS[denomination].map(p => `- ${p.title}: ${p.description}`).join('\n');
@@ -129,7 +145,7 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {
     try {
-        const result = await ai.models.generateContent({
+        const result = await withSilentRetry(() => ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
@@ -137,7 +153,7 @@ export const getGenerativeText = async (prompt: string): Promise<string> => {
                 maxOutputTokens: 1024,
                 thinkingConfig: { thinkingBudget: 0 }
             },
-        });
+        }));
         return result.text.trim();
     } catch (error) {
         console.error("Error generating text:", error);
@@ -193,7 +209,7 @@ export const generateTitle = async (prompt: string, response: string): Promise<s
 
         Title:`;
         
-        const result = await ai.models.generateContent({
+        const result = await withSilentRetry(() => ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: titlePrompt,
             config: {
@@ -201,7 +217,7 @@ export const generateTitle = async (prompt: string, response: string): Promise<s
                 maxOutputTokens: 20,
                 thinkingConfig: { thinkingBudget: 0 }
             },
-        });
+        }));
 
         let title = result.text.trim();
         // Clean up any potential quotation marks

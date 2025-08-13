@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
 import type { Denomination, Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
@@ -225,8 +224,25 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         navigator.vibrate(50);
     }
     
+    const withRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 2000): Promise<T> => {
+      try {
+        return await fn();
+      } catch (error: any) {
+        if (retries > 0) {
+          const isRateLimitError = error.toString().includes('429') || error.toString().includes('RESOURCE_EXHAUSTED');
+    
+          if (isRateLimitError) {
+            setToastInfo({ message: `Service is busy. Retrying in ${delay / 1000}s... (${retries} left)`, type: 'error' });
+            await new Promise(res => setTimeout(res, delay));
+            return withRetry(fn, retries - 1, delay * 2);
+          }
+        }
+        throw error;
+      }
+    };
+
     try {
-        const stream = await sendMessageStream(chat, query, activeChat.draftFile);
+        const stream = await withRetry(() => sendMessageStream(chat, query, activeChat.draftFile));
         let fullTextResponse = "";
         const allGroundingChunks: GroundingChunk[] = [];
 
@@ -280,9 +296,27 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         
         if (profile.enableSound) playNotificationSound();
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error during streaming:", error);
-        const errorResponse: Message = { id: aiMessageId, sender: MessageSender.AI, response: { summary: "An error occurred. Please check your connection or API key.", scripturalResults: [], webResults: [] }, isStreaming: false };
+
+        let errorMessage = "An error occurred. Please check your connection or API key and ensure it is configured correctly.";
+        const errorString = error.toString();
+        const isRateLimitError = errorString.includes('429') || errorString.includes('RESOURCE_EXHAUSTED');
+
+        if (isRateLimitError) {
+            errorMessage = "You've exceeded the request limit. Please wait a moment before trying again, or check your API plan & billing details.";
+        }
+        
+        setToastInfo({ message: errorMessage, type: 'error' });
+
+        const errorResponse: Message = { 
+            id: aiMessageId, 
+            sender: MessageSender.AI, 
+            response: { summary: errorMessage, scripturalResults: [], webResults: [] }, 
+            isStreaming: false,
+            createdAt: placeholderAiMessage.createdAt
+        };
+
         setChats(currentChats => currentChats.map(c => {
             if (c.id === activeChatId) {
                 return { ...c, messages: c.messages.map(msg => msg.id === aiMessageId ? errorResponse : msg) };
