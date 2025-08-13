@@ -6,7 +6,7 @@ import { quranText } from '../data/quran';
 import { TRUSTED_SOURCES } from '../data/sources';
 
 if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set. Please create a .env.local file and add your API key for local development, or set it in your hosting provider's settings.");
+    throw new Error("API_KEY environment variable not set. For local development, create a .env file with API_KEY=YOUR_KEY. For deployments on Vercel, set the API_KEY in the project's environment variable settings.");
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
