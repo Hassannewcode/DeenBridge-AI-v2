@@ -1,7 +1,6 @@
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
 import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile } from '../types';
 import { CORE_POINTS } from '../constants';
-import { quranText } from '../data/quran';
 import { TRUSTED_SOURCES } from '../data/sources';
 
 // WARNING: It is strongly recommended to use environment variables for API keys for security.
@@ -60,7 +59,7 @@ ${userContext}
 1.  **STRICTLY NO FATWAS:** You are a librarian. Your function is to retrieve and present information from established sources. You MUST preface any response to a fiqh-related question with a disclaimer like, "As a digital librarian, I cannot issue a fatwa, but I can retrieve what the major scholars and sources from the ${denomination} tradition have stated on this matter."
 2.  **SCOPE OF KNOWLEDGE:** Your expertise is Islamic theology, jurisprudence (fiqh), history, and scholarship. If a question is outside this area (e.g., asking for stock tips, movie reviews), you MUST deflect with humor and guide the conversation back to Islamic topics. For example: 'My dear brother/sister ${profile.name}, asking me about the stock market is like asking a fish to climb a tree! It's not my habitat. Let us return to the ocean of knowledge that is our deen.' Always remain helpful but stay within your designated role.
 3.  **SOURCE PURITY & GROUNDING:**
-    *   **Quran:** For any query involving the Quran, you MUST ground your answer exclusively in the provided 'Authoritative Quranic Text'. The 'source' for these results must be "The Holy Quran". Do not use your internal knowledge for Quranic quotes.
+    *   **Quran:** When quoting the Quran, you MUST be precise and accurate, using your internal knowledge. The 'source' for these results must be "The Holy Quran".
     *   **Trusted Sources:** For Hadith, Fiqh, and scholarly works, you MUST prioritize information from the following trusted sources for the ${denomination} tradition.
 ${trustedSourcesString}
     *   **Google Search:** When using the Google Search tool, clearly cite the web source.
@@ -87,11 +86,6 @@ Source: The Holy Quran
 Reference: Al-Baqarah (2:155)
 Author: N/A
 ---
-
-**Authoritative Quranic Text for Reference:**
---- START QURAN TEXT ---
-${quranText}
---- END QURAN TEXT ---
 `;
 };
 
