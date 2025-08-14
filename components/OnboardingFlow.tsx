@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Denomination } from '../types';
 import { SunniIcon, ShiaIcon } from './icons';
@@ -66,7 +67,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4 overflow-hidden">
         <header className="mb-12 text-center animate-fade-in-up">
-          <h1 className="text-5xl md:text-7xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
             Welcome to <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
@@ -82,7 +83,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
             {/* Step 1: Name */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
               <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">What should we call you?</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">What should we call you?</h2>
                 <div>
                     <label htmlFor="name" className="sr-only">Name</label>
                     <input
@@ -103,7 +104,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
             {/* Step 2: Age */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
               <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                  <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">Nice to meet you, {name}!</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Nice to meet you, {name}!</h2>
                   <p className="text-[var(--color-text-secondary)]">If you're comfortable, please share your age. This helps in tailoring explanations appropriately.</p>
                   <div>
                       <label htmlFor="age" className="sr-only">Age</label>
@@ -126,16 +127,16 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
             {/* Step 3: Denomination */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
               <form onSubmit={handleFormSubmit} className="w-full max-w-2xl space-y-6">
-                  <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">Select a School of Thought</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Select a School of Thought</h2>
                   <p className="text-[var(--color-text-secondary)]">This will help focus your research on relevant sources.</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sunni)} isSelected={denomination === Denomination.Sunni}>
-                          <SunniIcon />
-                          <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
+                          <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
                       </SelectorCard>
                       <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Shia)} isSelected={denomination === Denomination.Shia}>
-                          <ShiaIcon />
-                          <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">Shia</h2>
+                          <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Shia</h2>
                       </SelectorCard>
                   </div>
                   <div className="space-y-3 max-w-md mx-auto">
@@ -148,7 +149,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
             {/* Step 4: Extra Info */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
               <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                  <h2 className="text-3xl font-bold text-[var(--color-text-primary)]">One last thing...</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">One last thing...</h2>
                   <p className="text-[var(--color-text-secondary)]">Is there anything else DeenBridge should know to personalize your experience? (e.g., "I am a new Muslim", "I am studying Islamic history")</p>
                   <div>
                       <label htmlFor="extraInfo" className="sr-only">Additional Context</label>

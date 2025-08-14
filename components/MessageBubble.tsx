@@ -80,7 +80,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination }> 
                   <img 
                     src={`data:${message.file.mimeType};base64,${message.file.data}`}
                     alt={message.file.name || 'User upload'}
-                    className="max-w-xs max-h-64 rounded-lg object-contain"
+                    className="max-w-[250px] sm:max-w-xs max-h-64 rounded-lg object-contain"
                   />
                 ) : (
                   <div className="p-3 bg-black/20 rounded-lg flex items-center gap-3 max-w-xs">
@@ -114,7 +114,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination }> 
 
                 {!message.isStreaming && hasAnyResults && (
                     <div className="mt-4 pt-2 border-t border-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]" ref={dropdownRef}>
-                        <button onClick={() => setIsDropdownOpen(prev => !prev)} className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-subtle)] hover:text-[var(--color-primary)] transition-colors">
+                        <button onClick={() => setIsDropdownOpen(prev => !prev)} className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-subtle)] hover:text-[var(--color-primary)] transition-colors p-2 -m-2">
                             <CitationIcon />
                             {isDropdownOpen ? 'Hide Citations' : 'Show Citations'}
                         </button>

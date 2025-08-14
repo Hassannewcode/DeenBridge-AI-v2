@@ -21,7 +21,7 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
     <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4">
       <div className="w-full max-w-4xl">
         <header className="mb-12 animate-fade-in-up text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-[var(--color-text-primary)]">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
             Welcome to <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
@@ -33,16 +33,16 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <SelectorCard onSelect={() => onSelect(Denomination.Sunni)}>
-            <SunniIcon />
-            <h2 className="text-4xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
+            <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
             <p className="mt-2 text-[var(--color-text-subtle)]">
               Access knowledge from sources aligned with the Sunni tradition, including the Kutub al-Sittah and major schools of Fiqh.
             </p>
           </SelectorCard>
 
           <SelectorCard onSelect={() => onSelect(Denomination.Shia)}>
-            <ShiaIcon />
-            <h2 className="text-4xl font-bold text-[var(--color-text-primary)]">Shia</h2>
+            <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">Shia</h2>
             <p className="mt-2 text-[var(--color-text-subtle)]">
               Access knowledge from sources aligned with the Shia tradition, including Al-Kafi and rulings from prominent Maraji'.
             </p>

@@ -49,7 +49,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               </div>
               <button
                   onClick={onRemoveFile}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-slate-600/80 text-white rounded-full flex items-center justify-center backdrop-blur-sm"
+                  className="absolute -top-2.5 -right-2.5 w-7 h-7 bg-slate-600/80 text-white rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-slate-700/90"
                   aria-label="Remove file"
               >
                   <CloseIcon className="w-4 h-4" />
@@ -62,7 +62,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={file ? "Describe the file or ask a question..." : isRecording ? "Listening..." : "Ask a question..."}
-          className={`w-full text-[var(--color-text-primary)] pl-12 pr-28 py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
+          className={`w-full text-[var(--color-text-primary)] pl-10 pr-24 sm:pl-12 sm:pr-28 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
           disabled={isLoading}
           aria-label="Chat input"
         />
@@ -74,11 +74,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
             className="hidden"
         />
 
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        <div className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex items-center">
             <button
                 type="button"
                 onClick={handleAttachClick}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
                 disabled={isLoading}
                 aria-label="Attach file"
             >
@@ -86,11 +86,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
             </button>
         </div>
 
-        <div className="absolute right-16 top-1/2 -translate-y-1/2 flex items-center">
+        <div className="absolute right-12 sm:right-16 top-1/2 -translate-y-1/2 flex items-center">
             <button
                 type="button"
                 onClick={onToggleRecording}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors
                     ${isRecording ? 'bg-red-500/20 text-red-500 animate-pulse-opacity' : 'text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]'}
                     ${!isSpeechSupported ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
@@ -105,7 +105,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-full text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
+          className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-full text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
           disabled={isLoading || !hasContent || isRecording}
           aria-label={isLoading ? "Sending..." : "Send message"}
         >

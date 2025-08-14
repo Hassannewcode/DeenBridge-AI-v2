@@ -420,7 +420,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                            {editingChatId !== session.id && (
                                 <button
                                     onClick={(e) => handleStartEditing(e, session)}
-                                    className="p-1.5 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                                    className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
                                     aria-label="Rename chat"
                                 >
                                     <PencilIcon className="w-4 h-4" />
@@ -428,7 +428,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                             )}
                             <button
                                 onClick={(e) => handleDeleteChat(e, session.id)}
-                                className="p-1.5 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                                className="p-2 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
                                 aria-label="Delete chat"
                             >
                                 <TrashIcon className="w-4 h-4" />
@@ -445,12 +445,12 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                         <MenuIcon />
                     </button>
-                    <div className="w-12 h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
                         <DeenBridgeLogoIcon />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
-                        <p className="text-sm text-[var(--color-text-secondary)]">{denomination} Tradition</p>
+                        <h1 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
+                        <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{denomination} Tradition</p>
                     </div>
                 </div>
                 <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">

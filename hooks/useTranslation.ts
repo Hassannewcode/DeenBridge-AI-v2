@@ -1,54 +1,62 @@
 import { useState } from 'react';
 import { getGenerativeText } from '../services/geminiService';
 
-interface TranslationState {
-    lang: string;
-    text: string;
-}
-
 export const useTranslation = (originalText: string, type: 'quran' | 'hadith') => {
-    const [translation, setTranslation] = useState<TranslationState | null>(null);
+    const [translation, setTranslation] = useState<string | null>(null);
+    const [isTranslationVisible, setIsTranslationVisible] = useState(false);
     const [transliteration, setTransliteration] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState<string | null>(null); // string will be the language or 'transliterate'
+    const [isTransliterationVisible, setIsTransliterationVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState<'translate' | 'transliterate' | null>(null);
 
-    const handleTranslate = async (language: string) => {
+    const toggleTranslation = async () => {
         if (isLoading) return;
-        if (translation && translation.lang === language) return;
         
-        setIsLoading(language);
-        setTransliteration(null);
-        const prompt = `Provide a concise, scholarly ${language} translation for the following ${type === 'quran' ? 'Quranic verse' : 'Hadith text'}. Do not add any commentary, interpretation, or introductory phrases. Translate the text directly.\n\nText to translate: "${originalText}"`;
-        const response = await getGenerativeText(prompt);
-        setTranslation({ lang: language, text: response });
+        if (isTranslationVisible) {
+            setIsTranslationVisible(false);
+            return;
+        }
+
+        setIsTransliterationVisible(false); // Hide transliteration when showing translation
+        setIsLoading('translate');
+        
+        if (!translation) {
+            const prompt = `Provide a concise, scholarly English translation for the following ${type === 'quran' ? 'Quranic verse' : 'Hadith text'}. Do not add any commentary, interpretation, or introductory phrases. Translate the text directly.\n\nText to translate: "${originalText}"`;
+            const response = await getGenerativeText(prompt);
+            setTranslation(response);
+        }
+        
+        setIsTranslationVisible(true);
         setIsLoading(null);
     };
 
-    const handleTransliterate = async () => {
-        if (isLoading || transliteration) return;
+    const toggleTransliteration = async () => {
+        if (isLoading) return;
 
+        if (isTransliterationVisible) {
+            setIsTransliterationVisible(false);
+            return;
+        }
+
+        setIsTranslationVisible(false); // Hide translation when showing transliteration
         setIsLoading('transliterate');
-        setTranslation(null);
-        const prompt = `Provide a scholarly, easy-to-read English transliteration (romanization) for the following Arabic text. Do not provide a translation or any explanation, only the transliterated text.\n\n"${originalText}"`;
-        const response = await getGenerativeText(prompt);
-        setTransliteration(response);
+
+        if (!transliteration) {
+            const prompt = `Provide a scholarly, easy-to-read English transliteration (romanization) for the following Arabic text. Do not provide a translation or any explanation, only the transliterated text.\n\n"${originalText}"`;
+            const response = await getGenerativeText(prompt);
+            setTransliteration(response);
+        }
+
+        setIsTransliterationVisible(true);
         setIsLoading(null);
     };
-
-    const hideTranslation = () => {
-        setTranslation(null);
-    }
-
-    const hideTransliteration = () => {
-        setTransliteration(null);
-    }
     
     return {
         translation,
+        isTranslationVisible,
         transliteration,
+        isTransliterationVisible,
         isLoading,
-        handleTranslate,
-        handleTransliterate,
-        hideTranslation,
-        hideTransliteration,
+        toggleTranslation,
+        toggleTransliteration,
     };
 }
