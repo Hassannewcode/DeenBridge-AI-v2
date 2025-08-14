@@ -3,13 +3,12 @@ import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChu
 import { CORE_POINTS } from '../constants';
 import { TRUSTED_SOURCES } from '../data/sources';
 
-// WARNING: It is strongly recommended to use environment variables for API keys for security.
-// Hardcoding keys in client-side code can expose them to unauthorized users.
-const API_KEY = "AIzaSyBQJYQFfIYelvO7TNLO_sIHeK1hSJp2NC4";
+// The API key is now sourced from environment variables for security.
+const API_KEY = process.env.API_KEY;
 
 
 if (!API_KEY) {
-    throw new Error("API_KEY is not set. Please add your API key.");
+    throw new Error("API_KEY is not set. Please add your API key to environment variables.");
 }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
