@@ -1,5 +1,5 @@
 {
-  "name": "DeenBridge",
+  "name": "Deenbridge testing zone",
   "description": "An AI-powered Islamic reference application that provides verifiable information from pre-vetted sources. DeenBridge acts as a sophisticated digital librarian, not a religious authority, ensuring all information is traceable to its original scholarly context.",
   "requestFramePermissions": [
     "microphone"

@@ -8,7 +8,7 @@ import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import Toast from './Toast';
-import type { Chat } from '@google/genai';
+import type { Chat, GenerateContentResponse } from '@google/genai';
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -242,7 +242,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     };
 
     try {
-        const stream = await withRetry(() => sendMessageStream(chat, query, activeChat.draftFile));
+        const stream: AsyncGenerator<GenerateContentResponse> = await withRetry(() => sendMessageStream(chat, query, activeChat.draftFile));
         let fullTextResponse = "";
         const allGroundingChunks: GroundingChunk[] = [];
 

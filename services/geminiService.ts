@@ -145,7 +145,7 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {
     try {
-        const result = await withSilentRetry(() => ai.models.generateContent({
+        const result: GenerateContentResponse = await withSilentRetry(() => ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
@@ -209,7 +209,7 @@ export const generateTitle = async (prompt: string, response: string): Promise<s
 
         Title:`;
         
-        const result = await withSilentRetry(() => ai.models.generateContent({
+        const result: GenerateContentResponse = await withSilentRetry(() => ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: titlePrompt,
             config: {
