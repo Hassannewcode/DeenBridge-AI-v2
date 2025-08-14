@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ScripturalResult } from '../../types';
 import { BookIcon, ShieldCheckIcon } from '../icons';
 import { useTranslation } from '../../hooks/useTranslation';
-
-const translationLanguages = ['English', 'Urdu', 'Indonesian'];
+import TranslationMenu from '../TranslationMenu';
 
 const HadithCard: React.FC<{ result: ScripturalResult, index: number, isTrusted: boolean }> = ({ result, index, isTrusted }) => {
-    const { translation, transliteration, isLoading, handleTranslate, handleTransliterate } = useTranslation(result.text, 'hadith');
+    const { translation, transliteration, isLoading, handleTranslate, handleTransliterate, hideTranslation, hideTransliteration } = useTranslation(result.text, 'hadith');
+
+    useEffect(() => {
+        // Auto-translate to English on initial load
+        if (result.text && !translation && !isLoading) {
+            handleTranslate('English');
+        }
+    }, [result.text]);
 
     return (
         <div key={`hadith-${index}`} className="mt-2 p-3 rounded-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-sm">
@@ -31,27 +37,16 @@ const HadithCard: React.FC<{ result: ScripturalResult, index: number, isTrusted:
             </div>
 
             <div className="mt-3 pt-2 border-t border-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]">
-                <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-[var(--color-text-subtle)] mr-1">Translate:</span>
-                    {translationLanguages.map(lang => (
-                        <button 
-                          key={lang}
-                          onClick={() => handleTranslate(lang)} 
-                          disabled={!!isLoading && isLoading !== lang} 
-                          className={`text-xs font-semibold transition-colors disabled:opacity-50 disabled:cursor-wait px-2 py-0.5 rounded
-                            ${translation?.lang === lang 
-                                ? 'text-[var(--color-primary)] bg-[color:rgb(from_var(--color-primary)_r_g_b_/_10%)]' 
-                                : 'text-[var(--color-text-subtle)] hover:text-[var(--color-primary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`
-                          }
-                        >
-                          {isLoading === lang ? '...' : lang}
-                        </button>
-                    ))}
-                    <span className="text-[var(--color-text-subtle)]">|</span>
-                    <button onClick={handleTransliterate} disabled={!!isLoading && isLoading !== 'transliterate'} className="text-xs font-semibold text-[var(--color-text-subtle)] hover:text-[var(--color-primary)] transition-colors disabled:opacity-50 disabled:cursor-wait">
-                        {isLoading === 'transliterate' ? '...' : transliteration ? 'Hide Transliteration' : 'Transliterate'}
-                    </button>
-                </div>
+                 <TranslationMenu
+                    isLoading={isLoading}
+                    translation={translation}
+                    transliteration={transliteration}
+                    onTranslate={handleTranslate}
+                    onTransliterate={handleTransliterate}
+                    onHideTranslation={hideTranslation}
+                    onHideTransliteration={hideTransliteration}
+                />
+                
                 {translation && (
                     <div className="mt-2 p-2 bg-[var(--color-card-quran-bg)] rounded text-sm text-[var(--color-text-secondary)] animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
                         <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>

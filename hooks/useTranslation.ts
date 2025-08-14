@@ -12,10 +12,9 @@ export const useTranslation = (originalText: string, type: 'quran' | 'hadith') =
     const [isLoading, setIsLoading] = useState<string | null>(null); // string will be the language or 'transliterate'
 
     const handleTranslate = async (language: string) => {
-        if (translation && translation.lang === language) {
-            setTranslation(null);
-            return;
-        }
+        if (isLoading) return;
+        if (translation && translation.lang === language) return;
+        
         setIsLoading(language);
         setTransliteration(null);
         const prompt = `Provide a concise, scholarly ${language} translation for the following ${type === 'quran' ? 'Quranic verse' : 'Hadith text'}. Do not add any commentary, interpretation, or introductory phrases. Translate the text directly.\n\nText to translate: "${originalText}"`;
@@ -25,10 +24,8 @@ export const useTranslation = (originalText: string, type: 'quran' | 'hadith') =
     };
 
     const handleTransliterate = async () => {
-        if (transliteration) {
-            setTransliteration(null);
-            return;
-        }
+        if (isLoading || transliteration) return;
+
         setIsLoading('transliterate');
         setTranslation(null);
         const prompt = `Provide a scholarly, easy-to-read English transliteration (romanization) for the following Arabic text. Do not provide a translation or any explanation, only the transliterated text.\n\n"${originalText}"`;
@@ -36,6 +33,14 @@ export const useTranslation = (originalText: string, type: 'quran' | 'hadith') =
         setTransliteration(response);
         setIsLoading(null);
     };
+
+    const hideTranslation = () => {
+        setTranslation(null);
+    }
+
+    const hideTransliteration = () => {
+        setTransliteration(null);
+    }
     
     return {
         translation,
@@ -43,5 +48,7 @@ export const useTranslation = (originalText: string, type: 'quran' | 'hadith') =
         isLoading,
         handleTranslate,
         handleTransliterate,
+        hideTranslation,
+        hideTransliteration,
     };
 }

@@ -17,7 +17,7 @@ const WebSourceCard: React.FC<{ source: WebSource; isTrusted: boolean }> = ({ so
             ) : (
                 <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-full flex-shrink-0" title="This source is from a general web search. Please verify its authenticity.">
                     <AlertIcon className="w-3 h-3" />
-                    Verify
+                    Unverified
                 </span>
             )}
         </div>
