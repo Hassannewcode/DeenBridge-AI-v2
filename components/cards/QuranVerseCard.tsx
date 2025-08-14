@@ -1,32 +1,26 @@
-import React from 'react';
-import type { ScripturalResult } from '../../types';
+import React, { useEffect } from 'react';
+import type { ScripturalResult, UserProfile } from '../../types';
 import { QuranIcon } from '../icons';
 import { useTranslation } from '../../hooks/useTranslation';
+import TranslationMenu from '../TranslationMenu';
 
-const QuranVerseCard: React.FC<{ result: ScripturalResult, index: number }> = ({ result, index }) => {
+const QuranVerseCard: React.FC<{ result: ScripturalResult; index: number; profile: UserProfile }> = ({ result, index, profile }) => {
     const { 
         translation, 
-        isTranslationVisible, 
         transliteration, 
-        isTransliterationVisible, 
         isLoading, 
-        toggleTranslation, 
-        toggleTransliteration 
-    } = useTranslation(result.text, 'quran');
+        translate, 
+        transliterate,
+        hideTranslation,
+        hideTransliteration,
+    } = useTranslation(result.text);
 
-    const Button = ({ onClick, disabled, active, children }: { onClick: () => void, disabled: boolean, active: boolean, children: React.ReactNode }) => (
-        <button 
-            onClick={onClick}
-            disabled={disabled}
-            className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${
-                active 
-                    ? 'bg-[var(--color-primary)] text-[var(--color-text-inverted)]' 
-                    : 'bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'
-            } disabled:opacity-50`}
-        >
-            {children}
-        </button>
-    );
+    useEffect(() => {
+        // Automatically translate to the user's default language upon first view.
+        if (profile.translationLanguage && !translation) {
+            translate(profile.translationLanguage);
+        }
+    }, []); // Run only once on mount
 
     return (
         <div key={`quran-${index}`} className="mt-2 p-3 rounded-lg bg-[var(--color-card-quran-bg)] border border-[var(--color-card-quran-border)] relative overflow-hidden quran-card-bg">
@@ -43,22 +37,25 @@ const QuranVerseCard: React.FC<{ result: ScripturalResult, index: number }> = ({
                 </div>
             </div>
             <div className="mt-3 pt-2 border-t border-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]">
-                <div className="flex items-center gap-2">
-                    <Button onClick={toggleTranslation} disabled={isLoading !== null} active={isTranslationVisible}>
-                        {isLoading === 'translate' ? "Loading..." : isTranslationVisible ? "Hide Translation" : "Translate"}
-                    </Button>
-                    <Button onClick={toggleTransliteration} disabled={isLoading !== null} active={isTransliterationVisible}>
-                        {isLoading === 'transliterate' ? "Loading..." : isTransliterationVisible ? "Hide Transliteration" : "Transliterate"}
-                    </Button>
+                <div className="flex items-center justify-end">
+                    <TranslationMenu
+                        isLoading={isLoading}
+                        translation={translation}
+                        transliteration={transliteration}
+                        onTranslate={translate}
+                        onTransliterate={transliterate}
+                        onHideTranslation={hideTranslation}
+                        onHideTransliteration={hideTransliteration}
+                    />
                 </div>
                 
-                {isTranslationVisible && translation && (
+                {translation && (
                     <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
-                        <p className="font-semibold text-[var(--color-text-primary)]">English Translation:</p>
-                        <p className="italic">"{translation}"</p>
+                        <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>
+                        <p className="italic">"{translation.text}"</p>
                     </div>
                 )}
-                {isTransliterationVisible && transliteration && (
+                {transliteration && (
                     <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
                         <p className="font-semibold text-[var(--color-text-primary)]">Transliteration:</p>
                         <p className="italic">{transliteration}</p>

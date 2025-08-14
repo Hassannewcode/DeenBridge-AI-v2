@@ -463,7 +463,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                 <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
                 ) : (
                 activeChat.messages.map((message) => (
-                    <MessageBubble key={message.id} message={message} denomination={denomination} />
+                    <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
                 ))
                 )}
                 <div ref={messagesEndRef} />

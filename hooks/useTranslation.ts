@@ -1,62 +1,57 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { getGenerativeText } from '../services/geminiService';
 
-export const useTranslation = (originalText: string, type: 'quran' | 'hadith') => {
-    const [translation, setTranslation] = useState<string | null>(null);
-    const [isTranslationVisible, setIsTranslationVisible] = useState(false);
+export const useTranslation = (originalText: string) => {
+    const [translation, setTranslation] = useState<{ lang: string; text: string } | null>(null);
     const [transliteration, setTransliteration] = useState<string | null>(null);
-    const [isTransliterationVisible, setIsTransliterationVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState<'translate' | 'transliterate' | null>(null);
+    const [isLoading, setIsLoading] = useState<string | null>(null); // Use string to store language being loaded or "transliterate"
 
-    const toggleTranslation = async () => {
+    const translate = useCallback(async (language: string) => {
         if (isLoading) return;
-        
-        if (isTranslationVisible) {
-            setIsTranslationVisible(false);
-            return;
-        }
 
-        setIsTransliterationVisible(false); // Hide transliteration when showing translation
-        setIsLoading('translate');
-        
-        if (!translation) {
-            const prompt = `Provide a concise, scholarly English translation for the following ${type === 'quran' ? 'Quranic verse' : 'Hadith text'}. Do not add any commentary, interpretation, or introductory phrases. Translate the text directly.\n\nText to translate: "${originalText}"`;
+        setIsLoading(language);
+        setTransliteration(null); // Clear transliteration
+
+        try {
+            const prompt = `Provide a scholarly, concise translation of the following Arabic text into ${language}. Do not add any commentary, interpretation, or introductory phrases. Translate the text directly.\n\nText to translate: "${originalText}"`;
             const response = await getGenerativeText(prompt);
-            setTranslation(response);
+            setTranslation({ lang: language, text: response });
+        } catch (error) {
+            console.error(`Error translating to ${language}:`, error);
+            setTranslation({ lang: language, text: "Sorry, translation failed." });
+        } finally {
+            setIsLoading(null);
         }
-        
-        setIsTranslationVisible(true);
-        setIsLoading(null);
-    };
+    }, [originalText, isLoading]);
 
-    const toggleTransliteration = async () => {
+    const transliterate = useCallback(async () => {
         if (isLoading) return;
-
-        if (isTransliterationVisible) {
-            setIsTransliterationVisible(false);
-            return;
-        }
-
-        setIsTranslationVisible(false); // Hide translation when showing transliteration
+        
         setIsLoading('transliterate');
-
-        if (!transliteration) {
+        setTranslation(null); // Clear translation
+        
+        try {
             const prompt = `Provide a scholarly, easy-to-read English transliteration (romanization) for the following Arabic text. Do not provide a translation or any explanation, only the transliterated text.\n\n"${originalText}"`;
             const response = await getGenerativeText(prompt);
             setTransliteration(response);
+        } catch (error) {
+            console.error("Error transliterating:", error);
+            setTransliteration("Sorry, transliteration failed.");
+        } finally {
+            setIsLoading(null);
         }
+    }, [originalText, isLoading]);
 
-        setIsTransliterationVisible(true);
-        setIsLoading(null);
-    };
+    const hideTranslation = useCallback(() => setTranslation(null), []);
+    const hideTransliteration = useCallback(() => setTransliteration(null), []);
     
     return {
         translation,
-        isTranslationVisible,
         transliteration,
-        isTransliterationVisible,
         isLoading,
-        toggleTranslation,
-        toggleTransliteration,
+        translate,
+        transliterate,
+        hideTranslation,
+        hideTransliteration,
     };
-}
+};

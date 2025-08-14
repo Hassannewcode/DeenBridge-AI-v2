@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import type { Message, Denomination } from '../types';
+import type { Message, Denomination, UserProfile } from '../types';
 import { MessageSender } from '../types';
 import { DeenBridgeAIIcon, CitationIcon, FileIcon } from './icons';
 import WebSourceCard from './cards/WebSourceCard';
@@ -32,7 +31,7 @@ const BlinkingCursor = () => (
     <span className="inline-block w-[2px] h-5 bg-[var(--color-text-primary)] align-bottom ml-1 typing-cursor" />
 );
 
-const MessageBubble: React.FC<{ message: Message, denomination: Denomination }> = ({ message, denomination }) => {
+const MessageBubble: React.FC<{ message: Message, denomination: Denomination, profile: UserProfile }> = ({ message, denomination, profile }) => {
   const isUser = message.sender === MessageSender.User;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useClickOutside(() => setIsDropdownOpen(false));
@@ -127,9 +126,9 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination }> 
                                         {res.scripturalResults.map((result, index) => {
                                             const isTrusted = result.source.title !== "The Holy Quran" && isTrustedSource(result.source.title, denomination);
                                             if (result.source.title === "The Holy Quran") {
-                                                return <QuranVerseCard key={`s-${index}`} result={result} index={index} />;
+                                                return <QuranVerseCard key={`s-${index}`} result={result} index={index} profile={profile} />;
                                             } else {
-                                                return <HadithCard key={`s-${index}`} result={result} index={index} isTrusted={isTrusted} />;
+                                                return <HadithCard key={`s-${index}`} result={result} index={index} isTrusted={isTrusted} profile={profile}/>;
                                             }
                                         })}
                                     </div>

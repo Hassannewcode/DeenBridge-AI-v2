@@ -78,4 +78,6 @@ export interface UserProfile {
   enableHaptics: boolean;
   onboardingComplete: boolean;
   enableGoogleSearch: boolean;
+  appLanguage: 'en' | 'ar';
+  translationLanguage: string;
 }

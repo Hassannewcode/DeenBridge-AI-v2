@@ -5,6 +5,7 @@ import DenominationSelector from './components/DenominationSelector';
 import ChatView from './components/ChatView';
 import SettingsModal from './components/SettingsModal';
 import OnboardingFlow from './components/OnboardingFlow';
+import { LocaleProvider } from './contexts/LocaleContext';
 
 const defaultProfile: UserProfile = {
   name: '',
@@ -14,6 +15,8 @@ const defaultProfile: UserProfile = {
   enableHaptics: true,
   onboardingComplete: false,
   enableGoogleSearch: true,
+  appLanguage: 'en',
+  translationLanguage: 'English',
 };
 
 const App: React.FC = () => {
@@ -37,28 +40,30 @@ const App: React.FC = () => {
   };
 
   return (
-    <main className="h-screen w-screen font-sans">
-      {!profile.onboardingComplete ? (
-        <OnboardingFlow onComplete={handleOnboardingComplete} />
-      ) : denomination ? (
-        <>
-          <ChatView 
-            denomination={denomination} 
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            profile={profile} 
-          />
-          <SettingsModal 
-            isOpen={isSettingsOpen}
-            onClose={() => setIsSettingsOpen(false)}
-            profile={profile}
-            setProfile={setProfile}
-            onResetDenomination={handleResetDenomination}
-          />
-        </>
-      ) : (
-        <DenominationSelector onSelect={setDenomination} />
-      )}
-    </main>
+    <LocaleProvider profile={profile} setProfile={setProfile}>
+      <main className="h-screen w-screen font-sans">
+        {!profile.onboardingComplete ? (
+          <OnboardingFlow onComplete={handleOnboardingComplete} />
+        ) : denomination ? (
+          <>
+            <ChatView 
+              denomination={denomination} 
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              profile={profile} 
+            />
+            <SettingsModal 
+              isOpen={isSettingsOpen}
+              onClose={() => setIsSettingsOpen(false)}
+              profile={profile}
+              setProfile={setProfile}
+              onResetDenomination={handleResetDenomination}
+            />
+          </>
+        ) : (
+          <DenominationSelector onSelect={setDenomination} />
+        )}
+      </main>
+    </LocaleProvider>
   );
 };
 
