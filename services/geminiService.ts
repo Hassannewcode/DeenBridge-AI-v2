@@ -4,11 +4,16 @@ import { CORE_POINTS } from '../constants';
 import { quranText } from '../data/quran';
 import { TRUSTED_SOURCES } from '../data/sources';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set. For local development, create a .env file with API_KEY=YOUR_KEY. For deployments on Vercel, set the API_KEY in the project's environment variable settings.");
+// WARNING: It is strongly recommended to use environment variables for API keys for security.
+// Hardcoding keys in client-side code can expose them to unauthorized users.
+const API_KEY = "AIzaSyBQJYQFfIYelvO7TNLO_sIHeK1hSJp2NC4";
+
+
+if (!API_KEY) {
+    throw new Error("API_KEY is not set. Please add your API key.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const withSilentRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> => {
   try {
