@@ -9,6 +9,7 @@ import SkeletonLoader from './SkeletonLoader';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { useTypingAnimation } from '../hooks/useTypingAnimation';
 import { TRUSTED_SOURCES } from '../data/sources';
+import MarkdownRenderer from './MarkdownRenderer';
 
 const isTrustedSource = (sourceTitle: string, denomination: Denomination): boolean => {
     const allTrusted = Object.values(TRUSTED_SOURCES[denomination]).flat().filter(item => typeof item === 'object') as {name: string, url: string}[];
@@ -98,11 +99,13 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
             <div className="relative">
                 { isPlaceholder ? (
                     <SkeletonLoader />
-                ) : (
+                 ) : message.isStreaming ? (
                     <p className={`whitespace-pre-wrap text-[var(--color-text-secondary)]`}>
                         {displayedSummary}
-                        {message.isStreaming && !isPlaceholder && <BlinkingCursor />}
+                        <BlinkingCursor />
                     </p>
+                ) : (
+                    <MarkdownRenderer content={res?.summary || ''} />
                 )}
                 
                 {message.isStreaming && (
