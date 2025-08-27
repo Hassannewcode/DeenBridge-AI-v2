@@ -1,0 +1,16 @@
+{
+  "name": "DeenBridge AI V2",
+  "short_name": "DeenBridge",
+  "description": "An AI-powered tool for Islamic studies and knowledge.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1c3c3a",
+  "theme_color": "#2c6c64",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Banner%20Image%20DeenBridge%20(1).png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
