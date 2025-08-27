@@ -6,7 +6,7 @@
 **DeenBridge** is an AI-powered Islamic reference application designed to act as a sophisticated digital librarian, not a religious authority. It provides users with verifiable information from pre-vetted, trusted sources within both the Sunni and Shia traditions. With a unique persona-driven AI, customizable themes, and robust PWA support, DeenBridge offers a modern, secure, and personalized research experience.
 
 
-Webpage: https://deen-bridge-ai-v2.vercel.app/
+# Webpage: https://deen-bridge-ai-v2.vercel.app/
 
 ---
 
