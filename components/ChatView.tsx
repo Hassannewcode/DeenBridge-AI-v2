@@ -1,14 +1,18 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
-import type { Denomination, Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
-import { MessageSender } from '../types';
+import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
+import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, ArchiveIcon, UnarchiveIcon, PinIcon, PinFilledIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import Toast from './Toast';
+import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLocale } from '../contexts/LocaleContext';
+import QuranReader from './QuranReader';
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -38,7 +42,10 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const [chat, setChat] = useState<Chat | null>(null);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [isQuranReaderOpen, setIsQuranReaderOpen] = useState(false);
+  const [isArchivedOpen, setIsArchivedOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t, locale } = useLocale();
   
   // --- Voice Input State ---
   const [isRecording, setIsRecording] = useState(false);
@@ -49,7 +56,17 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   // --- Toast State ---
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
+  const { activeChats, archivedChats, pinnedChats } = useMemo(() => {
+    const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
+    return {
+      activeChats: sortedChats.filter(c => !c.isArchived && !c.isPinned),
+      archivedChats: sortedChats.filter(c => c.isArchived),
+      pinnedChats: sortedChats.filter(c => c.isPinned && !c.isArchived),
+    };
+  }, [chats]);
+  
   const activeChat = chats.find(c => c.id === activeChatId);
+  const sidebarHiddenClass = locale === 'ar' ? 'translate-x-full' : '-translate-x-full';
 
   const handleNewChat = useCallback(() => {
     const newChatId = Date.now().toString();
@@ -60,6 +77,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       createdAt: Date.now(),
       draft: '',
       draftFile: null,
+      isArchived: false,
     };
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(newChatId);
@@ -67,11 +85,11 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   }, [setChats, setActiveChatId]);
   
   useEffect(() => {
-    if (chats.length === 0) {
+    const unarchivedChats = chats.filter(c => !c.isArchived);
+    if (unarchivedChats.length === 0) {
       handleNewChat();
-    } else if (!activeChatId || !chats.find(c => c.id === activeChatId)) {
-      const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
-      setActiveChatId(sortedChats[0]?.id || null);
+    } else if (!activeChatId || !unarchivedChats.find(c => c.id === activeChatId)) {
+      setActiveChatId(unarchivedChats[0]?.id || null);
     }
   }, [chats, activeChatId, setActiveChatId, handleNewChat]);
 
@@ -128,6 +146,26 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     );
   };
 
+  const handleToggleRecording = useCallback(() => {
+    if (!isSpeechSupported || !recognitionRef.current) return;
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+      setIsRecording(false); // Make UI responsive immediately
+    } else {
+      draftBeforeRecordingRef.current = activeChat?.draft ? activeChat.draft + ' ' : '';
+      handleInputChange(draftBeforeRecordingRef.current);
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      } catch (e) {
+        console.error("Speech recognition failed to start:", e);
+        setIsRecording(false); // Ensure state is correct if start fails
+      }
+    }
+  }, [isSpeechSupported, isRecording, activeChat?.draft, handleInputChange]);
+
+
   // --- Voice Input Logic ---
   useEffect(() => {
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -136,14 +174,19 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       const recognition = new SpeechRecognitionAPI();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = profile.appLanguage === 'ar' ? 'ar-SA' : 'en-US';
 
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result) => result.transcript)
-          .join('');
-        handleInputChange(draftBeforeRecordingRef.current + transcript);
+        let interimTranscript = '';
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+        handleInputChange(draftBeforeRecordingRef.current + finalTranscript + interimTranscript);
       };
 
       recognition.onend = () => {
@@ -177,21 +220,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         console.warn("Speech Recognition not supported by this browser.");
         setIsSpeechSupported(false);
     }
-  }, [handleInputChange]);
-
-  const handleToggleRecording = () => {
-    if (!isSpeechSupported || !recognitionRef.current) return;
-
-    if (isRecording) {
-      recognitionRef.current.stop();
-    } else {
-      draftBeforeRecordingRef.current = activeChat?.draft ? activeChat.draft + ' ' : '';
-      handleInputChange(draftBeforeRecordingRef.current);
-      recognitionRef.current.start();
-      setIsRecording(true);
-    }
-  };
-
+  }, [handleInputChange, profile.appLanguage]);
+  
   const handleSendMessage = async (query: string) => {
     if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
 
@@ -330,8 +360,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(isRecording) {
-        handleToggleRecording();
+    if (isRecording) {
+      handleToggleRecording(); // Stop recording, let user press send again
+      return;
     }
     handleSendMessage(activeChat?.draft || '');
   };
@@ -350,15 +381,38 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     setChats(prev => {
         const remainingChats = prev.filter(c => c.id !== chatIdToDelete);
         if (activeChatId === chatIdToDelete) {
-            const sortedChats = remainingChats.sort((a,b) => b.createdAt - a.createdAt);
-            setActiveChatId(sortedChats[0]?.id || null);
-            if (sortedChats.length === 0) {
+            const nextActiveChat = chats.filter(c => !c.isArchived).find(c => c.id !== chatIdToDelete);
+            setActiveChatId(nextActiveChat?.id || null);
+            if (!nextActiveChat) {
               setTimeout(handleNewChat, 0);
             }
         }
         return remainingChats;
     });
   };
+  
+  const handleArchiveChat = (e: React.MouseEvent, chatIdToArchive: string) => {
+    e.stopPropagation();
+    setChats(prev => prev.map(c => c.id === chatIdToArchive ? { ...c, isArchived: true } : c));
+    if (activeChatId === chatIdToArchive) {
+      const nextActiveChat = chats.filter(c => !c.isArchived).find(c => c.id !== chatIdToArchive);
+      setActiveChatId(nextActiveChat?.id || null);
+      if (!nextActiveChat) {
+        setTimeout(handleNewChat, 0);
+      }
+    }
+  };
+
+  const handleUnarchiveChat = (e: React.MouseEvent, chatIdToUnarchive: string) => {
+    e.stopPropagation();
+    setChats(prev => prev.map(c => c.id === chatIdToUnarchive ? { ...c, isArchived: false } : c));
+  };
+  
+  const handleTogglePinChat = (e: React.MouseEvent, chatIdToPin: string) => {
+    e.stopPropagation();
+    setChats(prev => prev.map(c => c.id === chatIdToPin ? { ...c, isPinned: !c.isPinned } : c));
+  };
+
 
   const handleStartEditing = (e: React.MouseEvent, session: ChatSession) => {
     e.stopPropagation();
@@ -384,106 +438,175 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         setEditingTitle('');
     }
   };
+  
+  const getTraditionText = () => {
+    switch(denomination) {
+        case Denomination.Sunni: return t('sunniTradition');
+        case Denomination.Shia: return t('shiaTradition');
+        default: return `${denomination} Tradition`;
+    }
+  }
+
+  const ChatItem: React.FC<{session: ChatSession, isArchived: boolean}> = ({ session, isArchived }) => (
+    <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
+        <MessageSquareIcon className="w-5 h-5 flex-shrink-0" />
+        {editingChatId === session.id ? (
+        <form onSubmit={(e) => { e.preventDefault(); handleSaveTitle(session.id); }} className="flex-1">
+            <input
+                type="text"
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+                onBlur={() => handleSaveTitle(session.id)}
+                onKeyDown={(e) => handleKeyDown(e, session.id)}
+                className="w-full bg-transparent focus:bg-[var(--color-card-bg)] text-sm font-medium p-1 -m-1 rounded focus:outline-none ring-1 ring-[var(--color-accent)] text-[var(--color-text-primary)]"
+                autoFocus
+            />
+        </form>
+        ) : (
+        <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 truncate text-sm font-medium">{session.title}</span>
+        )}
+        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ms-2 shrink-0">
+        {!isArchived && (
+            <button
+                onClick={(e) => handleTogglePinChat(e, session.id)}
+                className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                aria-label={session.isPinned ? t('unpinChat') : t('pinChat')}
+            >
+                {session.isPinned ? <PinFilledIcon className="w-4 h-4 text-[var(--color-accent)]" /> : <PinIcon className="w-4 h-4" />}
+            </button>
+        )}
+        {editingChatId !== session.id && (
+                <button
+                    onClick={(e) => handleStartEditing(e, session)}
+                    className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                    aria-label={t('renameChat')}
+                >
+                    <PencilIcon className="w-4 h-4" />
+                </button>
+            )}
+        {isArchived ? (
+            <button
+                onClick={(e) => handleUnarchiveChat(e, session.id)}
+                className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                aria-label="Unarchive Chat"
+            >
+                <UnarchiveIcon className="w-4 h-4" />
+            </button>
+        ) : (
+            <button
+                onClick={(e) => handleArchiveChat(e, session.id)}
+                className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                aria-label="Archive Chat"
+            >
+                <ArchiveIcon className="w-4 h-4" />
+            </button>
+        )}
+            <button
+                onClick={(e) => handleDeleteChat(e, session.id)}
+                className="p-2 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
+                aria-label={t('deleteChat')}
+            >
+                <TrashIcon className="w-4 h-4" />
+            </button>
+        </div>
+    </a>
+  );
 
   return (
-    <div className="flex h-screen w-screen bg-transparent overflow-hidden">
-        {/* Backdrop for mobile sidebar */}
-        <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
+    <SpeechProvider>
+      <div className="flex h-screen w-screen bg-transparent overflow-hidden">
+          {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
+          {/* Backdrop for mobile sidebar */}
+          <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-        <aside className={`absolute md:static top-0 left-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-r border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-            <div className="p-2 border-b border-[var(--color-border)]">
-                <button onClick={handleNewChat} className="flex items-center justify-center gap-2 w-full p-3 rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-border)] font-semibold transition-colors active:scale-95">
-                    <PlusIcon />
-                    New Chat
-                </button>
-            </div>
-            <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-                {chats.sort((a,b) => b.createdAt - a.createdAt).map(session => (
-                    <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
-                        <MessageSquareIcon className="w-5 h-5 flex-shrink-0" />
-                        {editingChatId === session.id ? (
-                          <form onSubmit={(e) => { e.preventDefault(); handleSaveTitle(session.id); }} className="flex-1">
-                              <input
-                                  type="text"
-                                  value={editingTitle}
-                                  onChange={(e) => setEditingTitle(e.target.value)}
-                                  onBlur={() => handleSaveTitle(session.id)}
-                                  onKeyDown={(e) => handleKeyDown(e, session.id)}
-                                  className="w-full bg-transparent focus:bg-[var(--color-card-bg)] text-sm font-medium p-1 -m-1 rounded focus:outline-none ring-1 ring-[var(--color-accent)] text-[var(--color-text-primary)]"
-                                  autoFocus
-                              />
-                          </form>
-                        ) : (
-                          <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 truncate text-sm font-medium">{session.title}</span>
-                        )}
-                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0">
-                           {editingChatId !== session.id && (
-                                <button
-                                    onClick={(e) => handleStartEditing(e, session)}
-                                    className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
-                                    aria-label="Rename chat"
-                                >
-                                    <PencilIcon className="w-4 h-4" />
-                                </button>
-                            )}
-                            <button
-                                onClick={(e) => handleDeleteChat(e, session.id)}
-                                className="p-2 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
-                                aria-label="Delete chat"
-                            >
-                                <TrashIcon className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </a>
-                ))}
-            </nav>
-        </aside>
+          <aside className={`absolute md:static top-0 start-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-e border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : sidebarHiddenClass} md:translate-x-0`}>
+              <div className="p-2 border-b border-[var(--color-border)]">
+                  <button onClick={handleNewChat} className="flex items-center justify-center gap-2 w-full p-3 rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-border)] font-semibold transition-colors active:scale-95">
+                      <PlusIcon />
+                      {t('newChat')}
+                  </button>
+              </div>
+              <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+                  {pinnedChats.length > 0 && (
+                    <div className="px-3 pt-2 pb-1 text-xs font-bold text-[var(--color-text-subtle)] uppercase tracking-wider">{t('pinned')}</div>
+                  )}
+                  {pinnedChats.map(session => (
+                    <ChatItem key={session.id} session={session} isArchived={false} />
+                  ))}
+                  {pinnedChats.length > 0 && activeChats.length > 0 && <div className="py-2"><div className="border-t border-[var(--color-border)]"></div></div>}
+                  {activeChats.map(session => (
+                    <ChatItem key={session.id} session={session} isArchived={false} />
+                  ))}
+              </nav>
 
-        <div className={`flex flex-col flex-1 h-screen relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
-            <header className="flex items-center justify-between p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
-                        <MenuIcon />
+              {archivedChats.length > 0 && (
+                <div className="p-2 border-t border-[var(--color-border)]">
+                    <button onClick={() => setIsArchivedOpen(!isArchivedOpen)} className="w-full text-left px-3 py-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
+                        Archived ({archivedChats.length})
                     </button>
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
-                        <DeenBridgeLogoIcon />
-                    </div>
-                    <div>
-                        <h1 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
-                        <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{denomination} Tradition</p>
-                    </div>
+                    {isArchivedOpen && (
+                        <div className="mt-1 space-y-1">
+                            {archivedChats.map(session => (
+                                <ChatItem key={session.id} session={session} isArchived={true} />
+                            ))}
+                        </div>
+                    )}
                 </div>
-                <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">
-                <SettingsIcon />
-                </button>
-            </header>
+              )}
+          </aside>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
-                {!activeChat || activeChat.messages.length === 0 ? (
-                <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
-                ) : (
-                activeChat.messages.map((message) => (
-                    <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
-                ))
-                )}
-                <div ref={messagesEndRef} />
-            </div>
-            
-            <MessageInput 
-                input={activeChat?.draft || ''}
-                setInput={handleInputChange}
-                handleSubmit={handleSubmit}
-                isLoading={isLoading}
-                isRecording={isRecording}
-                onToggleRecording={handleToggleRecording}
-                isSpeechSupported={isSpeechSupported}
-                file={activeChat?.draftFile || null}
-                onFileChange={handleFileChange}
-                onRemoveFile={handleRemoveFile}
-            />
-        </div>
-        {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
-    </div>
+          <div className={`flex flex-col flex-1 h-screen relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
+              <header className="flex items-center justify-between p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0 rtl:flex-row-reverse">
+                  <div className="flex items-center gap-3">
+                      <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
+                          <MenuIcon />
+                      </button>
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
+                          <DeenBridgeLogoIcon />
+                      </div>
+                      <div>
+                          <h1 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
+                          <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{getTraditionText()}</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
+                        <img src="/Quran-svg.png" alt="Read Quran" className="h-6 w-6" />
+                    </button>
+                    <LanguageSwitcher />
+                    <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">
+                        <SettingsIcon />
+                    </button>
+                  </div>
+              </header>
+
+              <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
+                  {!activeChat || activeChat.messages.length === 0 ? (
+                  <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
+                  ) : (
+                  activeChat.messages.map((message) => (
+                      <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
+                  ))
+                  )}
+                  <div ref={messagesEndRef} />
+              </div>
+              
+              <MessageInput 
+                  input={activeChat?.draft || ''}
+                  setInput={handleInputChange}
+                  handleSubmit={handleSubmit}
+                  isLoading={isLoading}
+                  isRecording={isRecording}
+                  onToggleRecording={handleToggleRecording}
+                  isSpeechSupported={isSpeechSupported}
+                  file={activeChat?.draftFile || null}
+                  onFileChange={handleFileChange}
+                  onRemoveFile={handleRemoveFile}
+              />
+          </div>
+          {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
+      </div>
+    </SpeechProvider>
   );
 };
 

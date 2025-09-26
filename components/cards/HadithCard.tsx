@@ -3,6 +3,7 @@ import type { ScripturalResult, UserProfile } from '../../types';
 import { BookIcon, ShieldCheckIcon } from '../icons';
 import { useTranslation } from '../../hooks/useTranslation';
 import TranslationMenu from '../TranslationMenu';
+import { useLocale } from '../../contexts/LocaleContext';
 
 const HadithCard: React.FC<{ result: ScripturalResult; index: number; isTrusted: boolean; profile: UserProfile }> = ({ result, index, isTrusted, profile }) => {
     const { 
@@ -14,6 +15,7 @@ const HadithCard: React.FC<{ result: ScripturalResult; index: number; isTrusted:
         hideTranslation,
         hideTransliteration,
     } = useTranslation(result.text);
+    const { t } = useLocale();
 
     useEffect(() => {
         // Automatically translate to the user's default language upon first view.
@@ -21,6 +23,48 @@ const HadithCard: React.FC<{ result: ScripturalResult; index: number; isTrusted:
             translate(profile.translationLanguage);
         }
     }, []); // Run only once on mount
+
+    const handleCopy = () => {
+        const citation = `${result.source.title} ${result.source.reference}`;
+        let textToCopy = `"${result.text}"\n\n`;
+        if (translation) {
+            textToCopy += `${translation.lang} Translation: "${translation.text}"\n\n`;
+        }
+        if (transliteration) {
+            textToCopy += `Transliteration: "${transliteration}"\n\n`;
+        }
+        textToCopy += `- ${citation}`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert(t('copiedToClipboard'));
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy text.');
+        });
+    };
+
+    const handleShare = async () => {
+        if (!navigator.share) return;
+        const citation = `${result.source.title} ${result.source.reference}`;
+        let textToShare = `"${result.text}"\n\n`;
+        if (translation) {
+            textToShare += `${translation.lang} Translation: "${translation.text}"\n\n`;
+        }
+        if (transliteration) {
+            textToShare += `Transliteration: "${transliteration}"\n\n`;
+        }
+        textToShare += `- ${citation}`;
+
+        try {
+            await navigator.share({
+                title: `Hadith: ${citation}`,
+                text: textToShare,
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
+
 
     return (
         <div key={`hadith-${index}`} className="mt-2 p-3 rounded-lg bg-[var(--color-card-bg)] border border-[var(--color-border)] shadow-sm">
@@ -54,6 +98,8 @@ const HadithCard: React.FC<{ result: ScripturalResult; index: number; isTrusted:
                         onTransliterate={transliterate}
                         onHideTranslation={hideTranslation}
                         onHideTransliteration={hideTransliteration}
+                        onCopy={handleCopy}
+                        onShare={handleShare}
                     />
                 </div>
                 

@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
@@ -9,7 +11,7 @@ import { LocaleProvider } from './contexts/LocaleContext';
 
 const defaultProfile: UserProfile = {
   name: '',
-  age: null,
+  dob: null,
   extraInfo: '',
   enableSound: true,
   enableHaptics: true,
@@ -24,11 +26,11 @@ const App: React.FC = () => {
   const [profile, setProfile] = useLocalStorage<UserProfile>('deenbridge-profile', defaultProfile);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   
-  const handleOnboardingComplete = (data: { name: string, age: number | null, extraInfo: string, denomination: Denomination }) => {
+  const handleOnboardingComplete = (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => {
     setProfile(prev => ({
       ...prev,
       name: data.name,
-      age: data.age,
+      dob: data.dob,
       extraInfo: data.extraInfo,
       onboardingComplete: true
     }));

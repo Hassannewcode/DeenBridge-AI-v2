@@ -3,6 +3,8 @@
 export enum Denomination {
   Sunni = 'Sunni',
   Shia = 'Shia',
+  Sufi = 'Sufi',
+  Ibadi = 'Ibadi',
 }
 
 export interface Source {
@@ -68,11 +70,13 @@ export interface ChatSession {
     mimeType: string;
     name: string;
   } | null;
+  isArchived?: boolean;
+  isPinned?: boolean;
 }
 
 export interface UserProfile {
   name: string;
-  age: number | null;
+  dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null;
   extraInfo: string;
   enableSound: boolean;
   enableHaptics: boolean;

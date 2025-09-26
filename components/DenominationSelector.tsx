@@ -1,8 +1,10 @@
 
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Denomination } from '../types';
-import { SunniIcon, ShiaIcon } from './icons';
+import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon } from './icons';
 import WelcomeBanner from './WelcomeBanner.jsx';
+import { useLocale } from '../contexts/LocaleContext';
 
 const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode }> = ({ onSelect, children }) => (
   <div 
@@ -17,15 +19,18 @@ const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode }
 );
 
 const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) => void }> = ({ onSelect }) => {
+  const { t } = useLocale();
+  const [showMore, setShowMore] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4">
       <div className="w-full max-w-4xl">
         <header className="mb-12 animate-fade-in-up text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
-            Welcome to <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
+            {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-            A digital librarian for Islamic knowledge. Please select a school of thought to begin your research.
+            {t('denominationSelectorPrompt')}
           </p>
         </header>
 
@@ -34,23 +39,49 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <SelectorCard onSelect={() => onSelect(Denomination.Sunni)}>
             <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
-            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">{t('sunni')}</h2>
             <p className="mt-2 text-[var(--color-text-subtle)]">
-              Access knowledge from sources aligned with the Sunni tradition, including the Kutub al-Sittah and major schools of Fiqh.
+              {t('sunniDescription')}
             </p>
           </SelectorCard>
 
           <SelectorCard onSelect={() => onSelect(Denomination.Shia)}>
             <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
-            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">Shia</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">{t('shia')}</h2>
             <p className="mt-2 text-[var(--color-text-subtle)]">
-              Access knowledge from sources aligned with the Shia tradition, including Al-Kafi and rulings from prominent Maraji'.
+              {t('shiaDescription')}
             </p>
           </SelectorCard>
         </div>
+        
+        <div className="mt-8 text-center">
+          <button onClick={() => setShowMore(!showMore)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
+            {showMore ? t('showLessOptions') : t('showMoreOptions')}
+          </button>
+        </div>
+
+        {showMore && (
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 animate-fade-in-up">
+              <SelectorCard onSelect={() => onSelect(Denomination.Sufi)}>
+                <SufiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
+                <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">{t('sufism')}</h2>
+                <p className="mt-2 text-[var(--color-text-subtle)]">
+                  {t('sufismDescription')}
+                </p>
+              </SelectorCard>
+
+              <SelectorCard onSelect={() => onSelect(Denomination.Ibadi)}>
+                <IbadiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300" />
+                <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-text-primary)]">{t('ibadi')}</h2>
+                <p className="mt-2 text-[var(--color-text-subtle)]">
+                  {t('ibadiDescription')}
+                </p>
+              </SelectorCard>
+            </div>
+        )}
 
         <footer className="mt-16 text-center text-xs text-[var(--color-text-subtle)] animate-fade-in-up" style={{ animationDelay: '600ms' }}>
-          <p>This selection can be changed later through the settings menu.</p>
+          <p>{t('changeLater')}</p>
         </footer>
       </div>
     </div>

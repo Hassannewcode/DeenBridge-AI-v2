@@ -1,4 +1,5 @@
 
+
 import { Denomination } from '../types';
 
 interface SourceInfo {
@@ -14,6 +15,8 @@ interface TrustedSourceCollection {
 interface TrustedSources {
     [Denomination.Sunni]: TrustedSourceCollection;
     [Denomination.Shia]: TrustedSourceCollection;
+    [Denomination.Sufi]: TrustedSourceCollection;
+    [Denomination.Ibadi]: TrustedSourceCollection;
 }
 
 export const TRUSTED_SOURCES: TrustedSources = {
@@ -89,4 +92,34 @@ export const TRUSTED_SOURCES: TrustedSources = {
       'en.wikipedia.org'
     ]
   },
+  [Denomination.Sufi]: {
+    'Primary Texts': [
+      { name: "Ihya Ulum al-Din (The Revival of the Religious Sciences)", url: "https://archive.org/details/ihya-ulum-al-din" },
+      { name: "The Mathnawi of Rumi", url: "https://www.gutenberg.org/ebooks/39836" },
+      { name: "Fusus al-Hikam (The Bezels of Wisdom)", url: "https://en.wikipedia.org/wiki/The_Bezels_of_Wisdom" },
+    ],
+    'Major Figures': [
+       { name: 'Imam Al-Ghazali', url: 'https://en.wikipedia.org/wiki/Al-Ghazali' },
+       { name: 'Jalal al-Din Rumi', url: 'https://en.wikipedia.org/wiki/Rumi' },
+       { name: 'Ibn Arabi', url: 'https://en.wikipedia.org/wiki/Ibn_Arabi' },
+       { name: 'Abdul Qadir Jilani', url: 'https://en.wikipedia.org/wiki/Abdul_Qadir_Jilani' },
+    ],
+    'trustedDomains': [
+        'archive.org', 'gutenberg.org', 'en.wikipedia.org', 'sunnah.com', 'al-islam.org'
+    ]
+  },
+  [Denomination.Ibadi]: {
+    'Primary Texts': [
+        { name: "Musnad of Imam Al-Rabi' bin Habib", url: "https://en.wikipedia.org/wiki/Musnad_al-Rabi_ibn_Habib" },
+        { name: "Jami Sahih", url: "https://en.wikipedia.org/wiki/Musnad_al-Rabi_ibn_Habib" },
+    ],
+    'Major Figures': [
+        { name: 'Jabir ibn Zayd', url: 'https://en.wikipedia.org/wiki/Jabir_ibn_Zayd' },
+        { name: "Al-Rabi' bin Habib al-Farahidi", url: "https://en.wikipedia.org/wiki/Al-Rabi_ibn_Habib_al-Farahidi" },
+        { name: "Ahmad bin Hamad al-Khalili", url: "https://en.wikipedia.org/wiki/Ahmed_bin_Hamad_al-Khalili"}
+    ],
+    'trustedDomains': [
+        'en.wikipedia.org', 'archive.org'
+    ]
+  }
 };

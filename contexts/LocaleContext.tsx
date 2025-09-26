@@ -20,7 +20,8 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode, profile: User
 
   const t = (key: keyof typeof locales.en): string => {
     const lang = profile.appLanguage || 'en';
-    return locales[lang][key] || locales.en[key];
+    // Fallback to English if a key is missing in the target language
+    return (locales[lang] as any)[key] || locales.en[key];
   };
   
   useEffect(() => {

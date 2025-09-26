@@ -1,7 +1,6 @@
+import { useState, Dispatch, SetStateAction } from 'react';
 
-import { useState } from 'react';
-
-function useLocalStorage<T,>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+function useLocalStorage<T,>(key: string, initialValue: T): [T, Dispatch<SetStateAction<T>>] {
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return initialValue;
@@ -15,7 +14,7 @@ function useLocalStorage<T,>(key: string, initialValue: T): [T, React.Dispatch<R
     }
   });
 
-  const setValue: React.Dispatch<React.SetStateAction<T>> = (value) => {
+  const setValue: Dispatch<SetStateAction<T>> = (value) => {
     try {
       setStoredValue(prevValue => {
         const valueToStore = value instanceof Function ? value(prevValue) : value;

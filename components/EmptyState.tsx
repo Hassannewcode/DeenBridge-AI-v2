@@ -1,30 +1,27 @@
-
 import React from 'react';
 import { CORE_POINTS } from '../constants';
-import type { Denomination } from '../types';
-import { QuranIcon } from './icons';
+import { Denomination } from '../types';
 import ExampleQueryCard from './ExampleQueryCard';
-
+import { useLocale } from '../contexts/LocaleContext';
 
 const EmptyState: React.FC<{ denomination: Denomination; onQuery: (query: string) => void }> = ({ denomination, onQuery }) => {
+    const { t } = useLocale();
     const corePoints = CORE_POINTS[denomination];
     const exampleQueries = [
       `What does the Quran say about patience?`,
-      `Explain the concept of ${corePoints[1].title.split(' ')[0]} in the ${denomination} tradition.`,
-      `Who was the scholar ${corePoints[2].description.split(' like ')[1].split(' and')[0].replace(',', '')}?`
+      `Can you explain ${corePoints[1].title.split(' ')[0]} in ${denomination} Islam?`,
+      `Tell me about the scholar ${corePoints[2].description.split(' like ')[1].split(' and')[0].replace(',', '')}?`
     ];
 
     return (
         <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-8 animate-fade-in-up">
-            <div className="w-24 h-24 text-[var(--color-primary)] opacity-10">
-                <QuranIcon />
-            </div>
-            <h2 className="mt-6 text-3xl font-bold text-[var(--color-text-primary)]">Begin Your Inquiry</h2>
+            <img src="/App-banner.png" alt="DeenBridge Banner" className="w-auto h-24 rounded-lg shadow-lg" />
+            <h2 className="mt-6 text-3xl font-bold text-[var(--color-text-primary)]">{t('beginYourInquiry')}</h2>
             <p className="mt-2 text-[var(--color-text-secondary)] max-w-lg">
-                Ask a question about Islamic theology, history, or jurisprudence based on the <span className="font-bold">{denomination}</span> school of thought.
+                {t('beginYourInquirySubtext').replace('{denomination}', denomination)}
             </p>
             <div className="w-full max-w-lg mt-8 space-y-3">
-              <h3 className="text-sm font-bold text-[var(--color-text-subtle)] uppercase tracking-wider">Example Queries</h3>
+              <h3 className="text-sm font-bold text-[var(--color-text-subtle)] uppercase tracking-wider">{t('exampleQueries')}</h3>
               {exampleQueries.map((query, index) => (
                 <ExampleQueryCard key={index} query={query} onQuery={onQuery} />
               ))}

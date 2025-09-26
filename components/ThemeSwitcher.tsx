@@ -2,7 +2,7 @@ import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 type ThemeOption = {
-  name: 'light' | 'dark' | 'majlis' | 'madinah';
+  name: 'light' | 'dark' | 'madinah';
   label: string;
   gradient: string;
 };
@@ -10,7 +10,6 @@ type ThemeOption = {
 const themeOptions: ThemeOption[] = [
   { name: 'light', label: 'Light', gradient: 'from-amber-100 to-amber-50' },
   { name: 'dark', label: 'Dark', gradient: 'from-slate-800 to-slate-900' },
-  { name: 'majlis', label: 'Majlis', gradient: 'from-indigo-900 to-blue-900' },
   { name: 'madinah', label: 'Madinah', gradient: 'from-[#fdf9f0] to-[#b08d57]' },
 ];
 
@@ -20,7 +19,7 @@ const ThemeSwitcher: React.FC = () => {
   return (
     <div>
         <h3 className="text-lg font-bold text-[var(--color-primary)]">Theme</h3>
-        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="mt-2 grid grid-cols-3 gap-3">
         {themeOptions.map((option) => (
             <button
             key={option.name}

@@ -33,6 +33,28 @@ export const ShiaIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export const SufiIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 22h16"/>
+        <path d="M12 4L4 8v14h16V8l-8-4z"/>
+        <path d="M12 4V2a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+        <path d="M8 22V12"/>
+        <path d="M16 22V12"/>
+        <path d="M12 12h.01"/>
+    </svg>
+);
+
+export const IbadiIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 22h16"/>
+        <path d="M12 4L4 8v14h16V8l-8-4z"/>
+        <path d="M12 4V2a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+        <path d="M8 22V12"/>
+        <path d="M16 22V12"/>
+        <path d="M12 12h.01"/>
+    </svg>
+);
+
 
 // New: Send Icon
 export const MinaretArrowIcon = () => (
@@ -128,6 +150,18 @@ export const PencilIcon = ({className = 'w-4 h-4'}) => (
   </svg>
 );
 
+export const ArchiveIcon = ({className = 'w-4 h-4'}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h14"/>
+    </svg>
+);
+
+export const UnarchiveIcon = ({className = 'w-4 h-4'}) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4 8v-8m0 0l3 3m-3-3L9 8m5 5H6" />
+    </svg>
+);
+
 
 // New: Book icon for hadith, etc.
 export const BookIcon = () => (
@@ -139,12 +173,17 @@ export const BookIcon = () => (
 
 // New: Quran Icon
 export const QuranIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        {/* Book */}
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        {/* Decorative Lines */}
+        <path d="M6 8h2"></path>
+        <path d="M16 8h-2"></path>
+        <path d="M6 12h2"></path>
+        <path d="M16 12h-2"></path>
     </svg>
 );
-
 
 export const CheckIcon = ({className = "w-5 h-5"}) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -164,8 +203,8 @@ export const CitationIcon = () => (
     </svg>
 );
 
-export const GlobeIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+export const GlobeIcon = ({ className = "h-4 w-4" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor">
     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.527-1.917c.296-.153.652-.148.973.03.32.179.569.486.68.857l.11.352c.115.365.176.75.176 1.149 0 .615-.11 1.222-.324 1.79a2.5 2.5 0 01-.85 1.294c-.628.537-1.455.806-2.311.806a2.5 2.5 0 01-1.55-.584c-.433-.352-.744-.79-.963-1.295a2.5 2.5 0 01-.264-1.32V8a1.5 1.5 0 01-1.5-1.5c-.378 0-.667.221-.865.414a6.01 6.01 0 01-1.912 2.706A8.008 8.008 0 0110 2a8.008 8.008 0 01-5.668 6.027z" clipRule="evenodd" />
   </svg>
 );
@@ -185,5 +224,60 @@ export const FileIcon = ({ className = "w-6 h-6" }) => (
 export const MoreHorizontalIcon = ({ className = "h-5 w-5" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h.01M12 12h.01M19 12h.01" />
+    </svg>
+);
+
+export const VolumeUpIcon = ({ className = "h-5 w-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+    </svg>
+);
+
+export const StopCircleIcon = ({ className = "h-5 w-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 10h6v4H9v-4z" />
+    </svg>
+);
+
+export const SwitchHorizontalIcon = ({ className = "w-4 h-4" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+    </svg>
+);
+
+export const CopyIcon = ({ className = "w-4 h-4" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+);
+
+export const ShareIcon = ({ className = "w-4 h-4" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.86 13.89 9 14.5 9 15s-.14 1.11-.316 1.658m.316-3.316a5.94 5.94 0 012.332-1.258m-2.332 1.258a5.94 5.94 0 00-2.332 1.258m2.332 1.258a5.965 5.965 0 01-3.316-1.658m3.316 1.658l-.316.316m-3.002-1.974a5.94 5.94 0 011.258-2.332m-1.258 2.332a5.94 5.94 0 00-1.258-2.332M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+);
+
+export const PinIcon = ({ className = "w-4 h-4" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16 3a1 1 0 011 1v11.586l-2.293-2.293a1 1 0 00-1.414 1.414L16 18.414V21a1 1 0 01-1 1H9a1 1 0 01-1-1v-2.586l2.707-2.707a1 1 0 00-1.414-1.414L7 16.586V4a1 1 0 011-1h8z" />
+    </svg>
+);
+
+export const PinFilledIcon = ({ className = "w-4 h-4" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16 3a1 1 0 011 1v11.586l-2.293-2.293a1 1 0 00-1.414 1.414L16 18.414V21a1 1 0 01-1 1H9a1 1 0 01-1-1v-2.586l2.707-2.707a1 1 0 00-1.414-1.414L7 16.586V4a1 1 0 011-1h8z" />
+    </svg>
+);
+
+export const BookmarkIcon = ({ className = "h-5 w-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+    </svg>
+);
+
+export const BookmarkFilledIcon = ({ className = "h-5 w-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
     </svg>
 );

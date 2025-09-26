@@ -1,18 +1,31 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+
+// Make hljs globally available to TypeScript
+declare const hljs: any;
 
 interface MarkdownRendererProps {
   content: string;
 }
 
-// Configure marked
-marked.use({
-  breaks: true, // render single line breaks as <br>
-  gfm: true, // use GitHub Flavored Markdown
-});
-
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  
+  useEffect(() => {
+    // Configure marked once globally or on component mount
+    marked.use({
+      breaks: true,
+      gfm: true,
+      highlight: (code, lang) => {
+        if (typeof hljs !== 'undefined') {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+        }
+        return code; // Fallback if hljs is not available
+      },
+    });
+  }, []);
+  
   const sanitizedHtml = useMemo(() => {
     const renderer = new marked.Renderer();
     // Make links open in a new tab securely

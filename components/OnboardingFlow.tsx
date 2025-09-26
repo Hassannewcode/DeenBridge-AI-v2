@@ -1,11 +1,13 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Denomination } from '../types';
-import { SunniIcon, ShiaIcon } from './icons';
+import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon } from './icons';
+import AgeDisclaimerModal from './AgeDisclaimerModal';
+import { useLocale } from '../contexts/LocaleContext';
+import LanguageSwitcher from './LanguageSwitcher';
+import DobInput from './DobInput';
 
 interface OnboardingFlowProps {
-  onComplete: (data: { name: string, age: number | null, extraInfo: string, denomination: Denomination }) => void;
+  onComplete: (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => void;
 }
 
 const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode, isSelected: boolean }> = ({ onSelect, children, isSelected }) => (
@@ -25,10 +27,18 @@ const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode, 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
-  const [age, setAge] = useState('');
+  const [dob, setDob] = useState<{ day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null>(null);
   const [extraInfo, setExtraInfo] = useState('');
   const [denomination, setDenomination] = useState<Denomination | null>(null);
+  const [showMoreDenominations, setShowMoreDenominations] = useState(false);
+  const [showAgeDisclaimer, setShowAgeDisclaimer] = useState(false);
+  const [hasShownAgeDisclaimer, setHasShownAgeDisclaimer] = useState(false);
+  const { t, locale } = useLocale();
 
+  useEffect(() => {
+    document.body.setAttribute('data-step', String(step));
+  }, [step]);
+  
   const handleNext = () => setStep(prev => Math.min(prev + 1, 4));
   const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
   
@@ -38,52 +48,78 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (step === 1) {
+      if (!hasShownAgeDisclaimer) {
+        setTimeout(() => { 
+          setShowAgeDisclaimer(true);
+          setHasShownAgeDisclaimer(true);
+        }, 500);
+      }
+      handleNext(); 
+      return;
+    }
     if (step === 4) {
       if (name && denomination) {
-        onComplete({
-          name,
-          age: age ? parseInt(age, 10) : null,
-          extraInfo,
-          denomination,
-        });
+        const finalDob = (dob && dob.year) ? {
+            ...dob,
+            day: dob.day || '',
+            month: dob.month || '',
+        } : null;
+        onComplete({ name, dob: finalDob, extraInfo, denomination });
       }
-    } else {
-      handleNext();
+      return;
     }
+    
+    handleNext();
+  };
+  
+  const handleAcceptDisclaimer = () => {
+    setShowAgeDisclaimer(false);
+  };
+  
+  const handleDobChange = (newDob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' }) => {
+      setDob(newDob);
   };
 
-  const NextButton = ({ disabled = false, children }: { disabled?: boolean, children: React.ReactNode }) => (
+  const isRtl = locale === 'ar';
+  const transformValue = (isRtl ? (step - 1) : -(step - 1)) * 100;
+
+  const NextButton: React.FC<{ disabled?: boolean; children: React.ReactNode; }> = ({ disabled = false, children }) => (
     <button type="submit" disabled={disabled} className="w-full text-center px-4 py-3 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-[var(--color-text-inverted)] rounded-lg font-bold text-lg hover:shadow-xl hover:shadow-[color:rgb(from_var(--color-primary)_r_g_b_/_30%)] transition-all transform hover:scale-105 active:scale-95 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none">
       {children}
     </button>
   );
 
-  const BackButton = () => (
+  const BackButton: React.FC<{children: React.ReactNode}> = ({children}) => (
     <button type="button" onClick={handleBack} className="w-full text-center px-4 py-2.5 bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)] rounded-lg transition-colors font-semibold active:scale-95">
-      Back
+      {children}
     </button>
   );
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4 overflow-hidden">
+        <div className="absolute top-4 end-4 z-10">
+            <LanguageSwitcher />
+        </div>
+        {showAgeDisclaimer && <AgeDisclaimerModal onAccept={handleAcceptDisclaimer} />}
         <header className="mb-12 text-center animate-fade-in-up">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
-            Welcome to <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
+            {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
           </h1>
           <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-            Your personal digital librarian for Islamic knowledge.
+            {t('digitalLibrarian')}
           </p>
         </header>
         
         <div className="w-full max-w-2xl">
           <div
             className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: `translateX(-${(step - 1) * 100}%)` }}
+            style={{ transform: `translateX(${transformValue}%)` }}
           >
             {/* Step 1: Name */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
               <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">What should we call you?</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('whatShouldWeCallYou')}</h2>
                 <div>
                     <label htmlFor="name" className="sr-only">Name</label>
                     <input
@@ -91,80 +127,90 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                         id="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter your name..."
+                        placeholder={t('enterYourName')}
                         className="w-full text-center text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
                         autoFocus
                         required
                     />
                 </div>
-                <NextButton disabled={!name.trim()}>Next</NextButton>
+                <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
               </form>
             </div>
 
-            {/* Step 2: Age */}
+            {/* Step 2: Date of Birth */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Nice to meet you, {name}!</h2>
-                  <p className="text-[var(--color-text-secondary)]">If you're comfortable, please share your age. This helps in tailoring explanations appropriately.</p>
-                  <div>
-                      <label htmlFor="age" className="sr-only">Age</label>
-                      <input
-                          type="number"
-                          id="age"
-                          value={age}
-                          onChange={(e) => setAge(e.target.value)}
-                          placeholder="Enter your age (optional)..."
-                          className="w-full text-center text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
-                      />
-                  </div>
-                  <div className="space-y-3">
-                    <NextButton>Next</NextButton>
-                    <BackButton />
-                  </div>
-              </form>
+                <form onSubmit={handleFormSubmit} className="w-full max-w-lg space-y-6 text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('onboardingDobTitle').replace('{name}', name)}</h2>
+                    <p className="text-[var(--color-text-secondary)] -mt-4">{t('dobOptional')}</p>
+                    <DobInput value={dob} onChange={handleDobChange} />
+                    <div className="space-y-3 max-w-md mx-auto pt-4">
+                        <NextButton>{t('next')}</NextButton>
+                        <BackButton>{t('back')}</BackButton>
+                    </div>
+                </form>
             </div>
 
             {/* Step 3: Denomination */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-2xl space-y-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Select a School of Thought</h2>
-                  <p className="text-[var(--color-text-secondary)]">This will help focus your research on relevant sources.</p>
+              <form onSubmit={handleFormSubmit} className="w-full max-w-2xl space-y-6 text-center">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('selectSchoolOfThought')}</h2>
+                  <p className="text-[var(--color-text-secondary)]">{t('schoolOfThoughtDescription')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sunni)} isSelected={denomination === Denomination.Sunni}>
                           <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Sunni</h2>
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sunni')}</h2>
                       </SelectorCard>
                       <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Shia)} isSelected={denomination === Denomination.Shia}>
                           <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">Shia</h2>
+                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('shia')}</h2>
                       </SelectorCard>
                   </div>
+
+                  <div className="text-center">
+                    <button type="button" onClick={() => setShowMoreDenominations(!showMoreDenominations)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
+                      {showMoreDenominations ? t('showLessOptions') : t('showMoreOptions')}
+                    </button>
+                  </div>
+
+                  {showMoreDenominations && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
+                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sufi)} isSelected={denomination === Denomination.Sufi}>
+                            <SufiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sufism')}</h2>
+                        </SelectorCard>
+                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Ibadi)} isSelected={denomination === Denomination.Ibadi}>
+                            <IbadiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('ibadi')}</h2>
+                        </SelectorCard>
+                    </div>
+                  )}
+
                   <div className="space-y-3 max-w-md mx-auto">
-                    <NextButton disabled={!denomination}>Next</NextButton>
-                    <BackButton />
+                    <NextButton disabled={!denomination}>{t('next')}</NextButton>
+                    <BackButton>{t('back')}</BackButton>
                   </div>
               </form>
             </div>
 
             {/* Step 4: Extra Info */}
             <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">One last thing...</h2>
-                  <p className="text-[var(--color-text-secondary)]">Is there anything else DeenBridge should know to personalize your experience? (e.g., "I am a new Muslim", "I am studying Islamic history")</p>
+              <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6 text-center">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('oneLastThing')}</h2>
+                  <p className="text-[var(--color-text-secondary)]">{t('additionalContextPrompt')}</p>
                   <div>
-                      <label htmlFor="extraInfo" className="sr-only">Additional Context</label>
+                      <label htmlFor="extraInfo" className="sr-only">{t('additionalContext')}</label>
                       <textarea
                           id="extraInfo"
                           value={extraInfo}
                           onChange={(e) => setExtraInfo(e.target.value)}
                           rows={4}
-                          placeholder="Optional context..."
+                          placeholder={t('contextPlaceholderOnboarding')}
                           className="w-full text-lg px-4 py-3 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
                       />
                   </div>
                   <div className="space-y-3">
-                    <NextButton>Finish Setup</NextButton>
-                    <BackButton />
+                    <NextButton>{t('finishSetup')}</NextButton>
+                    <BackButton>{t('back')}</BackButton>
                   </div>
               </form>
             </div>
