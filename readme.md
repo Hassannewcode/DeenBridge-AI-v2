@@ -1,12 +1,12 @@
 
 # DeenBridge - Your AI Islamic Digital Librarian
 
-<img src="https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Banner%20Image%20DeenBridge%20(1).png" alt="DeenBridge AI V2 Banner" width="100%">
+![DeenBridge Banner](https://raw.githubusercontent.com/ai-sidekick/sidekick-images/main/apps/deen-bridge/banner.png)
 
 **DeenBridge** is an AI-powered Islamic reference application designed to act as a sophisticated digital librarian, not a religious authority. It provides users with verifiable information from pre-vetted, trusted sources within both the Sunni and Shia traditions. With a unique persona-driven AI, customizable themes, and robust PWA support, DeenBridge offers a modern, secure, and personalized research experience.
 
 
-# Webpage: https://deen-bridge-ai-v2.vercel.app/
+Webpage: https://deen-bridge-ai-v2.vercel.app/
 
 ---
 
