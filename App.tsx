@@ -5,6 +5,7 @@ import DenominationSelector from './components/DenominationSelector';
 import ChatView from './components/ChatView';
 import OnboardingFlow from './components/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
+import { useDevice } from './contexts/DeviceContext';
 
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [denomination, setDenomination] = useLocalStorage<Denomination | null>('deenbridge-denomination', null);
   const [profile, setProfile] = useLocalStorage<UserProfile>('deenbridge-profile', defaultProfile);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const { isMobile } = useDevice();
   
   const handleOnboardingComplete = (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => {
     setProfile(prev => ({
@@ -44,6 +46,14 @@ const App: React.FC = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'uthmanic');
   }, [profile.arabicFont]);
+
+  useEffect(() => {
+    if (isMobile) {
+      document.body.classList.add('is-mobile');
+    } else {
+      document.body.classList.remove('is-mobile');
+    }
+  }, [isMobile]);
 
 
   return (

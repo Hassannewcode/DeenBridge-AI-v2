@@ -159,7 +159,10 @@
         height: 100vh; /* Fallback for browsers that do not support dvh */
         height: 100dvh;
         overflow: hidden; /* Prevents scrolling on the body */
-        overscroll-behavior: none; /* Disables pull-to-refresh */
+      }
+      
+      body.is-mobile {
+        overscroll-behavior: none; /* Disables pull-to-refresh on mobile */
       }
 
       [dir="rtl"] body {
