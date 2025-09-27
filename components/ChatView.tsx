@@ -13,7 +13,7 @@ import type { Chat, GenerateContentResponse } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import QuranReader from './QuranReader';
-import QuranSearch from './HadithReader';
+import QuranSearch from './QuranSearch';
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -481,7 +481,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     <SpeechProvider>
       <div className="flex h-screen w-screen bg-transparent overflow-hidden">
           {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
-          {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} setToastInfo={setToastInfo} />}
+          {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
@@ -522,7 +522,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                       </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Search Quran">
+                    <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label={t('quranSearchTitle')}>
                         <HadithBookIcon />
                     </button>
                     <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">

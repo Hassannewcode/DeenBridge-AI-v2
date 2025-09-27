@@ -1,6 +1,7 @@
 
 
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
 import DenominationSelector from './components/DenominationSelector';
@@ -19,6 +20,7 @@ const defaultProfile: UserProfile = {
   enableGoogleSearch: true,
   appLanguage: 'en',
   translationLanguage: 'English',
+  arabicFont: 'amiri',
 };
 
 const App: React.FC = () => {
@@ -40,6 +42,11 @@ const App: React.FC = () => {
   const handleResetDenomination = () => {
     setDenomination(null);
   };
+  
+  useEffect(() => {
+    document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'amiri');
+  }, [profile.arabicFont]);
+
 
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>

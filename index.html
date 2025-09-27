@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap');
       
       /* THEME VARIABLES */
       :root[data-theme='light'] {
@@ -157,13 +157,51 @@
       [dir="rtl"] body {
           font-family: 'Amiri', serif;
       }
+      
+      /* Font Switching */
+      html[data-arabic-font='amiri'] [dir="rtl"] body,
+      html[data-arabic-font='amiri'] [dir="rtl"] h1,
+      html[data-arabic-font='amiri'] [dir="rtl"] h2,
+      html[data-arabic-font='amiri'] [dir="rtl"] h3,
+      html[data-arabic-font='amiri'] .font-amiri,
+      html[data-arabic-font='amiri'] .ayah-word,
+      html[data-arabic-font='amiri'] .surah-title-arabic,
+      html[data-arabic-font='amiri'] .basmalah,
+      html[data-arabic-font='amiri'] .ayah-marker-text {
+          font-family: 'Amiri', serif;
+      }
+
+      html[data-arabic-font='lateef'] [dir="rtl"] body,
+      html[data-arabic-font='lateef'] [dir="rtl"] h1,
+      html[data-arabic-font='lateef'] [dir="rtl"] h2,
+      html[data-arabic-font='lateef'] [dir="rtl"] h3,
+      html[data-arabic-font='lateef'] .font-amiri,
+      html[data-arabic-font='lateef'] .ayah-word,
+      html[data-arabic-font='lateef'] .surah-title-arabic,
+      html[data-arabic-font='lateef'] .basmalah,
+      html[data-arabic-font='lateef'] .ayah-marker-text {
+          font-family: 'Lateef', cursive;
+      }
+      
+      html[data-arabic-font='noto'] [dir="rtl"] body,
+      html[data-arabic-font='noto'] [dir="rtl"] h1,
+      html[data-arabic-font='noto'] [dir="rtl"] h2,
+      html[data-arabic-font='noto'] [dir="rtl"] h3,
+      html[data-arabic-font='noto'] .font-amiri,
+      html[data-arabic-font='noto'] .ayah-word,
+      html[data-arabic-font='noto'] .surah-title-arabic,
+      html[data-arabic-font='noto'] .basmalah,
+      html[data-arabic-font='noto'] .ayah-marker-text {
+          font-family: 'Noto Naskh Arabic', serif;
+      }
+
 
       h1, h2, h3, h4, h5, h6 {
         font-family: 'Inter', sans-serif;
         color: var(--color-text-primary);
       }
        [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
-        font-family: 'Amiri', serif;
+        font-family: inherit;
       }
 
       .font-amiri { font-family: 'Amiri', serif; }
@@ -394,7 +432,6 @@
       }
 
       .surah-title-arabic {
-        font-family: 'Amiri', serif;
         font-size: 3.5rem;
         font-weight: bold;
         color: var(--quran-text-color);
@@ -410,7 +447,6 @@
       }
 
       .basmalah {
-        font-family: 'Amiri', serif;
         font-size: 2.5rem;
         text-align: center;
         margin-bottom: 2rem;
@@ -420,7 +456,7 @@
       
       .quran-text-container {
         text-align: justify;
-        line-height: 3.3;
+        line-height: 3.5;
         padding: 0 1rem;
         font-kerning: normal;
         text-rendering: optimizeLegibility;
@@ -432,37 +468,43 @@
       
       .ayah-word {
         display: inline;
-        font-family: 'Amiri', serif;
-        font-size: 2.7rem;
+        font-size: 2.9rem;
         color: var(--quran-text-color);
-        margin: 0 0.05em;
+        margin: 0 0.1em;
       }
 
       @media (min-width: 768px) {
           .ayah-word {
-              font-size: 2.9rem;
+              font-size: 3.2rem;
           }
       }
       
-      .ayah-number {
+      .ayah-marker {
         display: inline-flex;
+        position: relative;
+        width: 2.2em; /* Relative to font size */
+        height: 2.2em;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 34px;
-        text-align: center;
-        color: var(--quran-page-bg);
-        font-family: 'Amiri', serif;
-        font-size: 0.9rem;
-        font-weight: bold;
-        margin: 0 0.3rem;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='rgb(from var(--quran-text-color) r g b)' points='29.29,0 70.71,0 100,29.29 100,70.71 70.71,100 29.29,100 0,70.71 0,29.29'/%3E%3C/svg%3E");
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        flex-shrink: 0;
+        margin: 0 0.5rem;
         vertical-align: middle;
+        transform: translateY(-0.1em);
       }
+      .ayah-marker-shape {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        fill: var(--quran-text-color);
+        z-index: 0;
+      }
+      .ayah-marker-text {
+        position: relative;
+        z-index: 1;
+        color: var(--quran-page-bg);
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+
 
       .page-number-container {
         text-align: center;

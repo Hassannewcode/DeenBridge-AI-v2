@@ -23,6 +23,20 @@ interface QuranReaderProps {
   setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
 
+const AyahMarker: React.FC<{ number: number }> = ({ number }) => {
+    return (
+        <span className="ayah-marker">
+            <svg viewBox="0 0 100 100" className="ayah-marker-shape" aria-hidden="true">
+                <polygon points='50,5 95,28 95,72 50,95 5,72 5,28' />
+            </svg>
+            <span className="ayah-marker-text">
+                {new Intl.NumberFormat('ar-EG-u-nu-arab').format(number)}
+            </span>
+        </span>
+    );
+};
+
+
 const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, setToastInfo }) => {
   const [selectedSurah, setSelectedSurah] = useState(1);
   const [activeTab, setActiveTab] = useState<'surahs' | 'bookmarks'>('surahs');
@@ -185,9 +199,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
                                   {ayah.text.split(' ').map((word, index) => (
                                       <span key={index} className="ayah-word">{word}</span>
                                   ))}
-                                  <span className="ayah-number">
-                                      {new Intl.NumberFormat('ar-EG-u-nu-arab').format(ayah.number)}
-                                  </span>
+                                  <AyahMarker number={ayah.number} />
                               </span>
                           ))}
                         </div>

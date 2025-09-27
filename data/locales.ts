@@ -19,6 +19,10 @@ export const locales = {
     changeSchoolOfThought: 'Change School of Thought',
     saveChanges: 'Save Changes',
     settingsSaved: 'Settings saved successfully!',
+    arabicFont: 'Arabic Font',
+    fontAmiri: 'Amiri',
+    fontLateef: 'Lateef',
+    fontNoto: 'Noto',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -101,6 +105,13 @@ export const locales = {
     noBookmarks: "You haven't bookmarked any verses yet.",
     addBookmark: 'Add bookmark',
     removeBookmark: 'Remove bookmark',
+    quranSearchTitle: "Quranic Analysis",
+    quranSearchPlaceholder: "e.g., Fasting, Patience, Charity...",
+    search: "Analyze Topic",
+    analysis: "Analysis",
+    summary: "Summary",
+    statistics: "Statistics",
+    relevantVerses: "Relevant Verses",
   },
   ar: {
     // Settings
@@ -122,6 +133,10 @@ export const locales = {
     changeSchoolOfThought: 'تغيير المذهب الفقهي',
     saveChanges: 'حفظ التغييرات',
     settingsSaved: 'تم حفظ الإعدادات بنجاح!',
+    arabicFont: 'الخط العربي',
+    fontAmiri: 'أميري',
+    fontLateef: 'لطيف',
+    fontNoto: 'نوتو نسخ',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',
@@ -135,7 +150,7 @@ export const locales = {
     month: 'الشهر',
     day: 'اليوم',
     year: 'السنة',
-    selectSchoolOfThought: 'أي تقليد سيرشد بحثك؟',
+    selectSchoolOfThought: 'أي مذهب سيرشد بحثك؟',
     schoolOfThought: 'المذهب الفقهي',
     schoolOfThoughtDescription: 'يساعدني هذا في العثور على المصادر الأكثر صلة بك.',
     oneLastThing: 'شيء أخير...',
@@ -204,5 +219,12 @@ export const locales = {
     noBookmarks: 'لم تقم بإضافة أي آيات إلى الإشارات المرجعية بعد.',
     addBookmark: 'إضافة إشارة مرجعية',
     removeBookmark: 'إزالة الإشارة المرجعية',
+    quranSearchTitle: "تحليل قرآني",
+    quranSearchPlaceholder: "مثال: الصوم، الصبر، الصدقة...",
+    search: "تحليل الموضوع",
+    analysis: "تحليل",
+    summary: "ملخص",
+    statistics: "إحصائيات",
+    relevantVerses: "الآيات ذات الصلة",
   }
 };

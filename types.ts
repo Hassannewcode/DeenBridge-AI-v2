@@ -83,4 +83,19 @@ export interface UserProfile {
   enableGoogleSearch: boolean;
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
+  arabicFont: 'amiri' | 'lateef' | 'noto';
+}
+
+// For Quranic Analysis Service
+export interface QuranAnalysisVerse {
+  surah_name: string;
+  surah_number: number;
+  verse_number: number;
+  arabic_text: string;
+}
+
+export interface QuranAnalysisResult {
+  topic_summary: string;
+  statistical_summary: string;
+  relevant_verses: QuranAnalysisVerse[];
 }

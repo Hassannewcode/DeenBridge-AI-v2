@@ -6,6 +6,7 @@ import ThemeSwitcher from './ThemeSwitcher';
 import DobInput from './DobInput';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
+import ArabicFontSwitcher from './ArabicFontSwitcher';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -107,6 +108,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           <div className="flex-1 px-6 pb-2 overflow-y-auto">
             <div className="space-y-6">
               <ThemeSwitcher />
+              <ArabicFontSwitcher 
+                  currentFont={localProfile.arabicFont} 
+                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, arabicFont: font }))}
+              />
               
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('profile')}</h3>
