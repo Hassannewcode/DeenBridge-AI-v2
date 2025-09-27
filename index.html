@@ -540,6 +540,19 @@
           padding-left: 2.5rem;
           padding-right: 0.75rem;
       }
+
+      .fade-out-edge {
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        mask-image: linear-gradient(to right, black 85%, transparent 100%);
+      }
+      [dir="rtl"] .fade-out-edge {
+        -webkit-mask-image: linear-gradient(to left, black 85%, transparent 100%);
+        mask-image: linear-gradient(to left, black 85%, transparent 100%);
+      }
+      .group:hover .fade-out-edge {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
     </style>
   <script type="importmap">
 {

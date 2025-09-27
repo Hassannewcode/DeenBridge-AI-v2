@@ -58,17 +58,17 @@ You need a modern web browser that supports ES Modules (e.g., Chrome, Firefox, E
 
 ### Environment Variables
 
-The application requires a Google Gemini API key to function. This key **must** be provided as an environment variable by the hosting environment.
+The application requires a Google Gemini API key to function. This key **must** be provided as an environment variable.
 
 1.  Obtain an API Key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-2.  Set the environment variable `API_KEY` in your deployment environment (e.g., Vercel, Netlify, or a local server).
+2.  Set the environment variable `API_KEY` in your environment. For a local server, you can do this using a `.env` file.
 
    Example for a local environment using a `.env` file (requires a server that can load it):
    ```
    API_KEY="YOUR_GEMINI_API_KEY_HERE"
    ```
 
-**Important:** The application code directly uses `process.env.API_KEY`. It is designed this way assuming the deployment environment handles the injection of this variable.
+**Important:** The application code directly uses `process.env.API_KEY`. It is designed this way assuming your environment handles the injection of this variable.
 
 ### Running Locally
 

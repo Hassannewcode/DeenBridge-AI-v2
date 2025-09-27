@@ -432,24 +432,24 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   }
 
   const ChatItem: React.FC<{session: ChatSession}> = ({ session }) => (
-    <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
+    <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors overflow-hidden ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
         <MessageSquareIcon className="w-5 h-5 flex-shrink-0" />
         {editingChatId === session.id ? (
-        <form onSubmit={(e) => { e.preventDefault(); handleSaveTitle(session.id); }} className="flex-1">
-            <input
-                type="text"
-                value={editingTitle}
-                onChange={(e) => setEditingTitle(e.target.value)}
-                onBlur={() => handleSaveTitle(session.id)}
-                onKeyDown={(e) => handleKeyDown(e, session.id)}
-                className="w-full bg-transparent focus:bg-[var(--color-card-bg)] text-sm font-medium p-1 -m-1 rounded focus:outline-none ring-1 ring-[var(--color-accent)] text-[var(--color-text-primary)]"
-                autoFocus
-            />
-        </form>
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveTitle(session.id); }} className="flex-1 min-w-0">
+                <input
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onBlur={() => handleSaveTitle(session.id)}
+                    onKeyDown={(e) => handleKeyDown(e, session.id)}
+                    className="w-full bg-transparent focus:bg-[var(--color-card-bg)] text-sm font-medium p-1 -m-1 rounded focus:outline-none ring-1 ring-[var(--color-accent)] text-[var(--color-text-primary)]"
+                    autoFocus
+                />
+            </form>
         ) : (
-        <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 truncate text-sm font-medium">{session.title}</span>
+            <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 whitespace-nowrap overflow-hidden text-sm font-medium transition-all duration-200 group-hover:mr-24 fade-out-edge">{session.title}</span>
         )}
-        <div className="hidden group-hover:flex items-center ms-2 shrink-0">
+        <div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">
             <button
                 onClick={(e) => handleTogglePinChat(e, session.id)}
                 className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
@@ -457,7 +457,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
             >
                 {session.isPinned ? <PinFilledIcon className="w-4 h-4 text-[var(--color-accent)]" /> : <PinIcon className="w-4 h-4" />}
             </button>
-        {editingChatId !== session.id && (
+            {editingChatId !== session.id && (
                 <button
                     onClick={(e) => handleStartEditing(e, session)}
                     className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
