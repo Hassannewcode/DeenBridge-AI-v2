@@ -158,9 +158,13 @@
         transition: background-color .5s, color .5s;
         height: 100vh; /* Fallback for browsers that do not support dvh */
         height: 100dvh;
-        overflow: hidden; /* Prevents scrolling on the body */
       }
       
+      #root {
+        height: 100%;
+        overflow: hidden; /* Contains the app and prevents body scroll */
+      }
+
       body.is-mobile {
         overscroll-behavior: none; /* Disables pull-to-refresh on mobile */
       }
