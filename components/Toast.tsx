@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckIcon, CloseIcon } from './icons';
+import { AlertIcon, CheckIcon, CloseIcon } from './icons';
 
 interface ToastProps {
   message: string;
@@ -26,6 +26,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
   };
 
   const isSuccess = type === 'success';
+  const Icon = isSuccess ? CheckIcon : AlertIcon;
 
   return (
     <div 
@@ -37,7 +38,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     >
       <div className={`inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg 
         ${isSuccess ? 'bg-emerald-700' : 'bg-red-700'}`}>
-        {isSuccess ? <CheckIcon /> : "!"}
+        <Icon className="w-5 h-5" />
       </div>
       <div className="text-sm font-medium">{message}</div>
       <button 

@@ -66,12 +66,13 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
     }
   }, [isOpen]);
   
-  const handleAction = (action: () => void) => {
-    action();
-    // Keep menu open for language selection, close for other actions
-    if (action !== onTranslate) {
-      setIsOpen(false);
+  const handleAction = (action: (lang?: string) => void, lang?: string) => {
+    if (lang) {
+      action(lang);
+    } else {
+      (action as () => void)();
     }
+    setIsOpen(false);
   };
 
   const filteredLanguages = LANGUAGES.filter(lang =>
@@ -81,7 +82,7 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
   const menuContent = (
     <div 
         ref={menuRef}
-        className="w-64 bg-[var(--color-modal-bg)] border border-[var(--color-border)] rounded-lg shadow-2xl z-20 animate-fade-in-up flex flex-col" style={{...style, animationDuration: '0.2s', maxHeight: '300px'}}
+        className="translation-menu-portal w-64 bg-[var(--color-modal-bg)] border border-[var(--color-border)] rounded-lg shadow-2xl z-20 animate-fade-in-up flex flex-col" style={{...style, animationDuration: '0.2s', maxHeight: '300px'}}
     >
         <div className="p-2 flex-shrink-0 border-b border-[var(--color-border)]">
           <ul className="text-sm text-[var(--color-text-secondary)]">
@@ -128,7 +129,7 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
             {filteredLanguages.map(lang => (
             <li key={lang}>
                 <button
-                onClick={() => onTranslate(lang)}
+                onClick={() => handleAction(onTranslate, lang)}
                 className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[var(--color-border)] ${translation?.lang === lang ? 'font-bold text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}
                 >
                 <span>{isLoading === lang ? t('loading') : lang}</span>

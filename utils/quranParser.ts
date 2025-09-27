@@ -1,11 +1,13 @@
 import { quranText } from '../data/quran';
 
-interface Ayah {
+// FIX: Export the Ayah interface to make it accessible to other modules.
+export interface Ayah {
     number: number;
     text: string;
 }
 
-interface Surah {
+// FIX: Export the Surah interface to make it accessible to other modules.
+export interface Surah {
     number: number;
     name: string;
     ayahs: Ayah[];

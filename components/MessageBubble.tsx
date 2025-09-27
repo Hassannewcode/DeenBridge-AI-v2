@@ -7,7 +7,6 @@ import WebSourceCard from './cards/WebSourceCard';
 import QuranVerseCard from './cards/QuranVerseCard';
 import HadithCard from './cards/HadithCard';
 import SkeletonLoader from './SkeletonLoader';
-import { useClickOutside } from '../hooks/useClickOutside';
 import { useTypingAnimation } from '../hooks/useTypingAnimation';
 import { TRUSTED_SOURCES } from '../data/sources';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -44,16 +43,36 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
   const [citationsStyle, setCitationsStyle] = useState<React.CSSProperties>({});
   const { t, locale } = useLocale();
   
-  useClickOutside([citationsButtonRef, citationsMenuRef], () => {
-      if(isDropdownOpen) setIsDropdownOpen(false);
-  });
-  
   const { speak, cancel, speakingMessageId, isSupported } = useSpeech();
 
   const [elapsedTime, setElapsedTime] = useState('0.0s');
   const res = message.response;
 
   const displayedSummary = useTypingAnimation(res?.summary, message.isStreaming);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+        const target = event.target as Node;
+        
+        const isOutsideButton = citationsButtonRef.current && !citationsButtonRef.current.contains(target);
+        const isOutsideMenu = citationsMenuRef.current && !citationsMenuRef.current.contains(target);
+        const isInAnotherPortal = (target as HTMLElement).closest('.translation-menu-portal');
+
+        if (isOutsideButton && isOutsideMenu && !isInAnotherPortal) {
+            setIsDropdownOpen(false);
+        }
+    };
+
+    if (isDropdownOpen) {
+        document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('touchstart', handleOutsideClick);
+    }
+
+    return () => {
+        document.removeEventListener('mousedown', handleOutsideClick);
+        document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     if (message.isStreaming && message.createdAt) {
