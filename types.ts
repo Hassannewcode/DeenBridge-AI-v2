@@ -85,3 +85,11 @@ export interface UserProfile {
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
 }
+
+export interface Hadith {
+  id: string;
+  title: string;
+  arabic: string;
+  english: string;
+  attribution: string;
+}

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { parseQuranText } from '../utils/quranParser';
 import { SURAH_INFO } from '../data/surah-info';
 import { CloseIcon, BookmarkIcon, BookmarkFilledIcon } from './icons';
-import { useTranslation } from '../hooks/useTranslation';
+import { useTranslation } from '../../hooks/useTranslation';
 import TranslationMenu from './TranslationMenu';
 import type { UserProfile } from '../types';
 import { useLocale } from '../contexts/LocaleContext';
@@ -15,125 +15,6 @@ interface QuranBookmark {
   surahName: string;
   createdAt: number;
 }
-
-
-interface AyahComponentProps {
-  ayah: { number: number; text: string };
-  profile: UserProfile;
-  surahInfo: typeof SURAH_INFO[0] | undefined;
-  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
-  isBookmarked: boolean;
-  onToggleBookmark: (ayahNumber: number) => void;
-}
-
-const AyahComponent: React.FC<AyahComponentProps> = ({ ayah, profile, surahInfo, setToastInfo, isBookmarked, onToggleBookmark }) => {
-    const { 
-        translation, 
-        transliteration, 
-        isLoading, 
-        translate, 
-        transliterate,
-        hideTranslation,
-        hideTransliteration,
-    } = useTranslation(ayah.text);
-    const { t } = useLocale();
-
-    const handleCopy = () => {
-        if (!surahInfo) return;
-        const citation = `${surahInfo.name} ${surahInfo.number}:${ayah.number}`;
-        let textToCopy = `"${ayah.text}"\n\n`;
-        if (translation) {
-            textToCopy += `${translation.lang} Translation: "${translation.text}"\n\n`;
-        }
-        if (transliteration) {
-            textToCopy += `Transliteration: "${transliteration}"\n\n`;
-        }
-        textToCopy += `- The Holy Qur'an, ${citation}`;
-
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            setToastInfo({ message: t('copiedToClipboard'), type: 'success' });
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-        });
-    };
-
-    const handleShare = async () => {
-        if (!surahInfo || !navigator.share) return;
-        const citation = `${surahInfo.name} ${surahInfo.number}:${ayah.number}`;
-        let textToShare = `"${ayah.text}"\n\n`;
-        if (translation) {
-            textToShare += `${translation.lang} Translation: "${translation.text}"\n\n`;
-        }
-        if (transliteration) {
-            textToShare += `Transliteration: "${transliteration}"\n\n`;
-        }
-        textToShare += `- The Holy Qur'an, ${citation}`;
-
-        try {
-            await navigator.share({
-                title: `Qur'an Verse: ${citation}`,
-                text: textToShare,
-            });
-        } catch (error) {
-            console.error('Error sharing:', error);
-        }
-    };
-
-    return (
-        <div id={`ayah-${surahInfo?.number}-${ayah.number}`} className="ayah-container">
-            <div className="flex flex-row-reverse items-start gap-x-2">
-                <div className="flex-grow">
-                    <p className="font-amiri text-right text-justify leading-relaxed">
-                        {ayah.text.split(' ').map((word, index) => (
-                            <span key={index} className="ayah-word">{word}</span>
-                        ))}
-                         <span className="ayah-number">
-                            {new Intl.NumberFormat('ar-EG-u-nu-arab').format(ayah.number)}
-                        </span>
-                    </p>
-                </div>
-                <div className="flex-shrink-0 flex flex-col items-center gap-2 pt-3">
-                    <button 
-                        onClick={() => onToggleBookmark(ayah.number)}
-                        className="p-1.5 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-accent)] transition-colors"
-                        aria-label={isBookmarked ? t('removeBookmark') : t('addBookmark')}
-                    >
-                        {isBookmarked ? <BookmarkFilledIcon className="w-5 h-5 text-[var(--color-accent)]" /> : <BookmarkIcon className="w-5 h-5" />}
-                    </button>
-                    <TranslationMenu
-                        isLoading={isLoading}
-                        translation={translation}
-                        transliteration={transliteration}
-                        onTranslate={translate}
-                        onTransliterate={transliterate}
-                        onHideTranslation={hideTranslation}
-                        onHideTransliteration={hideTransliteration}
-                        onCopy={handleCopy}
-                        onShare={handleShare}
-                    />
-                </div>
-            </div>
-            {(isLoading || translation || transliteration) && (
-              <div dir="ltr" className="pb-2 ps-12">
-                  {isLoading && <div className="mt-2 p-3 bg-[var(--color-card-bg)] rounded text-sm text-center text-[var(--color-text-subtle)]">{t('loading')}...</div>}
-                  {translation && (
-                      <div className="mt-2 p-3 bg-[var(--color-card-bg)] rounded-lg text-sm text-[var(--color-text-secondary)] animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
-                          <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>
-                          <p className="italic mt-1">"{translation.text}"</p>
-                      </div>
-                  )}
-                  {transliteration && (
-                      <div className="mt-2 p-3 bg-[var(--color-card-bg)] rounded-lg text-sm text-[var(--color-text-secondary)] animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
-                          <p className="font-semibold text-[var(--color-text-primary)]">Transliteration:</p>
-                          <p className="italic mt-1">{transliteration}</p>
-                      </div>
-                  )}
-              </div>
-            )}
-        </div>
-    );
-};
-
 
 interface QuranReaderProps {
   isOpen: boolean;
@@ -299,17 +180,16 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
                         )}
                         
                         <div className="quran-text-container">
-                            {surah && surahAyahs.map(ayah => (
-                                <AyahComponent 
-                                    key={ayah.number} 
-                                    ayah={ayah} 
-                                    profile={profile} 
-                                    surahInfo={surahInfo} 
-                                    setToastInfo={setToastInfo}
-                                    isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
-                                    onToggleBookmark={handleToggleBookmark}
-                                />
-                            ))}
+                          {surah && surahAyahs.map(ayah => (
+                              <span key={ayah.number} id={`ayah-${surahInfo?.number}-${ayah.number}`} className="ayah-container">
+                                  {ayah.text.split(' ').map((word, index) => (
+                                      <span key={index} className="ayah-word">{word}</span>
+                                  ))}
+                                  <span className="ayah-number">
+                                      {new Intl.NumberFormat('ar-EG-u-nu-arab').format(ayah.number)}
+                                  </span>
+                              </span>
+                          ))}
                         </div>
                         
                         <footer className="page-number-container">

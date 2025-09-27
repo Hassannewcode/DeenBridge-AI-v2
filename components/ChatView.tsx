@@ -3,7 +3,7 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, ArchiveIcon, UnarchiveIcon, PinIcon, PinFilledIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, ArchiveIcon, UnarchiveIcon, PinIcon, PinFilledIcon, HadithBookIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
@@ -13,6 +13,7 @@ import type { Chat, GenerateContentResponse } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import QuranReader from './QuranReader';
+import HadithReader from './HadithReader';
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -43,6 +44,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [isQuranReaderOpen, setIsQuranReaderOpen] = useState(false);
+  const [isHadithReaderOpen, setIsHadithReaderOpen] = useState(false);
   const [isArchivedOpen, setIsArchivedOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
@@ -516,6 +518,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     <SpeechProvider>
       <div className="flex h-screen w-screen bg-transparent overflow-hidden">
           {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
+          {isHadithReaderOpen && <HadithReader isOpen={isHadithReaderOpen} onClose={() => setIsHadithReaderOpen(false)} setToastInfo={setToastInfo} />}
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
@@ -570,6 +573,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                       </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button onClick={() => setIsHadithReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Search Hadith">
+                        <HadithBookIcon />
+                    </button>
                     <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
                         <img src="https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/Quran-svg.png" alt="Read Quran" className="h-6 w-6" />
                     </button>

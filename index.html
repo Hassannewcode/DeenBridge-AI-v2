@@ -47,8 +47,9 @@
         --quran-pattern-stroke: #c9ab4c;
         --quran-pattern-opacity: .15;
         --body-bg-image: none;
-        --quran-reader-border-color: #b08d57;
-        --quran-page-bg: #fefdf9;
+        --quran-border-color: #daa520;
+        --quran-page-bg: #fdfaf3;
+        --quran-text-color: #0d3a5b;
       }
 
       :root[data-theme='dark'] {
@@ -76,8 +77,9 @@
         --quran-pattern-stroke: #facc15;
         --quran-pattern-opacity: .08;
         --body-bg-image: none;
-        --quran-reader-border-color: #facc15;
-        --quran-page-bg: #2a261f;
+        --quran-border-color: #facc15;
+        --quran-page-bg: #fdfaf3; /* Overridden for Quran reader consistency */
+        --quran-text-color: #0d3a5b; /* Overridden for Quran reader consistency */
       }
       
       :root[data-theme='madinah'] {
@@ -105,8 +107,9 @@
         --quran-pattern-stroke: var(--color-accent);
         --quran-pattern-opacity: .1;
         --body-bg-image: none;
-        --quran-reader-border-color: #b08d57; /* Gold */
-        --quran-page-bg: #fefdf9;
+        --quran-border-color: #daa520;
+        --quran-page-bg: #fdfaf3;
+        --quran-text-color: #0d3a5b;
       }
       
       :root[data-theme='majlis'] {
@@ -134,8 +137,9 @@
         --quran-pattern-stroke: var(--color-accent);
         --quran-pattern-opacity: .07;
         --body-bg-image: none;
-        --quran-reader-border-color: #d4a05d;
-        --quran-page-bg: #2f2121;
+        --quran-border-color: #daa520;
+        --quran-page-bg: #fdfaf3; /* Overridden for Quran reader consistency */
+        --quran-text-color: #0d3a5b; /* Overridden for Quran reader consistency */
       }
 
       .user-message-text-color {
@@ -363,38 +367,37 @@
       }
 
       .quran-page {
-        border: 30px solid;
-        border-image-slice: 40;
-        border-image-width: 30px;
+        border: 35px solid transparent;
+        border-image-slice: 110;
+        border-image-width: 35px;
         border-image-outset: 0;
-        border-image-repeat: round;
+        border-image-repeat: stretch;
         border-image-source: url("https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/islamic%20border%20Quran.png");
         background: var(--quran-page-bg);
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        padding: 1.5rem;
       }
 
       .quran-page-content {
-        padding: 2rem;
         box-shadow: inset 0 0 20px rgba(0,0,0,0.07);
         min-height: 500px;
+        padding: 0;
       }
       
       .surah-header {
         text-align: center;
         margin-bottom: 2.5rem;
         padding: 1rem 1.5rem;
-        border-top: 4px double var(--quran-reader-border-color);
-        border-bottom: 4px double var(--quran-reader-border-color);
-        border-left: 1px solid var(--quran-reader-border-color);
-        border-right: 1px solid var(--quran-reader-border-color);
+        border: 1px solid var(--quran-border-color);
+        box-shadow: inset 0 0 0 3px var(--quran-border-color);
         background-color: transparent;
       }
 
       .surah-title-arabic {
         font-family: 'Amiri', serif;
-        font-size: 3.2rem;
+        font-size: 3.5rem;
         font-weight: bold;
-        color: var(--color-text-primary);
+        color: var(--quran-text-color);
         line-height: 1.2;
       }
       
@@ -411,29 +414,33 @@
         font-size: 2.5rem;
         text-align: center;
         margin-bottom: 2rem;
-        color: var(--color-text-primary);
+        color: var(--quran-text-color);
         line-height: 2;
       }
       
       .quran-text-container {
         text-align: justify;
         line-height: 3.2;
+        padding: 0 1rem;
+        font-kerning: normal;
+        text-rendering: optimizeLegibility;
       }
 
-      .ayah-container .font-amiri {
-        line-height: 3.2;
+      .ayah-container {
+        display: inline;
       }
-
+      
       .ayah-word {
         display: inline;
-        font-size: 2.1rem;
-        color: var(--color-text-primary);
-        margin: 0 0.1em;
+        font-family: 'Amiri', serif;
+        font-size: 2.6rem;
+        color: var(--quran-text-color);
+        margin: 0 0.05em;
       }
 
       @media (min-width: 768px) {
           .ayah-word {
-              font-size: 2.4rem;
+              font-size: 2.8rem;
           }
       }
       
@@ -444,12 +451,12 @@
         width: 44px;
         height: 44px;
         text-align: center;
-        color: var(--color-text-secondary);
-        font-family: 'Inter', sans-serif;
-        font-size: 0.8rem;
-        font-weight: 600;
+        color: var(--quran-page-bg);
+        font-family: 'Amiri', serif;
+        font-size: 1.1rem;
+        font-weight: bold;
         margin: 0 0.3rem;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='gold-grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='rgb(from var(--quran-reader-border-color) r g b / .9)'/%3E%3Cstop offset='100%25' stop-color='rgb(from var(--quran-reader-border-color) r g b / .5)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='rgb(from var(--quran-reader-border-color) r g b / .05)' stroke='url(%23gold-grad)' stroke-width='2' d='M50,3.3c-5.2,10.1-13,14.6-21.7,17.2c-10.1,3-18.4,11.2-21.7,21.3C3.3,51.9,7.8,59.7,10.4,68.4 c3,10.1,11.2,18.4,21.3,21.7C41.8,93.4,45.3,85.6,50,80.4c4.7,5.2,8.2,13,18.3,10.4c10.1-3,18.4-11.2,21.7-21.3 c3-10.1-1.5-17.9-4.1-26.6c-3-10.1-11.2-18.4-21.3-21.7C54.5,17.9,55.2,5.1,50,3.3z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='rgb(from var(--quran-text-color) r g b)' d='M50 95 C 80 70, 100 50, 100 30 A 25 25 0 0 0 50 0 A 25 25 0 0 0 0 30 C 0 50, 20 70, 50 95 Z' transform='rotate(180 50 50)'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
