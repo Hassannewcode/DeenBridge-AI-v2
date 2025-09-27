@@ -97,124 +97,126 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   );
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4 overflow-hidden">
+    <div className="h-full w-full overflow-y-auto p-4">
         <div className="absolute top-4 end-4 z-10">
             <LanguageSwitcher />
         </div>
         {showAgeDisclaimer && <AgeDisclaimerModal onAccept={handleAcceptDisclaimer} />}
-        <header className="mb-12 text-center animate-fade-in-up">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
-            {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
-          </h1>
-          <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-            {t('digitalLibrarian')}
-          </p>
-        </header>
-        
-        <div className="w-full max-w-2xl">
-          <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{ transform: `translateX(${transformValue}%)` }}
-          >
-            {/* Step 1: Name */}
-            <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
-                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('whatShouldWeCallYou')}</h2>
-                <div>
-                    <label htmlFor="name" className="sr-only">Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder={t('enterYourName')}
-                        className="w-full text-center text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
-                        autoFocus
-                        required
-                    />
+        <div className="flex flex-col items-center justify-center min-h-full">
+            <header className="mb-12 text-center animate-fade-in-up">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
+                {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
+            </h1>
+            <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
+                {t('digitalLibrarian')}
+            </p>
+            </header>
+            
+            <div className="w-full max-w-2xl">
+            <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(${transformValue}%)` }}
+            >
+                {/* Step 1: Name */}
+                <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
+                <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('whatShouldWeCallYou')}</h2>
+                    <div>
+                        <label htmlFor="name" className="sr-only">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder={t('enterYourName')}
+                            className="w-full text-center text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
+                            autoFocus
+                            required
+                        />
+                    </div>
+                    <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
+                </form>
                 </div>
-                <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
-              </form>
-            </div>
 
-            {/* Step 2: Date of Birth */}
-            <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-                <form onSubmit={handleFormSubmit} className="w-full max-w-lg space-y-6 text-center">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('onboardingDobTitle').replace('{name}', name)}</h2>
-                    <p className="text-[var(--color-text-secondary)] -mt-4">{t('dobOptional')}</p>
-                    <DobInput value={dob} onChange={handleDobChange} />
-                    <div className="space-y-3 max-w-md mx-auto pt-4">
-                        <NextButton>{t('next')}</NextButton>
+                {/* Step 2: Date of Birth */}
+                <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
+                    <form onSubmit={handleFormSubmit} className="w-full max-w-lg space-y-6 text-center">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('onboardingDobTitle').replace('{name}', name)}</h2>
+                        <p className="text-[var(--color-text-secondary)] -mt-4">{t('dobOptional')}</p>
+                        <DobInput value={dob} onChange={handleDobChange} />
+                        <div className="space-y-3 max-w-md mx-auto pt-4">
+                            <NextButton>{t('next')}</NextButton>
+                            <BackButton>{t('back')}</BackButton>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Step 3: Denomination */}
+                <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
+                <form onSubmit={handleFormSubmit} className="w-full max-w-2xl space-y-6 text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('selectSchoolOfThought')}</h2>
+                    <p className="text-[var(--color-text-secondary)]">{t('schoolOfThoughtDescription')}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sunni)} isSelected={denomination === Denomination.Sunni}>
+                            <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sunni')}</h2>
+                        </SelectorCard>
+                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Shia)} isSelected={denomination === Denomination.Shia}>
+                            <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('shia')}</h2>
+                        </SelectorCard>
+                    </div>
+
+                    <div className="text-center">
+                        <button type="button" onClick={() => setShowMoreDenominations(!showMoreDenominations)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
+                        {showMoreDenominations ? t('showLessOptions') : t('showMoreOptions')}
+                        </button>
+                    </div>
+
+                    {showMoreDenominations && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
+                            <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sufi)} isSelected={denomination === Denomination.Sufi}>
+                                <SufiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sufism')}</h2>
+                            </SelectorCard>
+                            <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Ibadi)} isSelected={denomination === Denomination.Ibadi}>
+                                <IbadiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
+                                <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('ibadi')}</h2>
+                            </SelectorCard>
+                        </div>
+                    )}
+
+                    <div className="space-y-3 max-w-md mx-auto">
+                        <NextButton disabled={!denomination}>{t('next')}</NextButton>
                         <BackButton>{t('back')}</BackButton>
                     </div>
                 </form>
-            </div>
+                </div>
 
-            {/* Step 3: Denomination */}
-            <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-2xl space-y-6 text-center">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('selectSchoolOfThought')}</h2>
-                  <p className="text-[var(--color-text-secondary)]">{t('schoolOfThoughtDescription')}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sunni)} isSelected={denomination === Denomination.Sunni}>
-                          <SunniIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sunni')}</h2>
-                      </SelectorCard>
-                      <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Shia)} isSelected={denomination === Denomination.Shia}>
-                          <ShiaIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('shia')}</h2>
-                      </SelectorCard>
-                  </div>
-
-                  <div className="text-center">
-                    <button type="button" onClick={() => setShowMoreDenominations(!showMoreDenominations)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
-                      {showMoreDenominations ? t('showLessOptions') : t('showMoreOptions')}
-                    </button>
-                  </div>
-
-                  {showMoreDenominations && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up">
-                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Sufi)} isSelected={denomination === Denomination.Sufi}>
-                            <SufiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('sufism')}</h2>
-                        </SelectorCard>
-                        <SelectorCard onSelect={() => handleDenominationSelect(Denomination.Ibadi)} isSelected={denomination === Denomination.Ibadi}>
-                            <IbadiIcon className="h-16 w-16 sm:h-20 sm:w-20 mb-4 text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300"/>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('ibadi')}</h2>
-                        </SelectorCard>
+                {/* Step 4: Extra Info */}
+                <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
+                <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6 text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('oneLastThing')}</h2>
+                    <p className="text-[var(--color-text-secondary)]">{t('additionalContextPrompt')}</p>
+                    <div>
+                        <label htmlFor="extraInfo" className="sr-only">{t('additionalContext')}</label>
+                        <textarea
+                            id="extraInfo"
+                            value={extraInfo}
+                            onChange={(e) => setExtraInfo(e.target.value)}
+                            rows={4}
+                            placeholder={t('contextPlaceholderOnboarding')}
+                            className="w-full text-lg px-4 py-3 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
+                        />
                     </div>
-                  )}
-
-                  <div className="space-y-3 max-w-md mx-auto">
-                    <NextButton disabled={!denomination}>{t('next')}</NextButton>
-                    <BackButton>{t('back')}</BackButton>
-                  </div>
-              </form>
+                    <div className="space-y-3">
+                        <NextButton>{t('finishSetup')}</NextButton>
+                        <BackButton>{t('back')}</BackButton>
+                    </div>
+                </form>
+                </div>
             </div>
-
-            {/* Step 4: Extra Info */}
-            <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
-              <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6 text-center">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('oneLastThing')}</h2>
-                  <p className="text-[var(--color-text-secondary)]">{t('additionalContextPrompt')}</p>
-                  <div>
-                      <label htmlFor="extraInfo" className="sr-only">{t('additionalContext')}</label>
-                      <textarea
-                          id="extraInfo"
-                          value={extraInfo}
-                          onChange={(e) => setExtraInfo(e.target.value)}
-                          rows={4}
-                          placeholder={t('contextPlaceholderOnboarding')}
-                          className="w-full text-lg px-4 py-3 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
-                      />
-                  </div>
-                  <div className="space-y-3">
-                    <NextButton>{t('finishSetup')}</NextButton>
-                    <BackButton>{t('back')}</BackButton>
-                  </div>
-              </form>
             </div>
-          </div>
         </div>
     </div>
   );

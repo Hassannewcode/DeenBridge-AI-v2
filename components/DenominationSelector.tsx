@@ -32,8 +32,8 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
   }, [showMore]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4">
-      <div className="w-full max-w-4xl">
+    <div className="h-full overflow-y-auto p-4">
+      <div className="w-full max-w-4xl mx-auto py-8">
         <header className="mb-12 animate-fade-in-up text-center">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
             {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
