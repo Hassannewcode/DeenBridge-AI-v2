@@ -146,12 +146,20 @@
         color: var(--color-user-message-text);
       }
 
+      html {
+        height: 100%;
+      }
+
       body {
         font-family: 'Inter', sans-serif;
         background-color: var(--color-bg);
         background-image: var(--body-bg-image), linear-gradient(to bottom, var(--color-bg-gradient-start), var(--color-bg-gradient-end)); 
         color: var(--color-text-secondary);
         transition: background-color .5s, color .5s;
+        height: 100vh; /* Fallback for browsers that do not support dvh */
+        height: 100dvh;
+        overflow: hidden; /* Prevents scrolling on the body */
+        overscroll-behavior: none; /* Disables pull-to-refresh */
       }
 
       [dir="rtl"] body {

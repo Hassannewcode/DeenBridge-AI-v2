@@ -486,7 +486,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
   return (
     <SpeechProvider>
-      <div className="flex h-screen w-screen bg-transparent overflow-hidden">
+      <div className="flex h-full w-full bg-transparent overflow-hidden">
           <Suspense fallback={<SuspenseLoader />}>
             {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
             {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
@@ -517,9 +517,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
           </aside>
 
-          <div className={`flex flex-col flex-1 h-screen relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
+          <div className={`flex flex-col flex-1 h-full relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
               <header className="flex items-center justify-between p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0 rtl:flex-row-reverse">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
                       </button>
@@ -531,7 +531,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                           <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{getTraditionText()}</p>
                       </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label={t('quranSearchTitle')}>
                         <SearchBookIcon />
                     </button>

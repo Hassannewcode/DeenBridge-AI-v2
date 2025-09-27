@@ -178,7 +178,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
   return (
     <>
         <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-        <div className={`flex items-end gap-3 animate-fade-in-up max-w-full md:max-w-3xl`}>
+        <div className={`flex items-end gap-3 animate-fade-in-up max-w-[90%] sm:max-w-[80%] lg:max-w-[65%] xl:max-w-3xl`}>
             {!isUser && (
                 <div className={`w-8 h-8 md:w-10 md:h-10 p-1.5 rounded-full flex-shrink-0 shadow-sm overflow-hidden text-[var(--color-text-primary)] bg-[var(--color-card-quran-bg)] border border-[var(--color-border)]`}>
                     <DeenBridgeAIIcon />

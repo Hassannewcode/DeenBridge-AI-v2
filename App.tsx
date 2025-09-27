@@ -48,7 +48,7 @@ const App: React.FC = () => {
 
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>
-      <main className="h-screen w-screen font-sans">
+      <main className="h-full w-full font-sans">
         {!profile.onboardingComplete ? (
           <OnboardingFlow onComplete={handleOnboardingComplete} />
         ) : denomination ? (
