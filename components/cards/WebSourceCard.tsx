@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import type { WebSource } from '../../types';
 import { GlobeIcon, ShieldCheckIcon, AlertIcon } from '../icons';

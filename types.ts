@@ -1,5 +1,3 @@
-
-
 // Fix: Moved Ayah, Surah, and QuranBookmark interfaces here to centralize types.
 export interface Ayah {
     number: number;

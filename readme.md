@@ -16,7 +16,7 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 **Key Principles:**
 
 *   **Librarian, Not Mufti:** The AI is explicitly programmed to provide information and summarize scholarly views, but never to issue religious rulings (fatwas). It consistently directs users to consult qualified scholars for personal guidance.
-*   **Source Purity:** All scriptural results (Quran & Hadith) are provided in their original Arabic, with on-demand translation and transliteration, preserving the integrity of the source text.
+*   **Source Purity:** All scriptural results (Quran) are provided in their original Arabic, with on-demand translation and transliteration, preserving the integrity of the source text.
 *   **User-Centric Design:** From the onboarding flow that personalizes the AI's tone to the multiple color themes, the experience is designed to be welcoming, accessible, and intuitive.
 *   **Privacy First:** DeenBridge operates entirely on the frontend. No user data, profile information, or chat history is ever sent to a backend server. All data is stored securely in the user's local browser storage.
 
@@ -26,7 +26,7 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 
 *   **Dual Denomination Support:** Users can select either the Sunni or Shia school of thought to tailor the AI's knowledge base to the most relevant sources.
 *   **Persona-Driven AI:** The AI guide is inspired by the direct, humorous, and analogy-rich style of Sheikh Assim al-Hakeem, making complex topics more approachable.
-*   **Verifiable Sources:** Every response is grounded in a curated list of trusted Hadith collections, Tafsir, and Fiqh literature. Web search results are clearly marked as trusted or unverified.
+*   **Verifiable Sources:** Every response is grounded in a curated list of trusted Tafsir, and Fiqh literature. Web search results are clearly marked as trusted or unverified.
 *   **On-the-fly Translation & Transliteration:** Scriptural texts can be translated into over 100 languages or transliterated with a single click.
 *   **Installable PWA:** DeenBridge is a fully-featured Progressive Web App, installable on desktop and mobile devices for a native-app feel and offline access.
 *   **Customizable Themes:** Choose from four beautiful themes (Light, Dark, Majlis, Madinah) to suit your preference.

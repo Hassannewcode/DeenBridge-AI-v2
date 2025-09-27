@@ -5,7 +5,6 @@ import { MessageSender } from '../types';
 import { DeenBridgeAIIcon, CitationIcon, FileIcon, VolumeUpIcon, StopCircleIcon } from './icons';
 import WebSourceCard from './cards/WebSourceCard';
 import QuranVerseCard from './cards/QuranVerseCard';
-import HadithCard from './cards/HadithCard';
 import SkeletonLoader from './SkeletonLoader';
 import { useTypingAnimation } from '../hooks/useTypingAnimation';
 import { TRUSTED_SOURCES } from '../data/sources';
@@ -152,12 +151,10 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
             <div className="mb-3">
                 <h4 className="font-bold text-sm text-[var(--color-text-primary)] mb-1">{t('scripturalSources')}</h4>
                 {res.scripturalResults.map((result, index) => {
-                    const isTrusted = result.source.title !== "The Holy Quran" && isTrustedSource(result.source.title, denomination);
                     if (result.source.title === "The Holy Quran") {
                         return <QuranVerseCard key={`s-${index}`} result={result} index={index} profile={profile} />;
-                    } else {
-                        return <HadithCard key={`s-${index}`} result={result} index={index} isTrusted={isTrusted} profile={profile}/>;
                     }
+                    return null;
                 })}
             </div>
         )}

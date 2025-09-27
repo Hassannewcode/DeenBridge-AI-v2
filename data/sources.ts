@@ -1,5 +1,3 @@
-
-
 import { Denomination } from '../types';
 
 interface SourceInfo {
@@ -21,15 +19,6 @@ interface TrustedSources {
 
 export const TRUSTED_SOURCES: TrustedSources = {
   [Denomination.Sunni]: {
-    'Hadith Collections': [
-      { name: 'Sahih al-Bukhari', url: 'https://sunnah.com/bukhari' },
-      { name: 'Sahih Muslim', url: 'https://sunnah.com/muslim' },
-      { name: 'Sunan an-Nasa\'i', url: 'https://sunnah.com/nasai' },
-      { name: 'Sunan Abi Dawood', url: 'https://sunnah.com/abudawud' },
-      { name: 'Jami` at-Tirmidhi', url: 'https://sunnah.com/tirmidhi' },
-      { name: 'Sunan Ibn Majah', url: 'https://sunnah.com/ibnmajah' },
-      { name: 'Muwatta Imam Malik', url: 'https://sunnah.com/malik' },
-    ],
     'Tafsir (Quranic Exegesis)': [
       { name: 'Tafsir al-Tabari', url: 'https://www.altafsir.com/Tafasir.asp?tMadhNo=1&tTafsirNo=1&tSoraNo=1&tAyahNo=1&tDisplay=yes&LanguageID=2' },
       { name: 'Tafsir Ibn Kathir', url: 'https://www.altafsir.com/Tafasir.asp?tMadhNo=1&tTafsirNo=7&tSoraNo=1&tAyahNo=1&tDisplay=yes&LanguageID=2' },
@@ -55,17 +44,11 @@ export const TRUSTED_SOURCES: TrustedSources = {
       'sunnah.com',
       'altafsir.com',
       'archive.org',
-      'en.wikipedia.org'
+      'en.wikipedia.org',
+      'islamqa.info', // A popular Sunni Q&A site
     ]
   },
   [Denomination.Shia]: {
-    'Hadith Collections': [
-      { name: 'Al-Kafi', url: 'https://thaqalayn.net/book/1' },
-      { name: 'Tahdhib al-Ahkam', url: 'https://thaqalayn.net/book/6' },
-      { name: 'Al-Istibsar', url: 'https://thaqalayn.net/book/7' },
-      { name: 'Man La Yahduruhu al-Faqih', url: 'https://thaqalayn.net/book/2' },
-      { name: 'Nahj al-Balagha', url: 'https://www.al-islam.org/nahjul-balagha-part-1-sermons' },
-    ],
     'Tafsir (Quranic Exegesis)': [
       { name: 'Tafsir al-Mizan', url: 'https://www.al-islam.org/al-mizan-exegesis-quran-sayyid-muhammad-husayn-tabatabai' },
       { name: 'Tafsir al-Qummi', url: 'https://en.wikipedia.org/wiki/Tafsir_Qomi' },

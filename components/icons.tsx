@@ -55,12 +55,13 @@ export const IbadiIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export const HadithBookIcon = ({ className = "h-6 w-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5v-10A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 7h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 11h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+export const SearchBookIcon = ({ className = "h-6 w-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H15" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M6.5 2H20v10" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="15.5" cy="15.5" r="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="m18 18 2.5 2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -187,8 +188,8 @@ export const BookIcon = () => (
 
 
 // New: Quran Icon
-export const QuranIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+export const QuranIcon = ({ className = "h-full w-full" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
         {/* Book */}
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>

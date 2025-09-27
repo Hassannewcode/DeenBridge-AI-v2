@@ -3,7 +3,7 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, HadithBookIcon, LoadingSpinner } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, SearchBookIcon, QuranIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
@@ -533,10 +533,10 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label={t('quranSearchTitle')}>
-                        <HadithBookIcon />
+                        <SearchBookIcon />
                     </button>
                     <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
-                        <img src="https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/Quran-svg.png" alt="Read Quran" className="h-6 w-6" />
+                        <QuranIcon className="h-6 w-6" />
                     </button>
                     <LanguageSwitcher />
                     <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">

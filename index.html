@@ -167,7 +167,9 @@
       html[data-arabic-font='amiri'] .qr-ayah-text,
       html[data-arabic-font='amiri'] .qr-surah-title-arabic,
       html[data-arabic-font='amiri'] .qr-basmalah,
-      html[data-arabic-font='amiri'] .qr-ayah-marker-text {
+      html[data-arabic-font='amiri'] .qr-ayah-marker-text,
+      html[data-arabic-font='amiri'] .hr-hadith-arabic,
+      html[data-arabic-font='amiri'] .dr-dua-arabic {
           font-family: 'Amiri', serif;
       }
 
@@ -179,7 +181,9 @@
       html[data-arabic-font='lateef'] .qr-ayah-text,
       html[data-arabic-font='lateef'] .qr-surah-title-arabic,
       html[data-arabic-font='lateef'] .qr-basmalah,
-      html[data-arabic-font='lateef'] .qr-ayah-marker-text {
+      html[data-arabic-font='lateef'] .qr-ayah-marker-text,
+      html[data-arabic-font='lateef'] .hr-hadith-arabic,
+      html[data-arabic-font='lateef'] .dr-dua-arabic {
           font-family: 'Lateef', cursive;
       }
       
@@ -191,7 +195,9 @@
       html[data-arabic-font='noto'] .qr-ayah-text,
       html[data-arabic-font='noto'] .qr-surah-title-arabic,
       html[data-arabic-font='noto'] .qr-basmalah,
-      html[data-arabic-font='noto'] .qr-ayah-marker-text {
+      html[data-arabic-font='noto'] .qr-ayah-marker-text,
+      html[data-arabic-font='noto'] .hr-hadith-arabic,
+      html[data-arabic-font='noto'] .dr-dua-arabic {
           font-family: 'Noto Naskh Arabic', serif;
       }
       
@@ -203,7 +209,9 @@
       html[data-arabic-font='uthmanic'] .qr-ayah-text,
       html[data-arabic-font='uthmanic'] .qr-surah-title-arabic,
       html[data-arabic-font='uthmanic'] .qr-basmalah,
-      html[data-arabic-font='uthmanic'] .qr-ayah-marker-text {
+      html[data-arabic-font='uthmanic'] .qr-ayah-marker-text,
+      html[data-arabic-font='uthmanic'] .hr-hadith-arabic,
+      html[data-arabic-font='uthmanic'] .dr-dua-arabic {
           font-family: 'Scheherazade New', serif;
       }
 
@@ -372,7 +380,7 @@
       
       /*
       ====================================================================
-      QURAN READER STYLES V4 (With Info Panel)
+      QURAN, HADITH, & DUA READER STYLES
       ====================================================================
       */
       .quran-reader-modal {
@@ -541,6 +549,83 @@
         [dir="rtl"] .quran-reader-main.panel-open { padding-left: 2rem; }
       }
 
+      /* Hadith & Dua Reader Styles */
+       .hr-page-container {
+        max-width: 65rem;
+        margin: 0 auto;
+        padding: 0.5rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: 25px solid;
+        border-image-source: url('https://raw.githubusercontent.com/Hassannewcode/My-Image-library/main/DeenBridge/islamic%20border%20Quran.png?raw=true');
+        border-image-slice: 40;
+        border-image-repeat: round;
+        background-color: var(--quran-page-bg); 
+      }
+      .hr-page {
+        background: var(--quran-page-bg);
+        color: var(--quran-text-color);
+        padding: clamp(0.5rem, 2vw, 1.5rem);
+      }
+      .hr-hadith-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-card-bg);
+      }
+      .hr-hadith-arabic {
+        font-size: 1.25rem;
+        line-height: 2.2;
+        text-align: right;
+        margin-bottom: 0.75rem;
+      }
+      .hr-hadith-english {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--color-text-secondary);
+      }
+      .hr-hadith-reference {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        font-style: italic;
+        color: var(--color-text-subtle);
+        text-align: right;
+      }
+
+      .dr-dua-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-card-bg);
+      }
+      .dr-dua-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--color-text-primary);
+        margin-bottom: 0.75rem;
+      }
+      .dr-dua-arabic {
+        font-size: 1.3rem;
+        line-height: 2.3;
+        text-align: right;
+        margin-bottom: 0.75rem;
+      }
+      .dr-dua-transliteration, .dr-dua-translation {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--color-text-secondary);
+        margin-top: 0.5rem;
+        font-style: italic;
+      }
+       .dr-dua-reference {
+        margin-top: 0.75rem;
+        font-size: 0.8rem;
+        font-style: italic;
+        color: var(--color-text-subtle);
+        text-align: right;
+      }
 
       /* Custom select styling */
       .custom-select {
