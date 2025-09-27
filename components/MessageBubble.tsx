@@ -12,6 +12,7 @@ import { TRUSTED_SOURCES } from '../data/sources';
 import MarkdownRenderer from './MarkdownRenderer';
 import { useSpeech } from '../contexts/SpeechContext';
 import { useLocale } from '../contexts/LocaleContext';
+import DisclaimerBanner from './DisclaimerBanner';
 
 const isTrustedSource = (sourceTitle: string, denomination: Denomination): boolean => {
     const allTrusted = Object.values(TRUSTED_SOURCES[denomination]).flat().filter(item => typeof item === 'object') as {name: string, url: string}[];
@@ -212,6 +213,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
             </div>
             ) : (
                 <div className="relative">
+                    {!isPlaceholder && <DisclaimerBanner />}
                     { isPlaceholder ? (
                         <SkeletonLoader />
                     ) : message.isStreaming ? (

@@ -17,7 +17,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     }, 4000); // Auto-dismiss after 4 seconds
 
     return () => clearTimeout(timer);
-  }, [message]);
+  }, [message, type]); // Rerun effect if message or type changes
 
   const handleClose = () => {
     setVisible(false);
@@ -32,7 +32,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
     <div 
       role="alert"
       aria-live="assertive"
-      className={`fixed bottom-5 right-5 md:bottom-10 md:right-10 z-50 flex items-center w-full max-w-xs p-4 space-x-4 rounded-xl shadow-2xl transition-all duration-300 ease-in-out
+      className={`fixed bottom-5 right-5 md:bottom-10 md:right-10 z-[100] flex items-center w-full max-w-xs p-4 space-x-4 rounded-xl shadow-2xl transition-all duration-300 ease-in-out
         ${isSuccess ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}
         ${visible ? 'transform translate-y-0 opacity-100' : 'transform translate-y-4 opacity-0'}`}
     >

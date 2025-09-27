@@ -67,7 +67,7 @@ const QuranVerseCard: React.FC<{ result: ScripturalResult; index: number; profil
 
     return (
         <div key={`quran-${index}`} className="mt-2 p-3 rounded-lg bg-[var(--color-card-quran-bg)] border border-[var(--color-card-quran-border)] relative overflow-hidden quran-card-bg">
-            <p dir="rtl" lang="ar" className="font-amiri text-xl text-right text-[var(--color-text-primary)] leading-relaxed mb-2">
+            <p dir="rtl" lang="ar" className="qr-ayah-text text-right text-[var(--color-text-primary)] leading-relaxed mb-2" style={{fontSize: '1.5rem', lineHeight: '2.5'}}>
                 {result.text}
             </p>
             <div className="flex items-center justify-between">

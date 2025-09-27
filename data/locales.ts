@@ -54,7 +54,6 @@ export const locales = {
     sufismDescription: 'A spiritual dimension within both Sunni and Shia Islam, focusing on inner purification (Tazkiah) and the personal experience of the divine.',
     ibadi: 'Ibadi',
     ibadiDescription: 'A distinct branch that predates the Sunni-Shia split, primarily found in Oman. They believe the community can choose any devout Muslim as leader.',
-    disclaimer: 'Friendly Reminder: I am a research assistant, not a scholar. For religious rulings (fatwas), please consult a qualified expert.',
     changeLater: 'You can change this anytime in settings.',
     sunniTradition: 'Sunni Tradition',
     shiaTradition: 'Shia Tradition',
@@ -64,12 +63,12 @@ export const locales = {
     ageDisclaimerTitle: 'Important: Please Be Truthful',
     ageDisclaimerBody: 'Please provide your correct date of birth. This helps the AI tailor its responses appropriately for your age and life experience.',
     ageDisclaimerPrivacyTitle: 'Your Privacy is Paramount',
-    ageDisclaimerPrivacyBody: 'This information stays on your device and is never collected or stored. It\'s only used to make your experience better.',
+    ageDisclaimerPrivacyBody: "This information stays on your device and is never collected or stored. It's only used to make your experience better.",
     ageDisclaimerWarning: 'Being truthful is an important Islamic value. Please provide your actual age.',
     ageDisclaimerAccept: 'I Understand and Will Be Truthful',
     ageDisclaimerWait: 'I Understand (Please wait',
 
-    // Chat View
+    // Chat View & Banners
     newChat: 'New Chat',
     renameChat: 'Rename chat',
     deleteChat: 'Delete chat',
@@ -90,6 +89,12 @@ export const locales = {
     generating: 'Generating...',
     scripturalSources: 'Scriptural Sources',
     webSources: 'Web Sources',
+    fatwaDisclaimerTitle: 'Important Disclaimer',
+    fatwaDisclaimerBody: 'As an AI, I am not qualified to issue a religious ruling (fatwa). The information provided is for educational and research purposes. For a definitive ruling on your specific situation, it is <strong>essential</strong> to consult a qualified scholar.',
+    trustedSource: 'Trusted',
+    unverifiedSource: 'Unverified',
+    trustedSourceTooltip: 'This source is from a pre-vetted, trusted collection.',
+    unverifiedSourceTooltip: 'This source is from a general web search. Please verify its authenticity.',
 
     // Translation & Quran
     searchLanguage: 'Search language...',
@@ -168,7 +173,6 @@ export const locales = {
     sufismDescription: 'بُعد روحي ضمن الإسلام السني والشيعي، يركز على تزكية النفس والتجربة الشخصية للذات الإلهية.',
     ibadi: 'الإباضية',
     ibadiDescription: 'فرع متميز يسبق الانقسام السني الشيعي، يتركز بشكل أساسي في عُمان. يعتقدون أن المجتمع يمكنه اختيار أي مسلم تقي كقائد.',
-    disclaimer: 'تذكير ودي: أنا مساعد بحثي ولست عالماً. للفتاوى الشرعية، يرجى استشارة خبير مؤهل.',
     changeLater: 'يمكنك تغيير هذا في أي وقت من الإعدادات.',
     sunniTradition: 'المذهب السني',
     shiaTradition: 'المذهب الشيعي',
@@ -183,7 +187,7 @@ export const locales = {
     ageDisclaimerAccept: 'أتفهم وسأكون صادقًا',
     ageDisclaimerWait: 'أتفهم (يرجى الانتظار',
 
-    // Chat View
+    // Chat View & Banners
     newChat: 'محادثة جديدة',
     renameChat: 'إعادة تسمية المحادثة',
     deleteChat: 'حذف المحادثة',
@@ -204,6 +208,12 @@ export const locales = {
     generating: 'يولّد...',
     scripturalSources: 'المصادر الشرعية',
     webSources: 'مصادر الويب',
+    fatwaDisclaimerTitle: 'إخلاء مسؤولية هام',
+    fatwaDisclaimerBody: 'بصفتي ذكاءً اصطناعيًا، أنا غير مؤهل لإصدار فتوى شرعية. المعلومات المقدمة هي لأغراض تعليمية وبحثية. للحصول على حكم شرعي نهائي بشأن وضعك الخاص، من <strong>الضروري</strong> استشارة عالم دين مؤهل.',
+    trustedSource: 'موثوق',
+    unverifiedSource: 'غير موثق',
+    trustedSourceTooltip: 'هذا المصدر من مجموعة موثوقة تم التحقق منها مسبقًا.',
+    unverifiedSourceTooltip: 'هذا المصدر من بحث عام على الويب. يرجى التحقق من صحته.',
 
     // Translation & Quran
     searchLanguage: 'ابحث عن لغة...',

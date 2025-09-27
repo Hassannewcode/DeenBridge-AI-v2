@@ -77,18 +77,12 @@ const Ayah: React.FC<{
     }, [ayah, surahNumber, translation]);
 
     return (
-        <div id={`ayah-${surahNumber}-${ayah.number}`} className="qr-ayah group">
+        <div id={`ayah-${surahNumber}-${ayah.number}`} className="qr-ayah group" style={{display: 'inline-block'}}>
             <div className="qr-ayah-controls">
                 <button onClick={() => onToggleBookmark(ayah.number)} className="p-1.5 text-[var(--color-text-subtle)] hover:text-[var(--color-accent)]">
                     {isBookmarked ? <BookmarkFilledIcon className="w-4 h-4" /> : <BookmarkIcon className="w-4 h-4" />}
                 </button>
-            </div>
-            <span className="qr-ayah-text">
-                {ayah.text}
-                <AyahMarker number={ayah.number} />
-            </span>
-             <div className="mt-2 text-right">
-                <TranslationMenu
+                 <TranslationMenu
                     isLoading={isLoading}
                     translation={translation}
                     transliteration={transliteration}
@@ -100,16 +94,24 @@ const Ayah: React.FC<{
                     onShare={handleShare}
                 />
             </div>
-            {translation && (
-                <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
-                    <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>
-                    <p className="italic">"{translation.text}"</p>
-                </div>
-            )}
-            {transliteration && (
-                <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
-                    <p className="font-semibold text-[var(--color-text-primary)]">Transliteration:</p>
-                    <p className="italic">{transliteration}</p>
+            <span className="qr-ayah-text">
+                {ayah.text}
+                <AyahMarker number={ayah.number} />
+            </span>
+             {(translation || transliteration) && (
+                <div className="qr-ayah-translation-box">
+                    {translation && (
+                        <div className="p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
+                            <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>
+                            <p className="italic">"{translation.text}"</p>
+                        </div>
+                    )}
+                    {transliteration && (
+                        <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
+                            <p className="font-semibold text-[var(--color-text-primary)]">Transliteration:</p>
+                            <p className="italic">{transliteration}</p>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -185,8 +187,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
       style={{ animationDuration: '0.3s' }}
       onClick={onClose}
     >
-      <div className="qr-modal" onClick={e => e.stopPropagation()}>
-        <aside className="qr-nav flex flex-col">
+      <div className="quran-reader-modal" onClick={e => e.stopPropagation()}>
+        <aside className="quran-reader-nav flex flex-col">
           <header className="p-4 border-b border-[var(--color-border)] flex-shrink-0 flex items-center justify-between">
             <h1 className="text-xl font-bold text-[var(--color-text-primary)]">The Holy Qur'an</h1>
             <button onClick={onClose} className="p-2 -mr-2 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors active:scale-90 lg:hidden">
@@ -222,25 +224,24 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
           </div>
            <footer className="p-4 border-t border-[var(--color-border)] text-center text-xs text-[var(--color-text-subtle)] hidden lg:block">Text from Tanzil Project</footer>
         </aside>
-        <main ref={scrollContainerRef} className="qr-main">
-            <div className="qr-page">
-                {surahInfo && <SurahHeader info={surahInfo} />}
-                {showBasmalah && <p className="qr-basmalah font-amiri">{BISMILLAH}</p>}
-                <div className="qr-text-container">
-                    {surah && surahAyahs.map(ayah => (
-                        <Ayah 
-                            key={ayah.number} 
-                            ayah={ayah}
-                            surahNumber={surahInfo!.number}
-                            profile={profile}
-                            isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
-                            onToggleBookmark={handleToggleBookmark}
-                        />
-                    ))}
+        <main ref={scrollContainerRef} className="quran-reader-main">
+            <div className="qr-page-container">
+                <div className="qr-page">
+                    {surahInfo && <SurahHeader info={surahInfo} />}
+                    {showBasmalah && <p className="qr-basmalah font-amiri">{BISMILLAH}</p>}
+                    <div className="qr-text-container">
+                        {surah && surahAyahs.map(ayah => (
+                            <Ayah 
+                                key={ayah.number} 
+                                ayah={ayah}
+                                surahNumber={surahInfo!.number}
+                                profile={profile}
+                                isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
+                                onToggleBookmark={handleToggleBookmark}
+                            />
+                        ))}
+                    </div>
                 </div>
-                <footer className="qr-page-number">
-                    <div className="qr-page-number-decorator">{new Intl.NumberFormat('ar-EG-u-nu-arab').format(surahInfo?.page || 0)}</div>
-                </footer>
             </div>
         </main>
       </div>
