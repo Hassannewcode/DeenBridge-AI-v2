@@ -24,6 +24,9 @@ export const locales = {
     fontLateef: 'Lateef',
     fontNoto: 'Noto',
     fontUthmanic: 'Uthmanic',
+    fontCairo: 'Cairo',
+    fontTajawal: 'Tajawal',
+    fontElMessiri: 'El Messiri',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -164,6 +167,9 @@ export const locales = {
     fontLateef: 'لطيف',
     fontNoto: 'نوتو نسخ',
     fontUthmanic: 'عثماني',
+    fontCairo: 'كايرو',
+    fontTajawal: 'تجول',
+    fontElMessiri: 'المسيري',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',

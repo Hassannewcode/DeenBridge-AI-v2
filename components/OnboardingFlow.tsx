@@ -113,7 +113,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 </p>
                 </header>
                 
-                <div className="w-full max-w-2xl">
+                <div className="w-full max-w-2xl overflow-hidden">
                 <div
                     className="flex transition-transform duration-500 ease-in-out"
                     style={{ transform: `translateX(${transformValue}%)` }}

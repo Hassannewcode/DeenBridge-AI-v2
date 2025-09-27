@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=El+Messiri:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;700&display=swap');
       
       /* THEME VARIABLES */
       :root[data-theme='light'] {
@@ -222,7 +222,48 @@
       html[data-arabic-font='uthmanic'] .dr-dua-arabic {
           font-family: 'Scheherazade New', serif;
       }
+      
+      html[data-arabic-font='cairo'] [dir="rtl"] body,
+      html[data-arabic-font='cairo'] [dir="rtl"] h1,
+      html[data-arabic-font='cairo'] [dir="rtl"] h2,
+      html[data-arabic-font='cairo'] [dir="rtl"] h3,
+      html[data-arabic-font='cairo'] .font-amiri,
+      html[data-arabic-font='cairo'] .qr-ayah-text,
+      html[data-arabic-font='cairo'] .qr-surah-title-arabic,
+      html[data-arabic-font='cairo'] .qr-basmalah,
+      html[data-arabic-font='cairo'] .qr-ayah-marker-text,
+      html[data-arabic-font='cairo'] .hr-hadith-arabic,
+      html[data-arabic-font='cairo'] .dr-dua-arabic {
+          font-family: 'Cairo', sans-serif;
+      }
 
+      html[data-arabic-font='tajawal'] [dir="rtl"] body,
+      html[data-arabic-font='tajawal'] [dir="rtl"] h1,
+      html[data-arabic-font='tajawal'] [dir="rtl"] h2,
+      html[data-arabic-font='tajawal'] [dir="rtl"] h3,
+      html[data-arabic-font='tajawal'] .font-amiri,
+      html[data-arabic-font='tajawal'] .qr-ayah-text,
+      html[data-arabic-font='tajawal'] .qr-surah-title-arabic,
+      html[data-arabic-font='tajawal'] .qr-basmalah,
+      html[data-arabic-font='tajawal'] .qr-ayah-marker-text,
+      html[data-arabic-font='tajawal'] .hr-hadith-arabic,
+      html[data-arabic-font='tajawal'] .dr-dua-arabic {
+          font-family: 'Tajawal', sans-serif;
+      }
+      
+      html[data-arabic-font='elmessiri'] [dir="rtl"] body,
+      html[data-arabic-font='elmessiri'] [dir="rtl"] h1,
+      html[data-arabic-font='elmessiri'] [dir="rtl"] h2,
+      html[data-arabic-font='elmessiri'] [dir="rtl"] h3,
+      html[data-arabic-font='elmessiri'] .font-amiri,
+      html[data-arabic-font='elmessiri'] .qr-ayah-text,
+      html[data-arabic-font='elmessiri'] .qr-surah-title-arabic,
+      html[data-arabic-font='elmessiri'] .qr-basmalah,
+      html[data-arabic-font='elmessiri'] .qr-ayah-marker-text,
+      html[data-arabic-font='elmessiri'] .hr-hadith-arabic,
+      html[data-arabic-font='elmessiri'] .dr-dua-arabic {
+          font-family: 'El Messiri', serif;
+      }
 
       h1, h2, h3, h4, h5, h6 {
         font-family: 'Inter', sans-serif;
@@ -481,6 +522,9 @@
       .qr-basmalah {
         text-align: center;
         margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       .qr-text-container {
         direction: rtl;
