@@ -27,6 +27,8 @@ export const locales = {
     fontCairo: 'Cairo',
     fontTajawal: 'Tajawal',
     fontElMessiri: 'El Messiri',
+    fontIbm: 'IBM Plex',
+    fontReadex: 'Readex Pro',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -170,6 +172,8 @@ export const locales = {
     fontCairo: 'كايرو',
     fontTajawal: 'تجول',
     fontElMessiri: 'المسيري',
+    fontIbm: 'آي بي إم بليكس',
+    fontReadex: 'ريدكس برو',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',

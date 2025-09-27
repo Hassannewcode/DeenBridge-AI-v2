@@ -100,7 +100,7 @@ export interface UserProfile {
   enableGoogleSearch: boolean;
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
-  arabicFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri';
+  arabicFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
 }
 
 // For Quranic Analysis Service
