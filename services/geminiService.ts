@@ -180,7 +180,8 @@ export const getGenerativeText = async (prompt: string): Promise<string> => {
         return result.text.trim();
     } catch (error) {
         console.error("Error generating text:", error);
-        return "Sorry, I couldn't process this request at the moment.";
+        // Re-throw the error to be handled by the calling function.
+        throw error;
     }
 };
 

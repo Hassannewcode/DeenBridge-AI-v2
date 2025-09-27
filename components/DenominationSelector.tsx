@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Denomination } from '../types';
 import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon } from './icons';
 import WelcomeBanner from './WelcomeBanner.jsx';
@@ -21,6 +21,15 @@ const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode }
 const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) => void }> = ({ onSelect }) => {
   const { t } = useLocale();
   const [showMore, setShowMore] = useState(false);
+  const showMoreButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (showMore) {
+      setTimeout(() => {
+        showMoreButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100); 
+    }
+  }, [showMore]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-transparent p-4">
@@ -55,7 +64,7 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
         </div>
         
         <div className="mt-8 text-center">
-          <button onClick={() => setShowMore(!showMore)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
+          <button ref={showMoreButtonRef} onClick={() => setShowMore(!showMore)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors">
             {showMore ? t('showLessOptions') : t('showMoreOptions')}
           </button>
         </div>

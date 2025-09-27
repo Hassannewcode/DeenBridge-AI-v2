@@ -80,8 +80,8 @@ const AyahComponent: React.FC<AyahComponentProps> = ({ ayah, profile, surahInfo,
     };
 
     return (
-        <div id={`ayah-${surahInfo?.number}-${ayah.number}`} className="ayah-container border-b border-[var(--color-card-quran-border)] last:border-b-0">
-            <div className="flex flex-row-reverse items-start gap-x-2 py-2">
+        <div id={`ayah-${surahInfo?.number}-${ayah.number}`} className="ayah-container">
+            <div className="flex flex-row-reverse items-start gap-x-2">
                 <div className="flex-grow">
                     <p className="font-amiri text-right text-justify leading-relaxed">
                         {ayah.text.split(' ').map((word, index) => (
@@ -297,18 +297,20 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
                         {showBasmalah && (
                             <p className="basmalah">{BISMILLAH}</p>
                         )}
-
-                        {surah && surahAyahs.map(ayah => (
-                            <AyahComponent 
-                                key={ayah.number} 
-                                ayah={ayah} 
-                                profile={profile} 
-                                surahInfo={surahInfo} 
-                                setToastInfo={setToastInfo}
-                                isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
-                                onToggleBookmark={handleToggleBookmark}
-                            />
-                        ))}
+                        
+                        <div className="quran-text-container">
+                            {surah && surahAyahs.map(ayah => (
+                                <AyahComponent 
+                                    key={ayah.number} 
+                                    ayah={ayah} 
+                                    profile={profile} 
+                                    surahInfo={surahInfo} 
+                                    setToastInfo={setToastInfo}
+                                    isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
+                                    onToggleBookmark={handleToggleBookmark}
+                                />
+                            ))}
+                        </div>
                         
                         <footer className="page-number-container">
                             <div className="page-number-decorator">

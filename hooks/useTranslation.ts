@@ -18,7 +18,8 @@ export const useTranslation = (originalText: string) => {
             setTranslation({ lang: language, text: response });
         } catch (error) {
             console.error(`Error translating to ${language}:`, error);
-            setTranslation({ lang: language, text: "Sorry, translation failed." });
+            // On error, just clear the translation instead of showing an error message.
+            setTranslation(null);
         } finally {
             setIsLoading(null);
         }
@@ -36,7 +37,8 @@ export const useTranslation = (originalText: string) => {
             setTransliteration(response);
         } catch (error) {
             console.error("Error transliterating:", error);
-            setTransliteration("Sorry, transliteration failed.");
+            // On error, just clear the transliteration.
+            setTransliteration(null);
         } finally {
             setIsLoading(null);
         }
