@@ -55,14 +55,15 @@ export const IbadiIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export const SearchBookIcon = ({ className = "h-6 w-6" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H15" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6.5 2H20v10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="15.5" cy="15.5" r="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="m18 18 2.5 2.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+export const QuranAnalysisIcon = ({ className = "h-6 w-6" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        {/* Open Book */}
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        {/* Magnifying glass */}
+        <circle cx="12" cy="12" r="3"/>
+        <line x1="14.5" y1="14.5" x2="17" y2="17"/>
+    </svg>
 );
 
 

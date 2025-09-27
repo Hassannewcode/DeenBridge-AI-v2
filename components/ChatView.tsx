@@ -3,7 +3,7 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, SearchBookIcon, QuranIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
@@ -518,28 +518,28 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
           </aside>
 
           <div className={`flex flex-col flex-1 h-full relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
-              <header className="flex items-center justify-between p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0 rtl:flex-row-reverse">
-                  <div className="flex items-center gap-3 min-w-0">
+              <header className="flex items-center justify-between p-2 sm:p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0 rtl:flex-row-reverse">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
                       </button>
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
                           <DeenBridgeLogoIcon />
                       </div>
                       <div>
-                          <h1 className="text-lg sm:text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
-                          <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{getTraditionText()}</p>
+                          <h1 className="text-base sm:text-xl font-bold text-[var(--color-text-primary)]">DeenBridge</h1>
+                          <p className="text-xs text-[var(--color-text-secondary)]">{getTraditionText()}</p>
                       </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label={t('quranSearchTitle')}>
-                        <SearchBookIcon />
+                  <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                    <button onClick={() => setIsQuranSearchOpen(true)} className="p-2 sm:p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label={t('quranSearchTitle')}>
+                        <QuranAnalysisIcon />
                     </button>
-                    <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
+                    <button onClick={() => setIsQuranReaderOpen(true)} className="p-2 sm:p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
                         <QuranIcon className="h-6 w-6" />
                     </button>
                     <LanguageSwitcher />
-                    <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">
+                    <button onClick={onOpenSettings} className="p-2 sm:p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">
                         <SettingsIcon />
                     </button>
                   </div>
