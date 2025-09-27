@@ -12,6 +12,7 @@ import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
+import ScrollToBottomButton from './ScrollToBottomButton';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
@@ -46,7 +47,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const [editingTitle, setEditingTitle] = useState('');
   const [isQuranReaderOpen, setIsQuranReaderOpen] = useState(false);
   const [isQuranSearchOpen, setIsQuranSearchOpen] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
   
   // --- Voice Input State ---
@@ -102,14 +105,28 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     }
   }, [activeChatId, chats, denomination, profile]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [activeChat?.messages]);
+    scrollToBottom('auto');
+  }, [activeChat?.messages.length]);
   
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const isScrolledUp = scrollHeight - scrollTop - clientHeight > clientHeight / 2;
+        setShowScrollButton(isScrolledUp);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleInputChange = useCallback((value: string) => {
     if (!activeChatId) return;
     setChats(prevChats => 
@@ -545,7 +562,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                   </div>
               </header>
 
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
+              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
                   {!activeChat || activeChat.messages.length === 0 ? (
                   <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
                   ) : (
@@ -556,6 +573,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                   <div ref={messagesEndRef} />
               </div>
               
+              <ScrollToBottomButton onClick={() => scrollToBottom('smooth')} visible={showScrollButton} />
+
               <MessageInput 
                   input={activeChat?.draft || ''}
                   setInput={handleInputChange}
