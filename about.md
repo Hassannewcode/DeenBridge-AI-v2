@@ -16,7 +16,7 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 ## Features
 
 *   **Dual Denomination Support:** Users can select either the Sunni or Shia school of thought to tailor the AI's knowledge base to the most relevant sources.
-*   **Persona-Driven AI:** The AI guide is inspired by the direct, humorous, and analogy-rich style of Sheikh Assim al-Hakeem, making complex topics more approachable.
+*   **Persona-Driven AI:** The AI guide is inspired by the direct, humorous, and analogy-rich style of prominent scholars, making complex topics more approachable.
 *   **Verifiable Sources:** Every response is grounded in a curated list of trusted Tafsir and Fiqh literature. Web search results are clearly marked as trusted or unverified.
 *   **On-the-fly Translation & Transliteration:** Scriptural texts can be translated into over 100 languages or transliterated with a single click.
 *   **Installable PWA:** DeenBridge is a fully-featured Progressive Web App, installable on desktop and mobile devices for a native-app feel and offline access.
@@ -27,4 +27,4 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 
 ## Disclaimer
 
-DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). For personal religious guidance, it is essential to consult with a qualified local scholar.
+DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). While it strives for accuracy, AI can make mistakes. For personal religious guidance, it is essential to consult with a qualified local scholar.

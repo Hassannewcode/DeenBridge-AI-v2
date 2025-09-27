@@ -195,7 +195,11 @@ const QuranReader: React.FC<{
             <div className="qr-page-container">
                 <div className="qr-page">
                     {surahInfo && <SurahHeader info={surahInfo} onInfoClick={handleOpenSurahInfo} />}
-                    {showBasmalah && <p className="qr-basmalah font-amiri">{BISMILLAH}</p>}
+                    {showBasmalah && (
+                      <div className="qr-basmalah">
+                          <img src="https://raw.githubusercontent.com/Hassannewcode/My-Image-library/refs/heads/main/DeenBridge/render_graphic-Arabic.png" alt="Bismillah-ir-Rahman-ir-Rahim" style={{ maxHeight: '80px', objectFit: 'contain' }} />
+                      </div>
+                    )}
                     <div className="qr-text-container">
                         {surah && surahAyahs.map(ayah => (
                             <Ayah 

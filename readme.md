@@ -88,7 +88,7 @@ Since there is no build process, you just need to serve the files from the proje
 ---
 ## Disclaimer
 
-DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). For personal religious guidance, it is essential to consult with a qualified local scholar.
+DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). While it strives for accuracy, AI can make mistakes. For personal religious guidance, it is essential to consult with a qualified local scholar.
 
 ---
 

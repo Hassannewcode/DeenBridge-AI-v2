@@ -443,17 +443,19 @@
       .qr-page-container {
         max-width: 65rem;
         margin: 0 auto;
-        padding: 0.75rem;
-        background: var(--quran-border-color);
-        border-radius: 8px;
+        padding: 0.5rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: 25px solid;
+        border-image-source: url('https://raw.githubusercontent.com/Hassannewcode/My-Image-library/main/DeenBridge/islamic%20border%20Quran.png?raw=true');
+        border-image-slice: 40;
+        border-image-repeat: round;
+        background-color: var(--quran-page-bg);
       }
       .qr-page {
         background: var(--quran-page-bg);
         color: var(--quran-text-color);
         padding: clamp(1rem, 5vw, 3rem);
         border-radius: 4px;
-        border: 1px solid color-mix(in srgb, var(--quran-border-color) 50%, transparent);
         position: relative;
       }
       .qr-surah-header {
@@ -477,12 +479,8 @@
         margin-top: 0.5rem;
       }
       .qr-basmalah {
-        font-size: clamp(1.5rem, 6vw, 2.2rem);
         text-align: center;
         margin-bottom: 2.5rem;
-        color: var(--quran-text-color);
-        line-height: 1.5;
-        font-weight: bold;
       }
       .qr-text-container {
         direction: rtl;

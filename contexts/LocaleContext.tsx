@@ -7,7 +7,7 @@ type Locale = 'en' | 'ar';
 interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: keyof typeof locales.en) => string;
+  t: (key: keyof typeof locales.en, replacements?: Record<string, string | number>) => string;
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
@@ -18,10 +18,15 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode, profile: User
     setProfile(prev => ({...prev, appLanguage: newLocale}));
   }
 
-  const t = (key: keyof typeof locales.en): string => {
+  const t = (key: keyof typeof locales.en, replacements?: Record<string, string | number>): string => {
     const lang = profile.appLanguage || 'en';
-    // Fallback to English if a key is missing in the target language
-    return (locales[lang] as any)[key] || locales.en[key];
+    let str = (locales[lang] as any)[key] || locales.en[key] || String(key);
+    if (replacements) {
+        Object.keys(replacements).forEach(rKey => {
+            str = str.replace(`{${rKey}}`, String(replacements[rKey]));
+        });
+    }
+    return str;
   };
   
   useEffect(() => {

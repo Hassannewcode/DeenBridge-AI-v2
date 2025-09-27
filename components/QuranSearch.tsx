@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { analyzeQuranTopic } from '../services/quranAnalysisService';
 import type { QuranAnalysisResult, ScripturalResult, UserProfile } from '../types';
@@ -19,9 +19,19 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [elapsedTime, setElapsedTime] = useState(0);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLocale();
+
+  const loadingMessages = useMemo(() => [
+    t('quranAnalysisLoading1'),
+    t('quranAnalysisLoading2'),
+    t('quranAnalysisLoading3'),
+    t('quranAnalysisLoading4'),
+    t('quranAnalysisLoading5'),
+  ], [t]);
 
   useEffect(() => {
     if (isOpen) {
@@ -34,6 +44,32 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
       document.body.style.overflow = 'auto';
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    let messageInterval: number | undefined;
+    let timeInterval: number | undefined;
+
+    if (isLoading) {
+      let messageIndex = 0;
+      setLoadingMessage(loadingMessages[0]);
+      messageInterval = window.setInterval(() => {
+          messageIndex = (messageIndex + 1) % loadingMessages.length;
+          setLoadingMessage(loadingMessages[messageIndex]);
+      }, 4000);
+
+      const startTime = Date.now();
+      setElapsedTime(0);
+      timeInterval = window.setInterval(() => {
+          setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+
+    }
+
+    return () => {
+        clearInterval(messageInterval);
+        clearInterval(timeInterval);
+    };
+  }, [isLoading, loadingMessages]);
 
   const handleSearch = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -98,8 +134,8 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-64 text-center">
                         <LoadingSpinner />
-                        <p className="mt-4 text-lg font-semibold text-[var(--color-text-primary)]">{t('analysis')}...</p>
-                        <p className="text-sm text-[var(--color-text-subtle)]">The AI is analyzing the entire Qur'an for you.</p>
+                        <p className="mt-4 text-lg font-semibold text-[var(--color-text-primary)]">{loadingMessage}</p>
+                        <p className="text-sm text-[var(--color-text-subtle)] mt-1">{t('elapsedTime', {time: elapsedTime})}</p>
                     </div>
                 ) : error ? (
                     <div className="text-center text-red-500 p-4 bg-red-500/10 rounded-lg">{error}</div>
