@@ -83,7 +83,7 @@ const AyahComponent: React.FC<AyahComponentProps> = ({ ayah, profile, surahInfo,
         <div id={`ayah-${surahInfo?.number}-${ayah.number}`} className="ayah-container border-b border-[var(--color-card-quran-border)] last:border-b-0">
             <div className="flex flex-row-reverse items-start gap-x-2 py-2">
                 <div className="flex-grow">
-                    <p className="font-amiri text-right leading-relaxed">
+                    <p className="font-amiri text-right text-justify leading-relaxed">
                         {ayah.text.split(' ').map((word, index) => (
                             <span key={index} className="ayah-word">{word}</span>
                         ))}
@@ -204,6 +204,18 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
 
   if (!isOpen) return null;
 
+  const BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ";
+  const showBasmalah = selectedSurah !== 1 && selectedSurah !== 9;
+  let surahAyahs = surah?.ayahs || [];
+  if (selectedSurah !== 1 && surahAyahs[0]?.text.startsWith(BISMILLAH)) {
+    const firstAyahText = surahAyahs[0].text.replace(BISMILLAH, '').trim();
+    // Create a new array to avoid mutating the original data from useMemo
+    const modifiedAyahs = [...surahAyahs];
+    modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstAyahText };
+    surahAyahs = modifiedAyahs.filter(a => a.text);
+  }
+
+
   return ReactDOM.createPortal(
     <div
       className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-fade-in-up"
@@ -272,38 +284,42 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
         </aside>
 
         <main ref={scrollContainerRef} className="quran-reader-main">
-            <div className="absolute inset-0 pointer-events-none quran-page-border"></div>
-            <div className="p-4 sm:p-6 md:p-8" dir="rtl">
-              {surah && surahInfo && (
-                <div className="surah-header">
-                  <div className="surah-title-container">
-                    <div className="surah-title-decorator"></div>
-                    <div className="surah-title-info">
-                        <h2 className="surah-title-arabic">{surahInfo.name_arabic}</h2>
-                        <p className="surah-title-english" dir="ltr">{surahInfo.name} &bull; {surahInfo.revelationType} &bull; {surahInfo.totalVerses} Verses</p>
+            <div className="quran-page-wrapper">
+                <div className="quran-page">
+                    <div className="quran-page-content">
+                        {surah && surahInfo && (
+                            <div className="surah-header">
+                                <h2 className="surah-title-arabic">{surahInfo.name_arabic}</h2>
+                                <p className="surah-title-english" dir="ltr">{surahInfo.name} &bull; {surahInfo.revelationType} &bull; {surahInfo.totalVerses} Verses</p>
+                            </div>
+                        )}
+
+                        {showBasmalah && (
+                            <p className="basmalah">{BISMILLAH}</p>
+                        )}
+
+                        {surah && surahAyahs.map(ayah => (
+                            <AyahComponent 
+                                key={ayah.number} 
+                                ayah={ayah} 
+                                profile={profile} 
+                                surahInfo={surahInfo} 
+                                setToastInfo={setToastInfo}
+                                isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
+                                onToggleBookmark={handleToggleBookmark}
+                            />
+                        ))}
+                        
+                        <footer className="page-number-container">
+                            <div className="page-number-decorator">
+                                {new Intl.NumberFormat('ar-EG-u-nu-arab').format(surahInfo?.page || 0)}
+                            </div>
+                        </footer>
                     </div>
-                    <div className="surah-title-decorator"></div>
-                  </div>
                 </div>
-              )}
-
-              {selectedSurah !== 1 && selectedSurah !== 9 && (
-                <p className="basmalah">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</p>
-              )}
-
-              {surah && surah.ayahs.map(ayah => (
-                 <AyahComponent 
-                    key={ayah.number} 
-                    ayah={ayah} 
-                    profile={profile} 
-                    surahInfo={surahInfo} 
-                    setToastInfo={setToastInfo}
-                    isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
-                    onToggleBookmark={handleToggleBookmark}
-                 />
-              ))}
             </div>
         </main>
+
       </div>
     </div>,
     document.body

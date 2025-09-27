@@ -571,7 +571,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
-                        <img src="/Quran-svg.png" alt="Read Quran" className="h-6 w-6" />
+                        <img src="https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/Quran-svg.png" alt="Read Quran" className="h-6 w-6" />
                     </button>
                     <LanguageSwitcher />
                     <button onClick={onOpenSettings} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Open settings">

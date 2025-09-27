@@ -3,6 +3,7 @@ import { CORE_POINTS } from '../constants';
 import { Denomination } from '../types';
 import ExampleQueryCard from './ExampleQueryCard';
 import { useLocale } from '../contexts/LocaleContext';
+import { DeenBridgeLogoIcon } from './icons';
 
 const EmptyState: React.FC<{ denomination: Denomination; onQuery: (query: string) => void }> = ({ denomination, onQuery }) => {
     const { t } = useLocale();
@@ -15,7 +16,9 @@ const EmptyState: React.FC<{ denomination: Denomination; onQuery: (query: string
 
     return (
         <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-8 animate-fade-in-up">
-            <img src="/App-banner.png" alt="DeenBridge Banner" className="w-auto h-24 rounded-lg shadow-lg" />
+            <div className="w-24 h-24 p-4 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-lg text-white">
+                <DeenBridgeLogoIcon />
+            </div>
             <h2 className="mt-6 text-3xl font-bold text-[var(--color-text-primary)]">{t('beginYourInquiry')}</h2>
             <p className="mt-2 text-[var(--color-text-secondary)] max-w-lg">
                 {t('beginYourInquirySubtext').replace('{denomination}', denomination)}

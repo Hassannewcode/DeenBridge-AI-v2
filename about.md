@@ -27,4 +27,8 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 
 ## Disclaimer
 
-DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). For personal religious guidance, it is essential to consult with a qualified local scholar.
+DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). For personal religious guidance, it is essential to consult with a qualified local scholar.Qur'an svg: https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/Quran-svg.png
+
+banner : https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/Banner%20Image%20DeenBridge%20(1).png
+
+but do not show banner in chat, its just for outside design kinda liek advertisement.
