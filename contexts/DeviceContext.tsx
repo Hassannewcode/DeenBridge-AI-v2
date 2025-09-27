@@ -7,7 +7,13 @@ interface DeviceContextType {
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
 
 export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isMobile, setIsMobile] = useState(false);
+    // Initialize state synchronously to prevent a re-render flicker on load
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth < 768;
+        }
+        return false;
+    });
 
     useEffect(() => {
         const checkDevice = () => {
@@ -16,8 +22,8 @@ export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setIsMobile(window.innerWidth < 768);
             }
         };
-
-        checkDevice();
+        
+        // No need for initial check, as it's done in useState
         window.addEventListener('resize', checkDevice);
         return () => window.removeEventListener('resize', checkDevice);
     }, []);
