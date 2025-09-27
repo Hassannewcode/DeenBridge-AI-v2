@@ -1,18 +1,28 @@
 import React from 'react';
 import { useLocale } from '../contexts/LocaleContext';
+import { locales } from '../data/locales';
 
-type ArabicFont = 'amiri' | 'lateef' | 'noto';
+type ArabicFont = 'amiri' | 'lateef' | 'noto' | 'uthmanic';
 
 interface ArabicFontSwitcherProps {
   currentFont: ArabicFont;
   onFontChange: (font: ArabicFont) => void;
 }
 
-const fontOptions: { name: ArabicFont; label: string; style: React.CSSProperties }[] = [
-  { name: 'amiri', label: 'Amiri', style: { fontFamily: "'Amiri', serif" } },
-  { name: 'lateef', label: 'Lateef', style: { fontFamily: "'Lateef', cursive" } },
-  { name: 'noto', label: 'Noto', style: { fontFamily: "'Noto Naskh Arabic', serif" } },
+const fontOptions: { name: ArabicFont; style: React.CSSProperties }[] = [
+  { name: 'amiri', style: { fontFamily: "'Amiri', serif" } },
+  { name: 'lateef', style: { fontFamily: "'Lateef', cursive" } },
+  { name: 'noto', style: { fontFamily: "'Noto Naskh Arabic', serif" } },
+  { name: 'uthmanic', style: { fontFamily: "'Scheherazade New', serif" } },
 ];
+
+const fontLabels: Record<ArabicFont, keyof typeof locales.en> = {
+    amiri: 'fontAmiri',
+    lateef: 'fontLateef',
+    noto: 'fontNoto',
+    uthmanic: 'fontUthmanic',
+};
+
 
 const ArabicFontSwitcher: React.FC<ArabicFontSwitcherProps> = ({ currentFont, onFontChange }) => {
   const { t } = useLocale();
@@ -20,7 +30,7 @@ const ArabicFontSwitcher: React.FC<ArabicFontSwitcherProps> = ({ currentFont, on
   return (
     <div>
       <h3 className="text-lg font-bold text-[var(--color-primary)] mb-2">{t('arabicFont')}</h3>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {fontOptions.map((option) => (
           <button
             key={option.name}
@@ -33,7 +43,7 @@ const ArabicFontSwitcher: React.FC<ArabicFontSwitcherProps> = ({ currentFont, on
             aria-pressed={currentFont === option.name}
           >
             <span style={option.style} className="block text-2xl text-[var(--color-text-primary)]">
-              {option.name === 'amiri' ? t('fontAmiri') : option.name === 'lateef' ? t('fontLateef') : t('fontNoto')}
+              {t(fontLabels[option.name])}
             </span>
           </button>
         ))}

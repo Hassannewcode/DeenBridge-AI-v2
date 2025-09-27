@@ -23,6 +23,7 @@ export const locales = {
     fontAmiri: 'Amiri',
     fontLateef: 'Lateef',
     fontNoto: 'Noto',
+    fontUthmanic: 'Uthmanic',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -156,6 +157,7 @@ export const locales = {
     fontAmiri: 'أميري',
     fontLateef: 'لطيف',
     fontNoto: 'نوتو نسخ',
+    fontUthmanic: 'عثماني',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',

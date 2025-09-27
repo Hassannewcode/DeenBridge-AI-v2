@@ -18,7 +18,7 @@ const defaultProfile: UserProfile = {
   enableGoogleSearch: true,
   appLanguage: 'en',
   translationLanguage: 'English',
-  arabicFont: 'amiri',
+  arabicFont: 'uthmanic',
 };
 
 const App: React.FC = () => {
@@ -42,7 +42,7 @@ const App: React.FC = () => {
   };
   
   useEffect(() => {
-    document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'amiri');
+    document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'uthmanic');
   }, [profile.arabicFont]);
 
 
