@@ -224,6 +224,11 @@
         transition: transform 0.3s ease-in-out, border-radius 0.3s ease-in-out;
       }
       
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
       @keyframes fade-in-up {
         from { opacity: 0; transform: translateY(12px) scale(0.98); }
         to { opacity: 1; transform: translateY(0) scale(1); }
@@ -355,14 +360,14 @@
       
       /*
       ====================================================================
-      QURAN READER STYLES V3 (REDESIGN)
+      QURAN READER STYLES V4 (With Info Panel)
       ====================================================================
       */
       .quran-reader-modal {
           display: flex;
           flex-direction: column;
           width: 100%;
-          max-width: 80rem;
+          max-width: 90rem; /* Increased max width */
           height: 95vh;
           background-color: var(--color-card-bg);
           border-radius: 1rem;
@@ -399,12 +404,14 @@
         overflow-y: auto;
         background-color: var(--color-bg-gradient-end);
         padding: 1rem;
+        transition: padding 0.3s ease-in-out;
       }
       @media (min-width: 768px) {
-          .quran-reader-main {
-              padding: 2rem;
-          }
+          .quran-reader-main { padding: 2rem; }
       }
+      .quran-reader-main.panel-open { padding-right: 420px; }
+      [dir="rtl"] .quran-reader-main.panel-open { padding-right: 2rem; padding-left: 420px; }
+
       .qr-page-container {
         max-width: 65rem;
         margin: 0 auto;
@@ -456,7 +463,17 @@
       }
       .qr-ayah {
         position: relative;
-        display: inline; /* This is key for text flow */
+        display: inline;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        padding: 0.2rem 0;
+        border-radius: 4px;
+      }
+      .qr-ayah.selected .qr-ayah-text {
+        background-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
+      }
+      .qr-ayah:hover .qr-ayah-text {
+        background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
       }
       .qr-ayah-text {
         font-kerning: normal;
@@ -488,37 +505,30 @@
         font-size: 0.7em;
         font-weight: bold;
       }
-      .qr-ayah-controls {
-        display: inline-flex;
-        flex-direction: row;
-        gap: 0.25rem;
-        padding: 0.25rem;
-        background-color: color-mix(in srgb, var(--color-card-bg) 80%, transparent);
-        backdrop-filter: blur(2px);
-        border-radius: 999px;
-        border: 1px solid var(--color-border);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        opacity: 0;
-        transition: opacity 0.2s, transform 0.2s;
-        z-index: 10;
-        position: absolute;
-        bottom: 100%; 
-        left: 50%;
-        transform: translateX(-50%) translateY(10px);
-        pointer-events: none;
-      }
-      .group:hover .qr-ayah-controls {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-5px);
-        pointer-events: auto;
-      }
-      .qr-ayah-translation-box {
-        display: block;
+      
+      .quran-info-panel {
+        position: fixed;
+        top: 0; right: 0; bottom: 0;
         width: 100%;
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
-        animation: fade-in-up 0.3s;
+        max-width: 400px;
+        background-color: var(--color-bg);
+        border-left: 1px solid var(--color-border);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        z-index: 60;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       }
+      .quran-info-panel.open { transform: translateX(0); }
+      [dir="rtl"] .quran-info-panel { right: auto; left: 0; border-left: none; border-right: 1px solid var(--color-border); transform: translateX(-100%); }
+      [dir="rtl"] .quran-info-panel.open { transform: translateX(0); }
+      @media (max-width: 1023px) {
+        .quran-info-panel { max-width: 100%; top: 5vh; bottom: 5vh; left: 5vw; right: 5vw; height: 90vh; width: 90vw; border-radius: 1rem; border: 1px solid var(--color-border); }
+        .quran-reader-main.panel-open { padding-right: 2rem; }
+        [dir="rtl"] .quran-reader-main.panel-open { padding-left: 2rem; }
+      }
+
 
       /* Custom select styling */
       .custom-select {

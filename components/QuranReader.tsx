@@ -1,35 +1,21 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { parseQuranText } from '../utils/quranParser';
-import type { Ayah as AyahType, Surah as SurahType } from '../utils/quranParser';
+import type { Ayah as AyahType, Surah as SurahType } from '../types';
 import { SURAH_INFO } from '../data/surah-info';
-import { CloseIcon, BookmarkIcon, BookmarkFilledIcon } from './icons';
-import { useTranslation } from '../hooks/useTranslation';
-import TranslationMenu from './TranslationMenu';
-import type { UserProfile } from '../types';
+import { CloseIcon, InfoIcon } from './icons';
+import type { UserProfile, QuranBookmark } from '../types';
 import { useLocale } from '../contexts/LocaleContext';
 import useLocalStorage from '../hooks/useLocalStorage';
-
-// --- Types ---
-interface QuranBookmark {
-  surahNumber: number;
-  ayahNumber: number;
-  surahName: string;
-  createdAt: number;
-}
-interface QuranReaderProps {
-  isOpen: boolean;
-  onClose: () => void;
-  profile: UserProfile;
-  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
-}
+import QuranInfoPanel from './QuranInfoPanel';
+import SurahInfoPanel from './SurahInfoPanel';
 
 // --- Sub-Components ---
 
 const AyahMarker: React.FC<{ number: number }> = React.memo(({ number }) => (
     <span className="qr-ayah-marker">
         <svg viewBox="0 0 100 100" className="qr-ayah-marker-shape" aria-hidden="true">
-            <polygon points="50,5 65,35 90,50 65,65 50,90 35,65 10,50 35,35" fill="currentColor"/>
+             <path d="M73.2,8.2l18.6,18.6v46.4l-18.6,18.6H26.8L8.2,73.2V26.8L26.8,8.2H73.2z" fill="currentColor"/>
         </svg>
         <span className="qr-ayah-marker-text">
             {new Intl.NumberFormat('ar-EG-u-nu-arab').format(number)}
@@ -37,93 +23,53 @@ const AyahMarker: React.FC<{ number: number }> = React.memo(({ number }) => (
     </span>
 ));
 
-const SurahHeader: React.FC<{ info: typeof SURAH_INFO[0] }> = React.memo(({ info }) => (
+const SurahHeader: React.FC<{ info: typeof SURAH_INFO[0], onInfoClick: () => void }> = React.memo(({ info, onInfoClick }) => (
     <div className="qr-surah-header">
         <h2 className="qr-surah-title-arabic">{info.name_arabic}</h2>
-        <p className="qr-surah-title-english" dir="ltr">{info.name} &bull; {info.revelationType} &bull; {info.totalVerses} Verses</p>
+        <div className="flex items-center justify-center gap-2 mt-2">
+            <p className="qr-surah-title-english" dir="ltr">{info.name} &bull; {info.revelationType} &bull; {info.totalVerses} Verses</p>
+             <button onClick={onInfoClick} className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors">
+                <InfoIcon />
+             </button>
+        </div>
     </div>
 ));
 
 const Ayah: React.FC<{
     ayah: AyahType;
     surahNumber: number;
-    profile: UserProfile;
-    isBookmarked: boolean;
-    onToggleBookmark: (ayahNumber: number) => void;
-}> = ({ ayah, surahNumber, profile, isBookmarked, onToggleBookmark }) => {
-    const { 
-        translation, transliteration, isLoading, 
-        translate, transliterate, hideTranslation, hideTransliteration
-    } = useTranslation(ayah.text);
-    const { t } = useLocale();
-
-    const handleCopy = useCallback(() => {
-        const citation = `${SURAH_INFO[surahNumber - 1].name} ${surahNumber}:${ayah.number}`;
-        let textToCopy = `"${ayah.text}" (${citation})\n\n`;
-        if (translation) {
-            textToCopy += `${translation.lang} Translation: "${translation.text}"`;
-        }
-        navigator.clipboard.writeText(textToCopy).then(() => alert(t('copiedToClipboard')));
-    }, [ayah, surahNumber, translation, t]);
-    
-    const handleShare = useCallback(async () => {
-        if (!navigator.share) return;
-        const citation = `${SURAH_INFO[surahNumber - 1].name} ${surahNumber}:${ayah.number}`;
-        let textToShare = `"${ayah.text}" (${citation})\n\n`;
-        if (translation) {
-            textToShare += `${translation.lang} Translation: "${translation.text}"`;
-        }
-        await navigator.share({ title: `Qur'an ${citation}`, text: textToShare });
-    }, [ayah, surahNumber, translation]);
-
+    onClick: () => void;
+    isSelected: boolean;
+}> = ({ ayah, surahNumber, onClick, isSelected }) => {
     return (
-        <div id={`ayah-${surahNumber}-${ayah.number}`} className="qr-ayah group" style={{display: 'inline-block'}}>
-            <div className="qr-ayah-controls">
-                <button onClick={() => onToggleBookmark(ayah.number)} className="p-1.5 text-[var(--color-text-subtle)] hover:text-[var(--color-accent)]">
-                    {isBookmarked ? <BookmarkFilledIcon className="w-4 h-4" /> : <BookmarkIcon className="w-4 h-4" />}
-                </button>
-                 <TranslationMenu
-                    isLoading={isLoading}
-                    translation={translation}
-                    transliteration={transliteration}
-                    onTranslate={translate}
-                    onTransliterate={transliterate}
-                    onHideTranslation={hideTranslation}
-                    onHideTransliteration={hideTransliteration}
-                    onCopy={handleCopy}
-                    onShare={handleShare}
-                />
-            </div>
+        <span 
+            id={`ayah-${surahNumber}-${ayah.number}`} 
+            className={`qr-ayah group ${isSelected ? 'selected' : ''}`}
+            style={{display: 'inline', cursor: 'pointer'}}
+            onClick={onClick}
+        >
             <span className="qr-ayah-text">
                 {ayah.text}
                 <AyahMarker number={ayah.number} />
             </span>
-             {(translation || transliteration) && (
-                <div className="qr-ayah-translation-box">
-                    {translation && (
-                        <div className="p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
-                            <p className="font-semibold text-[var(--color-text-primary)]">{translation.lang} Translation:</p>
-                            <p className="italic">"{translation.text}"</p>
-                        </div>
-                    )}
-                    {transliteration && (
-                        <div className="mt-2 p-2 bg-[var(--color-card-bg)] rounded text-sm text-[var(--color-text-secondary)] text-left" dir="ltr">
-                            <p className="font-semibold text-[var(--color-text-primary)]">Transliteration:</p>
-                            <p className="italic">{transliteration}</p>
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
+        </span>
     );
 };
 
 
 // --- Main Reader Component ---
-const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, setToastInfo }) => {
+const QuranReader: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  profile: UserProfile;
+  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
+}> = ({ isOpen, onClose, profile, setToastInfo }) => {
   const [selectedSurah, setSelectedSurah] = useState(1);
   const [activeTab, setActiveTab] = useState<'surahs' | 'bookmarks'>('surahs');
   const [bookmarks, setBookmarks] = useLocalStorage<QuranBookmark[]>('deenbridge-quran-bookmarks', []);
+  const [selectedAyah, setSelectedAyah] = useState<{ surahNumber: number, ayahNumber: number } | null>(null);
+  const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
+  
   const quranData = useMemo(() => parseQuranText(), []);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
@@ -140,20 +86,38 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
   
   useEffect(() => {
     if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+    setSelectedAyah(null);
+    setIsSurahInfoOpen(false);
   }, [selectedSurah]);
 
+  const handleAyahClick = (surahNum: number, ayahNum: number) => {
+    setIsSurahInfoOpen(false);
+    setSelectedAyah({ surahNumber: surahNum, ayahNumber: ayahNum });
+  };
+  
+  const handleOpenSurahInfo = () => {
+      setSelectedAyah(null);
+      setIsSurahInfoOpen(true);
+  };
+
+  const handleClosePanels = () => {
+    setSelectedAyah(null);
+    setIsSurahInfoOpen(false);
+  };
+  
   const surah = quranData.find(s => s.number === selectedSurah);
   const surahInfo = SURAH_INFO.find(s => s.number === selectedSurah);
   
-  const handleToggleBookmark = (ayahNumber: number) => {
-    if (!surahInfo) return;
-    const isBookmarked = bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayahNumber);
+  const handleToggleBookmark = (surahNum: number, ayahNum: number) => {
+    const sInfo = SURAH_INFO.find(s => s.number === surahNum);
+    if (!sInfo) return;
+    const isBookmarked = bookmarks.some(b => b.surahNumber === surahNum && b.ayahNumber === ayahNum);
     if (isBookmarked) {
-        setBookmarks(prev => prev.filter(b => !(b.surahNumber === selectedSurah && b.ayahNumber === ayahNumber)));
+        setBookmarks(prev => prev.filter(b => !(b.surahNumber === surahNum && b.ayahNumber === ayahNum)));
         setToastInfo({ message: t('removeBookmark'), type: 'error' });
     } else {
         const newBookmark: QuranBookmark = {
-            surahNumber: selectedSurah, ayahNumber, surahName: surahInfo.name, createdAt: Date.now()
+            surahNumber: surahNum, ayahNumber: ayahNum, surahName: sInfo.name, createdAt: Date.now()
         };
         setBookmarks(prev => [...prev, newBookmark].sort((a,b) => a.surahNumber - b.surahNumber || a.ayahNumber - b.ayahNumber));
         setToastInfo({ message: t('addBookmark'), type: 'success' });
@@ -166,6 +130,7 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
       setTimeout(() => {
           const element = document.getElementById(`ayah-${bookmark.surahNumber}-${bookmark.ayahNumber}`);
           element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          handleAyahClick(bookmark.surahNumber, bookmark.ayahNumber);
       }, 100);
   };
 
@@ -180,6 +145,8 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
     modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstAyahText };
     surahAyahs = modifiedAyahs.filter(a => a.text);
   }
+
+  const isPanelOpen = selectedAyah || isSurahInfoOpen;
 
   return ReactDOM.createPortal(
     <div
@@ -224,10 +191,10 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
           </div>
            <footer className="p-4 border-t border-[var(--color-border)] text-center text-xs text-[var(--color-text-subtle)] hidden lg:block">Text from Tanzil Project</footer>
         </aside>
-        <main ref={scrollContainerRef} className="quran-reader-main">
+        <main ref={scrollContainerRef} className={`quran-reader-main ${isPanelOpen ? 'panel-open' : ''}`}>
             <div className="qr-page-container">
                 <div className="qr-page">
-                    {surahInfo && <SurahHeader info={surahInfo} />}
+                    {surahInfo && <SurahHeader info={surahInfo} onInfoClick={handleOpenSurahInfo} />}
                     {showBasmalah && <p className="qr-basmalah font-amiri">{BISMILLAH}</p>}
                     <div className="qr-text-container">
                         {surah && surahAyahs.map(ayah => (
@@ -235,15 +202,31 @@ const QuranReader: React.FC<QuranReaderProps> = ({ isOpen, onClose, profile, set
                                 key={ayah.number} 
                                 ayah={ayah}
                                 surahNumber={surahInfo!.number}
-                                profile={profile}
-                                isBookmarked={bookmarks.some(b => b.surahNumber === selectedSurah && b.ayahNumber === ayah.number)}
-                                onToggleBookmark={handleToggleBookmark}
+                                onClick={() => handleAyahClick(surah.number, ayah.number)}
+                                isSelected={selectedAyah?.surahNumber === surah.number && selectedAyah.ayahNumber === ayah.number}
                             />
                         ))}
                     </div>
                 </div>
             </div>
         </main>
+        {selectedAyah && surah && (
+             <QuranInfoPanel
+                surah={surah}
+                ayah={surah.ayahs.find(a => a.number === selectedAyah.ayahNumber)!}
+                profile={profile}
+                onClose={handleClosePanels}
+                bookmarks={bookmarks}
+                onToggleBookmark={handleToggleBookmark}
+             />
+        )}
+        {isSurahInfoOpen && surah && surahInfo && (
+            <SurahInfoPanel 
+                surah={surah}
+                surahInfo={surahInfo}
+                onClose={handleClosePanels}
+            />
+        )}
       </div>
     </div>,
     document.body

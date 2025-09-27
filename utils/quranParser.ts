@@ -1,15 +1,6 @@
 import { quranText } from '../data/quran';
-
-export interface Ayah {
-    number: number;
-    text: string;
-}
-
-export interface Surah {
-    number: number;
-    name: string;
-    ayahs: Ayah[];
-}
+// Fix: Import Surah and Ayah types from the central types.ts file.
+import type { Ayah, Surah } from '../types';
 
 export const SURAH_NAMES = [
   "Al-Fatihah", "Al-Baqarah", "Aal-E-Imran", "An-Nisa", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Tawbah",

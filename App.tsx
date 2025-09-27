@@ -1,14 +1,12 @@
-
-
-
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
 import DenominationSelector from './components/DenominationSelector';
 import ChatView from './components/ChatView';
-import SettingsModal from './components/SettingsModal';
 import OnboardingFlow from './components/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
+
+const SettingsModal = lazy(() => import('./components/SettingsModal'));
 
 const defaultProfile: UserProfile = {
   name: '',
@@ -60,13 +58,15 @@ const App: React.FC = () => {
               onOpenSettings={() => setIsSettingsOpen(true)}
               profile={profile} 
             />
-            <SettingsModal 
-              isOpen={isSettingsOpen}
-              onClose={() => setIsSettingsOpen(false)}
-              profile={profile}
-              setProfile={setProfile}
-              onResetDenomination={handleResetDenomination}
-            />
+            <Suspense fallback={null}>
+              <SettingsModal 
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                profile={profile}
+                setProfile={setProfile}
+                onResetDenomination={handleResetDenomination}
+              />
+            </Suspense>
           </>
         ) : (
           <DenominationSelector onSelect={setDenomination} />

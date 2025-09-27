@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, HadithBookIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, HadithBookIcon, LoadingSpinner } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
@@ -12,8 +12,9 @@ import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
-import QuranReader from './QuranReader';
-import QuranSearch from './QuranSearch';
+
+const QuranReader = lazy(() => import('./QuranReader'));
+const QuranSearch = lazy(() => import('./QuranSearch'));
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -477,11 +478,20 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     </a>
   );
 
+  const SuspenseLoader: React.FC = () => (
+      <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+  );
+
   return (
     <SpeechProvider>
       <div className="flex h-screen w-screen bg-transparent overflow-hidden">
-          {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
-          {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
+          <Suspense fallback={<SuspenseLoader />}>
+            {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
+            {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
+          </Suspense>
+
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 

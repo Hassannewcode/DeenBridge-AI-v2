@@ -1,5 +1,6 @@
+// Fix: The `Surah` type is not from @google/genai, it is a local type.
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile } from '../types';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah } from '../types';
 import { CORE_POINTS } from '../constants';
 import { TRUSTED_SOURCES } from '../data/sources';
 import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
@@ -98,7 +99,7 @@ Your response must follow this structure: A warm greeting, followed by your summ
 As-salamu alaykum, ${profile.name}. An excellent question. You're asking about showing off in worship, or *Riya*. Think of it like this: if you do a good deed for Allah, it's like planting a strong tree. But Riya is a termite that eats the tree from the inside out, leaving nothing of value. It's a dangerous thing. May this be of benefit, and Allah knows best.
 
 ## Scriptural Sources
-Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُсِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
+Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُועِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُсِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
 Source: The Holy Quran
 Reference: Al-Baqarah (2:155)
 Author: N/A
@@ -166,7 +167,7 @@ export const getGenerativeText = async (prompt: string): Promise<string> => {
             contents: prompt,
             config: {
                 temperature: 0.2,
-                maxOutputTokens: 1024,
+                maxOutputTokens: 2048,
                 thinkingConfig: { thinkingBudget: 0 }
             },
         }));
@@ -175,6 +176,76 @@ export const getGenerativeText = async (prompt: string): Promise<string> => {
         console.error("Error generating text:", error);
         // Re-throw the error to be handled by the calling function.
         throw error;
+    }
+};
+
+export const getVerseTafsir = async (surahName: string, ayahNumber: number, ayahText: string): Promise<string> => {
+    const prompt = `Provide a brief, scholarly commentary (tafsir) for the Quranic verse "${surahName} ${ayahNumber}" which reads: "${ayahText}".
+    Your explanation should be easy to understand for a general audience.
+    Focus on:
+    1.  The immediate context of the verse.
+    2.  The core meaning and key lessons.
+    3.  If possible, briefly mention how it is understood in key tafsirs like Tafsir Ibn Kathir or Tafsir al-Jalalayn, but keep it concise.
+    Do not add any disclaimers about not being a scholar. Respond directly with the commentary in Markdown format.`;
+
+    try {
+        const result: GenerateContentResponse = await withSilentRetry(() => ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.5,
+            },
+        }));
+        return result.text.trim();
+    } catch (error) {
+        console.error("Error generating tafsir:", error);
+        throw new Error("Could not fetch tafsir. Please try again.");
+    }
+};
+
+export const getSurahOverview = async (surahName: string, surahNumber: number): Promise<string> => {
+    const prompt = `Provide a concise and informative overview of Surah ${surahName} (Surah #${surahNumber}) of the Holy Qur'an.
+    The overview should be in Markdown format and include:
+    -   A brief introduction to the Surah's name and its significance.
+    -   The main themes and key messages discussed in the Surah.
+    -   Its historical context or period of revelation (Makkiyah/Madaniyah) and what that implies.
+    -   Any well-known virtues or benefits associated with reciting it, if applicable.
+    Keep the tone scholarly yet accessible to a general audience. Do not add any personal disclaimers.`;
+
+    try {
+        const result: GenerateContentResponse = await withSilentRetry(() => ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.4,
+            },
+        }));
+        return result.text.trim();
+    } catch (error) {
+        console.error("Error generating Surah overview:", error);
+        throw new Error("Could not fetch Surah overview. Please try again.");
+    }
+};
+
+export const processFullSurah = async (surah: Surah, mode: 'translate' | 'transliterate', language?: string): Promise<string> => {
+    const action = mode === 'translate' ? `Translate the following verses of Surah ${surah.name} into ${language}.` : `Transliterate the following verses of Surah ${surah.name}.`;
+    const format = mode === 'translate' ? `Format the output as a single block of text, with each verse on a new line preceded by its verse number in brackets (e.g., "[1] ...", "[2] ...").` : `Format the output as a single block of text, with each verse on a new line preceded by its verse number in brackets.`;
+    const versesText = surah.ayahs.map(ayah => `${ayah.number}. ${ayah.text}`).join('\n');
+    
+    const prompt = `${action} ${format}\n\n${versesText}`;
+
+    try {
+        const result: GenerateContentResponse = await withSilentRetry(() => ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.1,
+            },
+        }));
+        return result.text.trim();
+    } catch (error) {
+        console.error(`Error processing surah for ${mode}:`, error);
+        throw new Error(`Could not ${mode} the surah. Please try again.`);
     }
 };
 

@@ -1,5 +1,24 @@
 
 
+// Fix: Moved Ayah, Surah, and QuranBookmark interfaces here to centralize types.
+export interface Ayah {
+    number: number;
+    text: string;
+}
+
+export interface Surah {
+    number: number;
+    name: string;
+    ayahs: Ayah[];
+}
+
+export interface QuranBookmark {
+  surahNumber: number;
+  ayahNumber: number;
+  surahName: string;
+  createdAt: number;
+}
+
 export enum Denomination {
   Sunni = 'Sunni',
   Shia = 'Shia',
