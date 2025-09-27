@@ -70,7 +70,6 @@ export interface ChatSession {
     mimeType: string;
     name: string;
   } | null;
-  isArchived?: boolean;
   isPinned?: boolean;
 }
 
@@ -84,12 +83,4 @@ export interface UserProfile {
   enableGoogleSearch: boolean;
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
-}
-
-export interface Hadith {
-  id: string;
-  title: string;
-  arabic: string;
-  english: string;
-  attribution: string;
 }

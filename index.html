@@ -356,41 +356,41 @@
       }
 
       .quran-reader-main {
-          flex-grow: 1;
-          overflow-y: auto;
-          background-color: var(--color-card-quran-bg);
-          position: relative;
+        flex-grow: 1;
+        overflow-y: auto;
+        background-color: var(--quran-page-bg);
+        position: relative;
+        padding: 1rem;
+      }
+      @media (min-width: 768px) {
+          .quran-reader-main {
+              padding: 2rem;
+          }
       }
 
       .quran-page-wrapper {
-        padding: 2rem;
+        padding: 0;
       }
 
       .quran-page {
-        border: 35px solid transparent;
-        border-image-slice: 110;
-        border-image-width: 35px;
-        border-image-outset: 0;
-        border-image-repeat: stretch;
-        border-image-source: url("https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/refs/heads/main/Images/islamic%20border%20Quran.png");
         background: var(--quran-page-bg);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        padding: 2.5rem;
+        border-radius: 4px;
       }
 
       .quran-page-content {
-        box-shadow: inset 0 0 20px rgba(0,0,0,0.07);
         min-height: 500px;
         padding: 0;
       }
       
       .surah-header {
         text-align: center;
-        margin-bottom: 2.5rem;
-        padding: 1rem 1.5rem;
-        border: 1px solid var(--quran-border-color);
-        box-shadow: inset 0 0 0 3px var(--quran-border-color);
+        margin: 0 auto 2.5rem auto;
+        padding: 1.5rem;
+        border: 2px double var(--quran-border-color);
         background-color: transparent;
+        max-width: 90%;
       }
 
       .surah-title-arabic {
@@ -420,7 +420,7 @@
       
       .quran-text-container {
         text-align: justify;
-        line-height: 3.2;
+        line-height: 3.3;
         padding: 0 1rem;
         font-kerning: normal;
         text-rendering: optimizeLegibility;
@@ -433,14 +433,14 @@
       .ayah-word {
         display: inline;
         font-family: 'Amiri', serif;
-        font-size: 2.6rem;
+        font-size: 2.7rem;
         color: var(--quran-text-color);
         margin: 0 0.05em;
       }
 
       @media (min-width: 768px) {
           .ayah-word {
-              font-size: 2.8rem;
+              font-size: 2.9rem;
           }
       }
       
@@ -448,15 +448,15 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 44px;
-        height: 44px;
+        width: 34px;
+        height: 34px;
         text-align: center;
         color: var(--quran-page-bg);
         font-family: 'Amiri', serif;
-        font-size: 1.1rem;
+        font-size: 0.9rem;
         font-weight: bold;
         margin: 0 0.3rem;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='rgb(from var(--quran-text-color) r g b)' d='M50 95 C 80 70, 100 50, 100 30 A 25 25 0 0 0 50 0 A 25 25 0 0 0 0 30 C 0 50, 20 70, 50 95 Z' transform='rotate(180 50 50)'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='rgb(from var(--quran-text-color) r g b)' points='29.29,0 70.71,0 100,29.29 100,70.71 70.71,100 29.29,100 0,70.71 0,29.29'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

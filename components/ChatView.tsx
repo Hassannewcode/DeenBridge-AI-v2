@@ -3,7 +3,7 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, ArchiveIcon, UnarchiveIcon, PinIcon, PinFilledIcon, HadithBookIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, HadithBookIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
@@ -13,7 +13,7 @@ import type { Chat, GenerateContentResponse } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import QuranReader from './QuranReader';
-import HadithReader from './HadithReader';
+import QuranSearch from './HadithReader';
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -44,8 +44,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [isQuranReaderOpen, setIsQuranReaderOpen] = useState(false);
-  const [isHadithReaderOpen, setIsHadithReaderOpen] = useState(false);
-  const [isArchivedOpen, setIsArchivedOpen] = useState(false);
+  const [isQuranSearchOpen, setIsQuranSearchOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
   
@@ -58,12 +57,11 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   // --- Toast State ---
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
-  const { activeChats, archivedChats, pinnedChats } = useMemo(() => {
+  const { activeChats, pinnedChats } = useMemo(() => {
     const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
     return {
-      activeChats: sortedChats.filter(c => !c.isArchived && !c.isPinned),
-      archivedChats: sortedChats.filter(c => c.isArchived),
-      pinnedChats: sortedChats.filter(c => c.isPinned && !c.isArchived),
+      activeChats: sortedChats.filter(c => !c.isPinned),
+      pinnedChats: sortedChats.filter(c => c.isPinned),
     };
   }, [chats]);
   
@@ -79,21 +77,22 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       createdAt: Date.now(),
       draft: '',
       draftFile: null,
-      isArchived: false,
     };
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(newChatId);
     setIsSidebarOpen(false);
   }, [setChats, setActiveChatId]);
   
-  useEffect(() => {
-    const unarchivedChats = chats.filter(c => !c.isArchived);
-    if (unarchivedChats.length === 0) {
-      handleNewChat();
-    } else if (!activeChatId || !unarchivedChats.find(c => c.id === activeChatId)) {
-      setActiveChatId(unarchivedChats[0]?.id || null);
+ useEffect(() => {
+    if (chats.length === 0) {
+        handleNewChat();
+    } else if (!activeChatId || !chats.find(c => c.id === activeChatId)) {
+        // If current active chat is deleted or invalid, switch to the most recent one.
+        const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
+        setActiveChatId(sortedChats[0]?.id || null);
     }
-  }, [chats, activeChatId, setActiveChatId, handleNewChat]);
+}, [chats, activeChatId, setActiveChatId, handleNewChat]);
+
 
   useEffect(() => {
     if (activeChat) {
@@ -383,31 +382,14 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     setChats(prev => {
         const remainingChats = prev.filter(c => c.id !== chatIdToDelete);
         if (activeChatId === chatIdToDelete) {
-            const nextActiveChat = chats.filter(c => !c.isArchived).find(c => c.id !== chatIdToDelete);
-            setActiveChatId(nextActiveChat?.id || null);
-            if (!nextActiveChat) {
+            const sortedRemaining = [...remainingChats].sort((a, b) => b.createdAt - a.createdAt);
+            setActiveChatId(sortedRemaining[0]?.id || null);
+            if (remainingChats.length === 0) {
               setTimeout(handleNewChat, 0);
             }
         }
         return remainingChats;
     });
-  };
-  
-  const handleArchiveChat = (e: React.MouseEvent, chatIdToArchive: string) => {
-    e.stopPropagation();
-    setChats(prev => prev.map(c => c.id === chatIdToArchive ? { ...c, isArchived: true } : c));
-    if (activeChatId === chatIdToArchive) {
-      const nextActiveChat = chats.filter(c => !c.isArchived).find(c => c.id !== chatIdToArchive);
-      setActiveChatId(nextActiveChat?.id || null);
-      if (!nextActiveChat) {
-        setTimeout(handleNewChat, 0);
-      }
-    }
-  };
-
-  const handleUnarchiveChat = (e: React.MouseEvent, chatIdToUnarchive: string) => {
-    e.stopPropagation();
-    setChats(prev => prev.map(c => c.id === chatIdToUnarchive ? { ...c, isArchived: false } : c));
   };
   
   const handleTogglePinChat = (e: React.MouseEvent, chatIdToPin: string) => {
@@ -449,7 +431,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     }
   }
 
-  const ChatItem: React.FC<{session: ChatSession, isArchived: boolean}> = ({ session, isArchived }) => (
+  const ChatItem: React.FC<{session: ChatSession}> = ({ session }) => (
     <a key={session.id} onClick={() => handleSelectChat(session.id)} className={`group flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${activeChatId === session.id ? 'bg-[var(--color-border)] text-[var(--color-text-primary)]' : 'hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)]'}`}>
         <MessageSquareIcon className="w-5 h-5 flex-shrink-0" />
         {editingChatId === session.id ? (
@@ -467,8 +449,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         ) : (
         <span onDoubleClick={(e) => handleStartEditing(e, session)} className="flex-1 truncate text-sm font-medium">{session.title}</span>
         )}
-        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ms-2 shrink-0">
-        {!isArchived && (
+        <div className="hidden group-hover:flex items-center ms-2 shrink-0">
             <button
                 onClick={(e) => handleTogglePinChat(e, session.id)}
                 className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
@@ -476,7 +457,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
             >
                 {session.isPinned ? <PinFilledIcon className="w-4 h-4 text-[var(--color-accent)]" /> : <PinIcon className="w-4 h-4" />}
             </button>
-        )}
         {editingChatId !== session.id && (
                 <button
                     onClick={(e) => handleStartEditing(e, session)}
@@ -486,23 +466,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     <PencilIcon className="w-4 h-4" />
                 </button>
             )}
-        {isArchived ? (
-            <button
-                onClick={(e) => handleUnarchiveChat(e, session.id)}
-                className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
-                aria-label="Unarchive Chat"
-            >
-                <UnarchiveIcon className="w-4 h-4" />
-            </button>
-        ) : (
-            <button
-                onClick={(e) => handleArchiveChat(e, session.id)}
-                className="p-2 text-[var(--color-text-subtle)] hover:text-[var(--color-text-primary)] rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
-                aria-label="Archive Chat"
-            >
-                <ArchiveIcon className="w-4 h-4" />
-            </button>
-        )}
             <button
                 onClick={(e) => handleDeleteChat(e, session.id)}
                 className="p-2 text-[var(--color-text-subtle)] hover:text-red-500 rounded-full hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_80%)]"
@@ -518,7 +481,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     <SpeechProvider>
       <div className="flex h-screen w-screen bg-transparent overflow-hidden">
           {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
-          {isHadithReaderOpen && <HadithReader isOpen={isHadithReaderOpen} onClose={() => setIsHadithReaderOpen(false)} setToastInfo={setToastInfo} />}
+          {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} setToastInfo={setToastInfo} />}
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
@@ -534,28 +497,14 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     <div className="px-3 pt-2 pb-1 text-xs font-bold text-[var(--color-text-subtle)] uppercase tracking-wider">{t('pinned')}</div>
                   )}
                   {pinnedChats.map(session => (
-                    <ChatItem key={session.id} session={session} isArchived={false} />
+                    <ChatItem key={session.id} session={session} />
                   ))}
                   {pinnedChats.length > 0 && activeChats.length > 0 && <div className="py-2"><div className="border-t border-[var(--color-border)]"></div></div>}
                   {activeChats.map(session => (
-                    <ChatItem key={session.id} session={session} isArchived={false} />
+                    <ChatItem key={session.id} session={session} />
                   ))}
               </nav>
 
-              {archivedChats.length > 0 && (
-                <div className="p-2 border-t border-[var(--color-border)]">
-                    <button onClick={() => setIsArchivedOpen(!isArchivedOpen)} className="w-full text-left px-3 py-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
-                        Archived ({archivedChats.length})
-                    </button>
-                    {isArchivedOpen && (
-                        <div className="mt-1 space-y-1">
-                            {archivedChats.map(session => (
-                                <ChatItem key={session.id} session={session} isArchived={true} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-              )}
           </aside>
 
           <div className={`flex flex-col flex-1 h-screen relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
@@ -573,7 +522,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                       </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setIsHadithReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Search Hadith">
+                    <button onClick={() => setIsQuranSearchOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Search Quran">
                         <HadithBookIcon />
                     </button>
                     <button onClick={() => setIsQuranReaderOpen(true)} className="p-3 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90" aria-label="Read Quran">
