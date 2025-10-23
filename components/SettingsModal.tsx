@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import type { UserProfile } from '../types';
 import { AlertIcon, CheckIcon, CloseIcon } from './icons';
@@ -120,6 +121,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
               />
 
               <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('liveChatModeTitle')}</h3>
+                  <p className="text-sm text-[var(--color-text-secondary)] -mt-3">{t('liveChatModeDescription')}</p>
+                  <div className="flex w-full bg-[var(--color-card-quran-bg)] p-1 rounded-lg border border-[var(--color-border)]">
+                      <button
+                      onClick={() => setLocalProfile(prev => ({ ...prev, liveChatMode: 'toggle' }))}
+                      className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${localProfile.liveChatMode === 'toggle' ? 'bg-[var(--color-card-bg)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-subtle)]'}`}
+                      >
+                      {t('liveChatModeToggle')}
+                      </button>
+                      <button
+                      onClick={() => setLocalProfile(prev => ({ ...prev, liveChatMode: 'holdToTalk' }))}
+                      className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${localProfile.liveChatMode === 'holdToTalk' ? 'bg-[var(--color-card-bg)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-subtle)]'}`}
+                      >
+                      {t('liveChatModeHold')}
+                      </button>
+                  </div>
+              </div>
+
+
+              <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('profile')}</h3>
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{t('displayName')}</label>
@@ -194,3 +215,4 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
 };
 
 export default SettingsModal;
+      

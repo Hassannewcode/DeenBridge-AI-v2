@@ -1,3 +1,4 @@
+
 export const locales = {
   en: {
     // Settings
@@ -29,6 +30,12 @@ export const locales = {
     fontElMessiri: 'El Messiri',
     fontIbm: 'IBM Plex',
     fontReadex: 'Readex Pro',
+    liveChatModeTitle: 'Live Chat Mic Mode',
+    liveChatModeDescription: 'Choose how to activate your microphone in a live conversation.',
+    liveChatModeToggle: 'Toggle',
+    liveChatModeToggleDescription: 'Tap to talk, tap again to stop.',
+    liveChatModeHold: 'Hold to Talk',
+    liveChatModeHoldDescription: 'Press and hold to speak.',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -188,6 +195,12 @@ export const locales = {
     fontElMessiri: 'المسيري',
     fontIbm: 'آي بي إم بليكس',
     fontReadex: 'ريدكس برو',
+    liveChatModeTitle: 'وضع ميكروفون المحادثة المباشرة',
+    liveChatModeDescription: 'اختر كيفية تنشيط الميكروفون في محادثة مباشرة.',
+    liveChatModeToggle: 'تبديل',
+    liveChatModeToggleDescription: 'انقر للتحدث، انقر مرة أخرى للتوقف.',
+    liveChatModeHold: 'اضغط للتحدث',
+    liveChatModeHoldDescription: 'اضغط مع الاستمرار للتحدث.',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',
@@ -318,3 +331,4 @@ export const locales = {
     versesFound: "تم العثور على {count} آيات",
   }
 };
+      

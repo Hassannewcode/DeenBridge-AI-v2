@@ -1,7 +1,7 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
-// FIX: The correct type for the session object is `Session`, not `LiveSession`.
 import type { Session, LiveServerMessage } from '@google/genai';
 import { generateSystemInstruction } from '../services/geminiService';
 import { createAudioBlob, decode, decodeAudioData } from '../utils/audioUtils';
@@ -18,20 +18,17 @@ interface LiveConversationModalProps {
   onTurnComplete: (userText: string, aiText: string) => void;
 }
 
-const LiveConversationModal: React.FC<LiveConversationModalProps> = ({
-  isOpen,
-  onClose,
-  profile,
-  denomination,
-  onTurnComplete,
-}) => {
+const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, onClose, profile, denomination, onTurnComplete }) => {
   const { t } = useLocale();
-  const [sessionPromise, setSessionPromise] = useState<Promise<Session> | null>(null);
   const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error'>('idle');
   const [userTranscript, setUserTranscript] = useState('');
   const [aiTranscript, setAiTranscript] = useState('');
+  const [isMicActive, setIsMicActive] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
+  // Use refs for resources that don't need to trigger re-renders
+  const sessionRef = useRef<Session | null>(null);
+  const isMicActiveRef = useRef(isMicActive); // Ref to get current state in callbacks
   const audioResources = useRef<{
     stream: MediaStream | null;
     inputContext: AudioContext | null;
@@ -41,151 +38,171 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({
     outputSources: Set<AudioBufferSourceNode>;
     nextStartTime: number;
   }>({ stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 });
+  const transcriptParts = useRef({ user: '', ai: '' });
+
+  // Sync isMicActive state with a ref for use in audio processor callback
+  useEffect(() => {
+    isMicActiveRef.current = isMicActive;
+  }, [isMicActive]);
 
   const stopSession = useCallback(() => {
-    sessionPromise?.then(session => {
-      try { session.close(); } catch (e) { console.warn("Session already closed or failed to close."); }
-    });
-    audioResources.current.stream?.getTracks().forEach(track => track.stop());
-    audioResources.current.processor?.disconnect();
-    audioResources.current.source?.disconnect();
-    if (audioResources.current.inputContext?.state !== 'closed') audioResources.current.inputContext?.close().catch(()=>{});
-    if (audioResources.current.outputContext?.state !== 'closed') audioResources.current.outputContext?.close().catch(()=>{});
-    audioResources.current.outputSources.forEach(s => { try { s.stop(); } catch(e){} });
+    sessionRef.current?.close();
+    sessionRef.current = null;
+    
+    const { stream, processor, source, inputContext, outputContext, outputSources } = audioResources.current;
+    stream?.getTracks().forEach(track => track.stop());
+    processor?.disconnect();
+    source?.disconnect();
+    
+    outputSources.forEach(s => { try { s.stop(); s.disconnect(); } catch (e) { console.warn("Error stopping audio source", e); } });
+    outputSources.clear();
 
+    if (inputContext?.state !== 'closed') inputContext?.close().catch(console.warn);
+    if (outputContext?.state !== 'closed') outputContext?.close().catch(console.warn);
+
+    // Reset refs and state
     audioResources.current = { stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 };
-    setSessionPromise(null);
     setStatus('idle');
     setUserTranscript('');
     setAiTranscript('');
-  }, [sessionPromise]);
+    setIsMicActive(false);
+  }, []);
 
   const handleClose = useCallback(() => {
-    stopSession();
     onClose();
-  }, [stopSession, onClose]);
+  }, [onClose]);
+  
+  // Main effect to manage session lifecycle
+  useEffect(() => {
+    if (!isOpen) {
+      stopSession();
+      return;
+    }
 
-  const startSession = useCallback(async () => {
-    setStatus('connecting');
+    let sessionPromise: Promise<Session> | null = null;
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-      const outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-      const source = inputContext.createMediaStreamSource(stream);
-      const processor = inputContext.createScriptProcessor(4096, 1, 1);
-      
-      audioResources.current = { stream, inputContext, outputContext, source, processor, outputSources: new Set(), nextStartTime: 0 };
+    const start = async () => {
+      setStatus('connecting');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+        const outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+        const source = inputContext.createMediaStreamSource(stream);
+        const processor = inputContext.createScriptProcessor(4096, 1, 1);
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-      const systemInstruction = generateSystemInstruction(denomination, profile);
-      
-      let currentInput = '';
-      let currentOutput = '';
+        audioResources.current = { stream, inputContext, outputContext, source, processor, outputSources: new Set(), nextStartTime: 0 };
+        
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+        const systemInstruction = generateSystemInstruction(denomination, profile);
+        
+        sessionPromise = ai.live.connect({
+          model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+          config: { systemInstruction, responseModalities: [Modality.AUDIO], inputAudioTranscription: {}, outputAudioTranscription: {} },
+          callbacks: {
+            onopen: async () => {
+              // FIX: Use `await` to correctly resolve the session promise. The onopen callback is now async.
+              sessionRef.current = sessionPromise ? await sessionPromise : null;
+              setStatus('listening');
+              if (profile.liveChatMode === 'toggle') {
+                 setIsMicActive(true); // Auto-activate mic in toggle mode
+              }
 
-      const newSessionPromise = ai.live.connect({
-        model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-        config: {
-          systemInstruction,
-          responseModalities: [Modality.AUDIO],
-          inputAudioTranscription: {},
-          outputAudioTranscription: {},
-          speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } },
-          },
-        },
-        callbacks: {
-          onopen: () => {
-            setStatus('listening');
-            processor.onaudioprocess = (e) => {
-              const inputData = e.inputBuffer.getChannelData(0);
-              const pcmBlob = createAudioBlob(inputData);
-              newSessionPromise.then(session => session?.sendRealtimeInput({ media: pcmBlob }));
-            };
-            source.connect(processor);
-            processor.connect(inputContext.destination);
-          },
-          onmessage: async (message: LiveServerMessage) => {
-            // FIX: The `Transcription` object from Gemini API does not have an `isFinal` property.
-            // The logic is simplified to append the received text, consistent with Gemini documentation and the output transcription handling.
-            if (message.serverContent?.inputTranscription) {
-                const text = message.serverContent.inputTranscription.text;
-                currentInput += text;
-                setUserTranscript(currentInput);
-            }
-            if (message.serverContent?.outputTranscription) {
-                const text = message.serverContent.outputTranscription.text;
+              processor.onaudioprocess = (e) => {
+                if (isMicActiveRef.current) {
+                  const inputData = e.inputBuffer.getChannelData(0);
+                  const pcmBlob = createAudioBlob(inputData);
+                  // FIX: Adhere to Gemini API guidelines by using the session promise directly to prevent stale closures.
+                  sessionPromise?.then((session) => {
+                    session.sendRealtimeInput({ media: pcmBlob });
+                  });
+                }
+              };
+              source.connect(processor);
+              processor.connect(inputContext.destination);
+            },
+            onmessage: async (message) => {
+              if (message.serverContent?.inputTranscription) {
+                transcriptParts.current.user += message.serverContent.inputTranscription.text;
+                setUserTranscript(transcriptParts.current.user);
+              }
+              if (message.serverContent?.outputTranscription) {
                 setStatus('speaking');
-                currentOutput += text;
-                setAiTranscript(currentOutput);
-            }
-            if (message.serverContent?.modelTurn?.parts[0]?.inlineData?.data) {
+                transcriptParts.current.ai += message.serverContent.outputTranscription.text;
+                setAiTranscript(transcriptParts.current.ai);
+              }
+              if (message.serverContent?.modelTurn?.parts[0]?.inlineData?.data) {
                 const audioBase64 = message.serverContent.modelTurn.parts[0].inlineData.data;
                 const outCtx = audioResources.current.outputContext!;
                 if (outCtx.state === 'suspended') await outCtx.resume();
+                
                 const nextStartTime = Math.max(outCtx.currentTime, audioResources.current.nextStartTime);
                 const audioBuffer = await decodeAudioData(decode(audioBase64), outCtx, 24000, 1);
+                
                 const audioSource = outCtx.createBufferSource();
                 audioSource.buffer = audioBuffer;
                 audioSource.connect(outCtx.destination);
                 audioSource.start(nextStartTime);
                 audioResources.current.nextStartTime = nextStartTime + audioBuffer.duration;
-                audioResources.current.outputSources.add(audioSource);
+                
+                const currentSources = audioResources.current.outputSources;
+                currentSources.add(audioSource);
                 audioSource.onended = () => {
-                    audioResources.current.outputSources.delete(audioSource);
+                  currentSources.delete(audioSource);
+                  if (currentSources.size === 0) {
+                      setStatus('listening');
+                  }
                 };
-            }
-            if (message.serverContent?.turnComplete) {
-                onTurnComplete(currentInput.trim(), currentOutput.trim());
-                currentInput = '';
-                currentOutput = '';
+              }
+              if (message.serverContent?.turnComplete) {
+                onTurnComplete(transcriptParts.current.user.trim(), transcriptParts.current.ai.trim());
+                transcriptParts.current = { user: '', ai: '' };
                 setUserTranscript('');
                 setAiTranscript('');
                 setStatus('listening');
-            }
+              }
+            },
+            onerror: (e) => { console.error('Live session error:', e); setStatus('error'); },
+            onclose: () => { setStatus('idle'); },
           },
-          onerror: (e) => {
-            console.error('Live session error:', e);
-            setStatus('error');
-          },
-          onclose: () => {
-             // Let the main effect cleanup handle state update to avoid race conditions.
-          },
-        },
-      });
+        });
+      } catch (err) {
+        console.error("Failed to initialize session:", err);
+        setStatus('error');
+      }
+    };
 
-      setSessionPromise(newSessionPromise);
-    } catch (err) {
-      console.error("Failed to start recording:", err);
-      setStatus('error');
-    }
-  }, [denomination, profile, onTurnComplete]);
+    start();
 
-  useEffect(() => {
-    if (isOpen) {
-      startSession();
-    }
     return () => {
       stopSession();
     };
-  }, [isOpen, startSession, stopSession]);
+  }, [isOpen, denomination, profile, onTurnComplete, stopSession]);
 
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [userTranscript, aiTranscript]);
 
+  const handleToggleMic = () => setIsMicActive(prev => !prev);
+  const handleMicDown = () => setIsMicActive(true);
+  const handleMicUp = () => setIsMicActive(false);
+
+  const interactionHandlers = profile.liveChatMode === 'toggle'
+    ? { onClick: handleToggleMic }
+    : {
+        onMouseDown: handleMicDown, onMouseUp: handleMicUp, onMouseLeave: handleMicUp,
+        onTouchStart: handleMicDown, onTouchEnd: handleMicUp
+      };
+
   const StatusIndicator = () => {
     switch (status) {
         case 'connecting': return <div className="flex items-center gap-2"><LoadingSpinner className="w-4 h-4" /> <span>{t('liveStatusConnecting')}</span></div>;
-        case 'listening': return <div className="text-emerald-400">{t('liveStatusListening')}</div>;
+        case 'listening': return <div className="text-emerald-400">{isMicActive ? t('liveStatusListening') : 'Mic Off'}</div>;
         case 'speaking': return <div className="text-cyan-400">{t('liveStatusSpeaking')}</div>;
         case 'error': return <div className="text-red-400">{t('liveStatusError')}</div>;
         default: return <span>{t('liveStatusIdle')}</span>;
     }
   }
-
-  if (!isOpen) return null;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black z-50 flex flex-col animate-fade-in-up" onClick={handleClose}>
@@ -209,9 +226,9 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({
             </div>
 
             <footer className="absolute bottom-0 left-0 right-0 h-96 flex flex-col items-center justify-end p-4 sm:p-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
-                <div className="pointer-events-auto">
-                    <LiveVisualizer status={status} />
-                </div>
+                <button {...interactionHandlers} className="pointer-events-auto rounded-full focus:outline-none focus:ring-4 focus:ring-slate-500" aria-label={profile.liveChatMode === 'toggle' ? 'Toggle Microphone' : 'Hold to Talk'}>
+                    <LiveVisualizer status={status} isMicActive={isMicActive} />
+                </button>
                 <button onClick={handleClose} className="mt-8 px-8 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors pointer-events-auto flex items-center gap-2">
                     <PhoneIcon hangUp={true} className="w-5 h-5"/>
                     <span>{t('liveEndSession')}</span>

@@ -1,13 +1,15 @@
+
 import React from 'react';
 import { MicrophoneIcon } from './icons';
 
 interface LiveVisualizerProps {
   status: 'idle' | 'connecting' | 'listening' | 'speaking' | 'error';
+  isMicActive: boolean;
 }
 
-const LiveVisualizer: React.FC<LiveVisualizerProps> = ({ status }) => {
-  const isListening = status === 'listening';
+const LiveVisualizer: React.FC<LiveVisualizerProps> = ({ status, isMicActive }) => {
   const isSpeaking = status === 'speaking';
+  const isListening = isMicActive && !isSpeaking;
 
   return (
     <div className="relative w-48 h-48 flex items-center justify-center">
@@ -38,3 +40,4 @@ const LiveVisualizer: React.FC<LiveVisualizerProps> = ({ status }) => {
 };
 
 export default LiveVisualizer;
+      

@@ -1,3 +1,4 @@
+
 // Fix: Moved Ayah, Surah, and QuranBookmark interfaces here to centralize types.
 export interface Ayah {
     number: number;
@@ -101,6 +102,7 @@ export interface UserProfile {
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
   arabicFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
+  liveChatMode: 'toggle' | 'holdToTalk';
   ttsSettings: {
     voice: string; // 'native' or Gemini voice names like 'Zephyr'
     pitch: number;
@@ -121,3 +123,4 @@ export interface QuranAnalysisResult {
   statistical_summary: string;
   relevant_verses: QuranAnalysisVerse[];
 }
+      
