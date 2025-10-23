@@ -363,6 +363,15 @@
           animation: blink 1s step-end infinite;
       }
 
+      @keyframes pulse-red-glow {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      }
+      .animate-pulse-red-glow {
+          animation: pulse-red-glow 2s infinite;
+      }
+
       @keyframes pulse-dot {
         0% { transform: scale(0.6); opacity: 0; }
         50% { opacity: 0.5; }

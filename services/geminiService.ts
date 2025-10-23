@@ -101,7 +101,8 @@ Your response must follow this structure: A warm greeting, followed by your summ
 As-salamu alaykum, ${profile.name}. An excellent question. You're asking about showing off in worship, or *Riya*. Think of it like this: if you do a good deed for Allah, it's like planting a strong tree. But Riya is a termite that eats the tree from the inside out, leaving nothing of value. It's a dangerous thing. May this be of benefit, and Allah knows best.
 
 ## Scriptural Sources
-Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُועِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُсِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
+// FIX: Corrected a Cyrillic 'с' character to the Arabic 'س' in the example verse.
+Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُועِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
 Source: The Holy Quran
 Reference: Al-Baqarah (2:155)
 Author: N/A

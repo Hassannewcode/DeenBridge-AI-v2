@@ -14,6 +14,7 @@ import { GoogleGenAI } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
@@ -55,10 +56,16 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
-  
-  // --- Voice Input State ---
-  const [isSpeechSupported, setIsSpeechSupported] = useState(true); // Assume supported, check on use.
 
+  // NEW Speech-to-text logic
+  const {
+    transcript,
+    isListening,
+    startListening,
+    stopListening,
+    isSupported: isSpeechRecognitionSupported
+  } = useSpeechRecognition({ lang: locale });
+  const initialDraftRef = useRef('');
 
   // --- Toast State ---
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -198,6 +205,24 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       if (profile.enableSound) playNotificationSound();
 
   }, [activeChatId, setChats, profile.enableSound]);
+
+  const handleToggleListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      if (activeChat) {
+        initialDraftRef.current = activeChat.draft || '';
+      }
+      startListening();
+    }
+  }, [isListening, startListening, stopListening, activeChat]);
+
+  useEffect(() => {
+    if (isListening) {
+      const newText = initialDraftRef.current ? `${initialDraftRef.current} ${transcript}`.trim() : transcript;
+      handleInputChange(newText);
+    }
+  }, [transcript, isListening, handleInputChange]);
   
   const handleSendMessage = async (query: string) => {
     if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
@@ -546,7 +571,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     handleSubmit={handleSubmit}
                     isLoading={isLoading}
                     onStartLiveConversation={handleStartLiveConversation}
-                    isSpeechSupported={isSpeechSupported}
+                    isSpeechRecognitionSupported={isSpeechRecognitionSupported}
+                    isListening={isListening}
+                    onToggleListening={handleToggleListening}
                     file={activeChat?.draftFile || null}
                     onFileChange={handleFileChange}
                     onRemoveFile={handleRemoveFile}

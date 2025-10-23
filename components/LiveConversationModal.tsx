@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
-import type { LiveSession, LiveServerMessage } from '@google/genai';
+// FIX: The correct type for the session object is `Session`, not `LiveSession`.
+import type { Session, LiveServerMessage } from '@google/genai';
 import { generateSystemInstruction } from '../services/geminiService';
 import { createAudioBlob, decode, decodeAudioData } from '../utils/audioUtils';
 import type { Denomination, UserProfile } from '../types';
@@ -25,7 +26,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({
   onTurnComplete,
 }) => {
   const { t } = useLocale();
-  const [sessionPromise, setSessionPromise] = useState<Promise<LiveSession> | null>(null);
+  const [sessionPromise, setSessionPromise] = useState<Promise<Session> | null>(null);
   const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error'>('idle');
   const [userTranscript, setUserTranscript] = useState('');
   const [aiTranscript, setAiTranscript] = useState('');
@@ -105,17 +106,15 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({
             processor.connect(inputContext.destination);
           },
           onmessage: async (message: LiveServerMessage) => {
+            // FIX: The `Transcription` object from Gemini API does not have an `isFinal` property.
+            // The logic is simplified to append the received text, consistent with Gemini documentation and the output transcription handling.
             if (message.serverContent?.inputTranscription) {
-                const { text, isFinal } = message.serverContent.inputTranscription;
-                if(isFinal) {
-                    currentInput += text + ' ';
-                    setUserTranscript(currentInput);
-                } else {
-                    setUserTranscript(currentInput + text);
-                }
+                const text = message.serverContent.inputTranscription.text;
+                currentInput += text;
+                setUserTranscript(currentInput);
             }
             if (message.serverContent?.outputTranscription) {
-                const { text } = message.serverContent.outputTranscription;
+                const text = message.serverContent.outputTranscription.text;
                 setStatus('speaking');
                 currentOutput += text;
                 setAiTranscript(currentOutput);

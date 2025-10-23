@@ -143,7 +143,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                     <div className="w-full flex-shrink-0 px-4 flex flex-col items-center">
                         <form onSubmit={handleFormSubmit} className="w-full max-w-lg space-y-6 text-center">
                             <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('onboardingDobTitle').replace('{name}', name)}</h2>
-                            <p className="text-[var(--color-text-secondary)] -mt-4">{t('dobOptional')}</p>
+                            <p className="text-sm text-[var(--color-accent)] -mt-4">{t('dobOptional')}</p>
                             <DobInput value={dob} onChange={handleDobChange} />
                             <div className="space-y-3 max-w-md mx-auto pt-4">
                                 <NextButton>{t('next')}</NextButton>
@@ -199,7 +199,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                     <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6 text-center">
                         <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('oneLastThing')}</h2>
                         <p className="text-[var(--color-text-secondary)]">{t('additionalContextPrompt')}</p>
-                         <p className="text-sm text-[var(--color-text-subtle)] -mt-4">{t('canBeSkipped')}</p>
+                         <p className="text-sm text-[var(--color-accent)] -mt-4">{t('canBeSkipped')}</p>
                         <div>
                             <label htmlFor="extraInfo" className="sr-only">{t('additionalContext')}</label>
                             <textarea
