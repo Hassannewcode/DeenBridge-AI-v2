@@ -1,4 +1,3 @@
-
 import React, { useEffect, lazy, Suspense } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
@@ -21,7 +20,7 @@ const defaultProfile: UserProfile = {
   appLanguage: 'en',
   translationLanguage: 'English',
   arabicFont: 'uthmanic',
-  liveChatMode: 'toggle',
+  liveChatMode: 'toggle', // Set toggle as default
   ttsSettings: {
     voice: 'Zephyr', // Default to Zephyr, a high-quality male voice from Gemini.
     pitch: 1,
@@ -94,4 +93,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-      
