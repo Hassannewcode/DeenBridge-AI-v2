@@ -493,6 +493,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     profile={profile}
                     denomination={denomination}
                     onTurnComplete={handleTurnComplete}
+                    messages={activeChat?.messages || []}
                 />
             }
           </Suspense>

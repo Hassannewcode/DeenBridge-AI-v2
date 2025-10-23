@@ -110,7 +110,7 @@ Author: N/A
 `;
 };
 
-const buildGeminiHistory = (messages: Message[]): Content[] => {
+export const buildGeminiHistory = (messages: Message[]): Content[] => {
   const history: Content[] = [];
   for (const msg of messages) {
     const role = msg.sender === MessageSender.User ? 'user' : 'model';

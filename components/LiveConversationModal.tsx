@@ -1,12 +1,10 @@
-
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
-import type { Session, LiveServerMessage } from '@google/genai';
-import { generateSystemInstruction } from '../services/geminiService';
+import type { Session, LiveServerMessage, Content } from '@google/genai';
+import { generateSystemInstruction, buildGeminiHistory } from '../services/geminiService';
 import { createAudioBlob, decode, decodeAudioData } from '../utils/audioUtils';
-import type { Denomination, UserProfile } from '../types';
+import type { Denomination, UserProfile, Message } from '../types';
 import { CloseIcon, LoadingSpinner, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 import LiveVisualizer from './LiveVisualizer';
@@ -17,9 +15,10 @@ interface LiveConversationModalProps {
   profile: UserProfile;
   denomination: Denomination;
   onTurnComplete: (userText: string, aiText: string) => void;
+  messages: Message[];
 }
 
-const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, onClose, profile, denomination, onTurnComplete }) => {
+const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, onClose, profile, denomination, onTurnComplete, messages }) => {
   const { t } = useLocale();
   const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error'>('idle');
   const [userTranscript, setUserTranscript] = useState('');
@@ -27,9 +26,8 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   const [isMicActive, setIsMicActive] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
-  // Use refs for resources that don't need to trigger re-renders
   const sessionRef = useRef<Session | null>(null);
-  const isMicActiveRef = useRef(isMicActive); // Ref to get current state in callbacks
+  const isMicActiveRef = useRef(isMicActive); 
   const audioResources = useRef<{
     stream: MediaStream | null;
     inputContext: AudioContext | null;
@@ -41,7 +39,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   }>({ stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 });
   const transcriptParts = useRef({ user: '', ai: '' });
 
-  // Sync isMicActive state with a ref for use in audio processor callback
   useEffect(() => {
     isMicActiveRef.current = isMicActive;
   }, [isMicActive]);
@@ -61,7 +58,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     if (inputContext?.state !== 'closed') inputContext?.close().catch(console.warn);
     if (outputContext?.state !== 'closed') outputContext?.close().catch(console.warn);
 
-    // Reset refs and state
     audioResources.current = { stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 };
     setStatus('idle');
     setUserTranscript('');
@@ -73,7 +69,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     onClose();
   }, [onClose]);
   
-  // Main effect to manage session lifecycle
   useEffect(() => {
     if (!isOpen) {
       stopSession();
@@ -95,16 +90,27 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
         const systemInstruction = generateSystemInstruction(denomination, profile);
+        const history = buildGeminiHistory(messages);
         
         sessionPromise = ai.live.connect({
           model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-          config: { systemInstruction, responseModalities: [Modality.AUDIO], inputAudioTranscription: {}, outputAudioTranscription: {} },
+          // FIX: The 'history' property should be at the top level, not inside the 'config' object.
+          history,
+          config: { 
+            systemInstruction, 
+            responseModalities: [Modality.AUDIO], 
+            inputAudioTranscription: {}, 
+            outputAudioTranscription: {},
+            speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: profile.ttsSettings.voice === 'native' ? 'Zephyr' : profile.ttsSettings.voice } },
+            },
+          },
           callbacks: {
             onopen: async () => {
               sessionRef.current = sessionPromise ? await sessionPromise : null;
               setStatus('listening');
               if (profile.liveChatMode === 'toggle') {
-                 setIsMicActive(true); // Auto-activate mic in toggle mode
+                 setIsMicActive(true);
               }
 
               processor.onaudioprocess = (e) => {
@@ -175,7 +181,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     return () => {
       stopSession();
     };
-  }, [isOpen, denomination, profile, onTurnComplete, stopSession]);
+  }, [isOpen, denomination, profile, onTurnComplete, stopSession, messages]);
 
 
   useEffect(() => {

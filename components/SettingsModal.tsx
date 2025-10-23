@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import type { UserProfile } from '../types';
 import { AlertIcon, CheckIcon, CloseIcon } from './icons';
