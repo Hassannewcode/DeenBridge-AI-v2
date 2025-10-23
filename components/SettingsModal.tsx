@@ -7,6 +7,7 @@ import DobInput from './DobInput';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ArabicFontSwitcher from './ArabicFontSwitcher';
+import TTSSettings from './TTSSettings';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -113,6 +114,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                   onFontChange={(font) => setLocalProfile(prev => ({ ...prev, arabicFont: font }))}
               />
               
+              <TTSSettings
+                settings={localProfile.ttsSettings}
+                onChange={(newTtsSettings) => setLocalProfile(prev => ({ ...prev, ttsSettings: newTtsSettings }))}
+              />
+
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('profile')}</h3>
                 <div>

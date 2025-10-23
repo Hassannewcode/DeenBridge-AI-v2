@@ -143,6 +143,9 @@ export const locales = {
     quranAnalysisLoading4: "Compiling a summary of findings...",
     quranAnalysisLoading5: "Almost ready, finalizing the results...",
     elapsedTime: "Elapsed time: {time}s",
+    showMore: "Show More",
+    remaining: "remaining",
+    versesFound: "{count} verses found",
   },
   ar: {
     // Settings
@@ -288,5 +291,8 @@ export const locales = {
     quranAnalysisLoading4: "جاري تجميع ملخص النتائج...",
     quranAnalysisLoading5: "شارف على الانتهاء، يتم وضع اللمسات الأخيرة...",
     elapsedTime: "الوقت المنقضي: {time} ثانية",
+    showMore: "إظهار المزيد",
+    remaining: "متبقية",
+    versesFound: "تم العثور على {count} آيات",
   }
 };

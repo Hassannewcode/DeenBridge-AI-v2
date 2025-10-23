@@ -19,11 +19,11 @@ const analysisSchema = {
     },
     statistical_summary: {
       type: Type.STRING,
-      description: "A statistical overview, like 'The concept of [topic] is mentioned X times across Y different surahs.' Be factual and brief.",
+      description: "A statistical overview, like 'The concept of [topic] is mentioned approximately X times across Y different surahs.' Be factual and brief, with a focus on providing a total count.",
     },
     relevant_verses: {
       type: Type.ARRAY,
-      description: "A list of up to 10 of the most relevant Quranic verses about the topic.",
+      description: "A comprehensive list of all relevant Quranic verses about the topic, ordered by relevance.",
       items: {
         type: Type.OBJECT,
         properties: {
@@ -41,14 +41,14 @@ const analysisSchema = {
 
 
 export const analyzeQuranTopic = async (topic: string): Promise<QuranAnalysisResult> => {
-  const prompt = `You are an expert Quranic scholar and data analyst. The user wants to understand what the Quran says about a specific topic.
+  const prompt = `You are an expert Quranic scholar and data analyst. The user wants to understand what the Quran says about a specific topic. Your analysis must be deep and comprehensive.
 
   Topic: "${topic}"
 
   Your task is to analyze the entire Quran and provide a structured JSON response.
-  1.  **topic_summary**: Write a clear, concise summary of the Quran's teachings on this topic.
-  2.  **statistical_summary**: Provide a brief statistical analysis. For example, "The concept of patience is mentioned over 100 times in the Quran across numerous surahs." Be factual.
-  3.  **relevant_verses**: Find and list up to 10 of the most relevant and direct verses related to the topic. For each verse, provide the Surah name (English), Surah number, verse number, and the full original Arabic text. DO NOT include any English translation or transliteration in the arabic_text field.
+  1.  **topic_summary**: Write a clear, comprehensive summary of the Quran's teachings on this topic. Your analysis should be deep, considering not just the exact topic word but also its synonyms, related concepts, and thematic occurrences.
+  2.  **statistical_summary**: Provide a brief statistical analysis. Crucially, you MUST include the total number of highly relevant verses found. For example, "The topic of '${topic}' and its related concepts are mentioned approximately X times. We have identified Y key verses that directly address this theme."
+  3.  **relevant_verses**: Find and list ALL of the most relevant and direct verses related to the topic, ordered from most to least relevant. DO NOT impose a limit. For each verse, provide the Surah name (English), Surah number, verse number, and the full original Arabic text. DO NOT include any English translation or transliteration in the arabic_text field.
 
   Respond ONLY with the JSON object that adheres to the provided schema.`;
 

@@ -60,9 +60,18 @@ export const QuranAnalysisIcon = ({ className = "h-6 w-6" }) => (
         {/* Open Book */}
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-        {/* Magnifying glass */}
-        <circle cx="12" cy="12" r="3"/>
-        <line x1="14.5" y1="14.5" x2="17" y2="17"/>
+        
+        {/* Magnifying glass Outline - styled via CSS to create a cutout effect */}
+        <g className="quran-analysis-icon-outline" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="14" cy="10" r="3.5"/>
+            <line x1="17" y1="13" x2="20" y2="16"/>
+        </g>
+        
+        {/* Magnifying glass Foreground */}
+        <g>
+            <circle cx="14" cy="10" r="3.5"/>
+            <line x1="17" y1="13" x2="20" y2="16"/>
+        </g>
     </svg>
 );
 
@@ -81,8 +90,8 @@ export const MicrophoneIcon = ({ className = "w-6 h-6" }) => (
     </svg>
 );
 
-export const LoadingSpinner = () => (
-    <svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+export const LoadingSpinner = ({ className = "h-6 w-6" }: { className?: string }) => (
+    <svg className={`animate-spin text-currentColor ${className}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
     </svg>

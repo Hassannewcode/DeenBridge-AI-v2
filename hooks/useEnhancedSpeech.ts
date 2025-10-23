@@ -1,10 +1,10 @@
-
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 import { marked } from 'marked';
 import { getSpeech, isTtsServiceConfigured } from '../services/ttsService';
+import { decode, decodeAudioData } from '../utils/audioUtils';
+import type { UserProfile } from '../types';
 
 // This custom renderer for Marked helps to convert Markdown into clean, speakable plain text.
-// It removes visual elements like images and links, and formats lists for natural flow.
 const textRenderer = new marked.Renderer();
 textRenderer.link = (_href, _title, text) => text;
 textRenderer.image = (_href, _title, text) => text;
@@ -24,144 +24,179 @@ textRenderer.del = (text) => text;
 
 /**
  * Strips Markdown formatting from a string to produce clean text for TTS.
- * @param {string} markdown - The markdown-formatted string.
- * @returns {string} The plain text version of the string.
  */
 const stripMarkdown = (markdown: string): string => {
     try {
         const plainText = marked.parse(markdown, { renderer: textRenderer });
-        // Clean up extra newlines and spaces for a more natural reading flow
         return plainText.replace(/(\n\s*){2,}/g, '\n').trim();
     } catch (e) {
         console.error("Error stripping markdown:", e);
-        return markdown; // Fallback to original text on error
+        return markdown; // Fallback
     }
 };
 
-
 /**
- * A hook to manage speech synthesis. It prioritizes a high-quality serverless TTS function
- * but robustly falls back to the browser's native Web Speech API if the service is not configured.
- * This ensures TTS functionality is available to all users.
+ * A hook to manage speech synthesis, prioritizing a high-quality Gemini TTS service
+ * and falling back to the browser's native Web Speech API.
  */
 export const useEnhancedSpeech = () => {
     const isCloudTtsSupported = isTtsServiceConfigured();
     const isBrowserTtsSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
     const isSupported = isCloudTtsSupported || isBrowserTtsSupported;
+    
+    const [isLoading, setIsLoading] = useState(false);
 
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const activeSourcesRef = useRef(new Set<AudioBufferSourceNode>());
     const onEndCallbackRef = useRef<(() => void) | null>(null);
+    const isCancelledRef = useRef(false);
 
-    // Ensure voices are loaded for browser TTS, which can be asynchronous.
+    // Initialize AudioContext once for Gemini TTS
+    useEffect(() => {
+        if (isCloudTtsSupported && !audioContextRef.current) {
+            try {
+                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            } catch (e) {
+                console.error("Could not create AudioContext:", e);
+            }
+        }
+    }, [isCloudTtsSupported]);
+
+    // Prime browser voices
     useEffect(() => {
         if (isBrowserTtsSupported) {
-            window.speechSynthesis.getVoices(); // Prime the voice list
+            window.speechSynthesis.getVoices();
             if (window.speechSynthesis.onvoiceschanged !== undefined) {
               window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
             }
         }
     }, [isBrowserTtsSupported]);
 
-    const cleanupAudio = useCallback(() => {
-        if (audioRef.current && onEndCallbackRef.current) {
-            const callback = onEndCallbackRef.current;
-            audioRef.current.removeEventListener('ended', callback);
-            audioRef.current.removeEventListener('error', callback);
-            audioRef.current.pause();
-            audioRef.current.src = ''; 
-            audioRef.current = null;
-        }
-    }, []);
-
     const cancel = useCallback(() => {
-        if (isBrowserTtsSupported) window.speechSynthesis.cancel();
+        isCancelledRef.current = true;
+        if (isBrowserTtsSupported) {
+            window.speechSynthesis.cancel();
+        }
         
-        const onEnd = onEndCallbackRef.current;
-        cleanupAudio();
-        if (onEnd) {
-            onEnd();
+        activeSourcesRef.current.forEach(source => {
+            try {
+                source.onended = null;
+                source.stop();
+            } catch (e) { /* Already stopped */ }
+            source.disconnect();
+        });
+        activeSourcesRef.current.clear();
+
+        if (onEndCallbackRef.current) {
+            onEndCallbackRef.current();
             onEndCallbackRef.current = null;
         }
-    }, [cleanupAudio, isBrowserTtsSupported]);
+        setIsLoading(false);
+    }, [isBrowserTtsSupported]);
     
-    const speak = useCallback(async (text: string, lang: 'en' | 'ar', onEnd: () => void) => {
-        if (!isSupported || !text) {
-            if (onEnd) onEnd();
-            return;
-        }
-        
-        cancel(); // Cancel any ongoing speech
+    useEffect(() => {
+        return () => cancel();
+    }, [cancel]);
+
+    const speak = useCallback(async (text: string, lang: 'en' | 'ar', settings: UserProfile['ttsSettings'], onEnd: () => void) => {
+        cancel(); 
+        isCancelledRef.current = false;
         onEndCallbackRef.current = onEnd;
 
         const plainText = stripMarkdown(text);
         
+        if (!isSupported || !plainText) {
+            onEnd();
+            return;
+        }
+
+        setIsLoading(true);
+        
         const handleEnd = () => {
-            if (onEndCallbackRef.current) {
+            if (!isCancelledRef.current && onEndCallbackRef.current) {
                 onEndCallbackRef.current();
             }
             onEndCallbackRef.current = null;
-            cleanupAudio();
-            utteranceRef.current = null;
+            setIsLoading(false);
         };
         
-        // Prioritize high-quality cloud TTS if configured
-        if (isCloudTtsSupported) {
+        const useCloudTts = isCloudTtsSupported && settings.voice !== 'native' && audioContextRef.current;
+        let cloudTtsFailed = false;
+        
+        if (useCloudTts) {
             try {
-                const audioBase64 = await getSpeech(plainText, lang);
-                // Check if a cancel request came in while we were fetching
-                if (!onEndCallbackRef.current) return; 
+                const audioBase64 = await getSpeech(plainText, settings.voice);
+                if (isCancelledRef.current) return; 
                 
-                const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
-                audioRef.current = audio;
+                const audioCtx = audioContextRef.current!;
+                const audioBytes = decode(audioBase64);
+                const audioBuffer = await decodeAudioData(audioBytes, audioCtx, 24000, 1);
+
+                if (isCancelledRef.current) return;
+
+                const source = audioCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.playbackRate.value = settings.rate;
+                source.detune.value = (settings.pitch - 1) * 600;
+                source.connect(audioCtx.destination);
                 
-                audio.addEventListener('ended', handleEnd);
-                audio.addEventListener('error', (e) => {
-                    console.error('Audio playback error:', e);
-                    handleEnd(); // Ensure state is cleaned up on error
-                });
-                
-                await audio.play();
-            } catch (error) {
-                console.error('Failed to get speech from cloud service:', error);
-                handleEnd(); // Clean up on failure
-            }
-        } 
-        // Fallback to native browser TTS
-        else if (isBrowserTtsSupported) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(plainText);
-                const languageCode = lang === 'ar' ? 'ar-SA' : 'en-US';
-                utterance.lang = languageCode;
-                utterance.rate = 0.95;
-                utterance.pitch = 1.0;
-                
-                // Attempt to select a higher quality voice if available
-                const voices = window.speechSynthesis.getVoices();
-                let voice;
-                if (lang === 'ar') {
-                    voice = voices.find(v => v.lang.startsWith('ar'));
-                } else {
-                    voice = voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || voices.find(v => v.lang.startsWith('en'));
-                }
-                if (voice) utterance.voice = voice;
-                
-                utterance.onend = handleEnd;
-                utterance.onerror = (e: SpeechSynthesisErrorEvent) => {
-                    console.error('SpeechSynthesis Error:', e.error);
+                source.onended = () => {
+                    activeSourcesRef.current.delete(source);
                     handleEnd();
                 };
-                
-                utteranceRef.current = utterance;
-                window.speechSynthesis.speak(utterance);
+
+                source.start();
+                activeSourcesRef.current.add(source);
+                setIsLoading(false); // Playback has started
+
             } catch (error) {
-                console.error('Failed to use browser speech synthesis:', error);
-                handleEnd();
+                console.error('Cloud TTS failed, falling back to native.', error);
+                cloudTtsFailed = true;
             }
-        } else {
-             handleEnd(); // Should not happen if isSupported is checked, but for safety.
+        } 
+        
+        if (!useCloudTts || cloudTtsFailed) {
+            if (isBrowserTtsSupported) {
+                try {
+                    if (isCancelledRef.current) return;
+                    
+                    const utterance = new SpeechSynthesisUtterance(plainText);
+                    utterance.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+                    utterance.pitch = settings.pitch;
+                    utterance.rate = settings.rate;
+                    
+                    const voices = window.speechSynthesis.getVoices();
+                    let voice;
+
+                    const isMaleGeminiVoice = ['Zephyr', 'Fenrir', 'Charon'].includes(settings.voice);
+
+                    if (lang === 'ar') {
+                        voice = voices.find(v => v.lang.startsWith('ar'));
+                    } else {
+                        voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name))) ||
+                                voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || 
+                                voices.find(v => v.lang.startsWith('en'));
+                    }
+                    if (voice) utterance.voice = voice;
+                    
+                    utterance.onend = handleEnd;
+                    utterance.onerror = (e) => {
+                        console.error('SpeechSynthesis Error:', e.error);
+                        handleEnd();
+                    };
+                    
+                    window.speechSynthesis.speak(utterance);
+                    setIsLoading(false);
+
+                } catch (error) {
+                    console.error('Native TTS also failed:', error);
+                    handleEnd();
+                }
+            } else {
+                 handleEnd();
+            }
         }
-    }, [isSupported, isCloudTtsSupported, isBrowserTtsSupported, cancel, cleanupAudio]);
+    }, [isSupported, isCloudTtsSupported, isBrowserTtsSupported, cancel]);
     
-    return { speak, cancel, isSupported };
+    return { speak, cancel, isSupported, isLoading };
 };

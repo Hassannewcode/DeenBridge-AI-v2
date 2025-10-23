@@ -148,6 +148,7 @@
 
       html {
         height: 100%;
+        overflow: hidden;
       }
 
       body {
@@ -158,11 +159,14 @@
         transition: background-color .5s, color .5s;
         height: 100vh; /* Fallback for browsers that do not support dvh */
         height: 100dvh;
+        overflow: hidden;
       }
       
       #root {
         height: 100%;
         overflow: hidden; /* Contains the app and prevents body scroll */
+        display: flex;
+        flex-direction: column;
       }
 
       body.is-mobile {
@@ -477,6 +481,7 @@
           border-radius: 1rem;
           box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
           overflow: hidden;
+          position: relative;
       }
       @media (min-width: 1024px) {
           .quran-reader-modal {
@@ -628,10 +633,18 @@
       .quran-info-panel.open { transform: translateX(0); }
       [dir="rtl"] .quran-info-panel { right: auto; left: 0; border-left: none; border-right: 1px solid var(--color-border); transform: translateX(-100%); }
       [dir="rtl"] .quran-info-panel.open { transform: translateX(0); }
+      
       @media (max-width: 1023px) {
-        .quran-info-panel { max-width: 100%; top: 5vh; bottom: 5vh; left: 5vw; right: 5vw; height: 90vh; width: 90vw; border-radius: 1rem; border: 1px solid var(--color-border); }
-        .quran-reader-main.panel-open { padding-right: 2rem; }
-        [dir="rtl"] .quran-reader-main.panel-open { padding-left: 2rem; }
+        .quran-info-panel {
+          width: 85vw; /* Make sidebar take up 85% of viewport width on mobile */
+        }
+        /* On mobile, the panel overlays the content, so we don't need to add padding to the main area */
+        .quran-reader-main.panel-open {
+          padding-right: initial;
+        }
+        [dir="rtl"] .quran-reader-main.panel-open {
+          padding-left: initial;
+        }
       }
 
       /* Hadith & Dua Reader Styles */
@@ -727,6 +740,11 @@
           background-position: left 0.75rem center;
           padding-left: 2.5rem;
           padding-right: 0.75rem;
+      }
+
+      /* Custom icon outline to create a "cutout" effect */
+      .quran-analysis-icon-outline {
+        stroke: var(--color-card-bg);
       }
 
       .fade-out-edge {

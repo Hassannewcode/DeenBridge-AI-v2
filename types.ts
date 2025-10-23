@@ -101,6 +101,11 @@ export interface UserProfile {
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
   arabicFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
+  ttsSettings: {
+    voice: string; // 'native' or Gemini voice names like 'Zephyr'
+    pitch: number;
+    rate: number;
+  };
 }
 
 // For Quranic Analysis Service

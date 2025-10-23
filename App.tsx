@@ -20,6 +20,11 @@ const defaultProfile: UserProfile = {
   appLanguage: 'en',
   translationLanguage: 'English',
   arabicFont: 'uthmanic',
+  ttsSettings: {
+    voice: 'Zephyr', // Default to Zephyr, a high-quality male voice from Gemini.
+    pitch: 1,
+    rate: 1,
+  },
 };
 
 const App: React.FC = () => {
@@ -58,7 +63,7 @@ const App: React.FC = () => {
 
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>
-      <main className="h-full w-full font-sans">
+      <main className="flex-1 flex w-full font-sans min-h-0">
         {!profile.onboardingComplete ? (
           <OnboardingFlow onComplete={handleOnboardingComplete} />
         ) : denomination ? (

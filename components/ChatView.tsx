@@ -9,7 +9,9 @@ import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import Toast from './Toast';
 import { SpeechProvider } from '../contexts/SpeechContext';
-import type { Chat, GenerateContentResponse } from '@google/genai';
+import type { Chat, GenerateContentResponse, LiveSession, LiveServerMessage } from '@google/genai';
+import { GoogleGenAI, Modality } from '@google/genai';
+import { createAudioBlob } from '../utils/audioUtils';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
@@ -54,9 +56,16 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   
   // --- Voice Input State ---
   const [isRecording, setIsRecording] = useState(false);
-  const [isSpeechSupported, setIsSpeechSupported] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [isSpeechSupported, setIsSpeechSupported] = useState(true); // Assume supported, check on use.
   const draftBeforeRecordingRef = useRef('');
+  const [sessionPromise, setSessionPromise] = useState<Promise<LiveSession> | null>(null);
+  const audioResources = useRef<{
+    stream: MediaStream | null;
+    context: AudioContext | null;
+    source: MediaStreamAudioSourceNode | null;
+    processor: ScriptProcessorNode | null;
+  }>({ stream: null, context: null, source: null, processor: null });
+
 
   // --- Toast State ---
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -164,82 +173,103 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       )
     );
   };
+  
+  const stopRecording = useCallback(() => {
+    if (!audioResources.current.stream && !sessionPromise) return;
 
-  const handleToggleRecording = useCallback(() => {
-    if (!isSpeechSupported || !recognitionRef.current) return;
+    audioResources.current.stream?.getTracks().forEach(track => track.stop());
+    audioResources.current.processor?.disconnect();
+    audioResources.current.source?.disconnect();
+    
+    sessionPromise?.then(session => {
+        try { session.close(); } catch(e) { console.warn("Session already closed."); }
+    });
+
+    audioResources.current = { stream: null, context: null, source: null, processor: null };
+    setSessionPromise(null);
+    setIsRecording(false);
+  }, [sessionPromise]);
+
+  const handleToggleRecording = useCallback(async () => {
+    if (isLoading) return;
 
     if (isRecording) {
-      recognitionRef.current.stop();
-      setIsRecording(false); // Make UI responsive immediately
+      stopRecording();
     } else {
       draftBeforeRecordingRef.current = activeChat?.draft ? activeChat.draft + ' ' : '';
-      handleInputChange(draftBeforeRecordingRef.current);
+      let currentTranscription = "";
+
       try {
-        recognitionRef.current.start();
-        setIsRecording(true);
-      } catch (e) {
-        console.error("Speech recognition failed to start:", e);
-        setIsRecording(false); // Ensure state is correct if start fails
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const context = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+        const source = context.createMediaStreamSource(stream);
+        const processor = context.createScriptProcessor(4096, 1, 1);
+        
+        audioResources.current = { stream, context, source, processor };
+        
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+        
+        const newSessionPromise = ai.live.connect({
+          model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+          callbacks: {
+            onopen: () => {
+              console.log('Live session opened.');
+              setIsRecording(true);
+              processor.onaudioprocess = (audioProcessingEvent) => {
+                const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+                const pcmBlob = createAudioBlob(inputData);
+                newSessionPromise.then((session) => {
+                  if (session) session.sendRealtimeInput({ media: pcmBlob });
+                });
+              };
+              source.connect(processor);
+              processor.connect(context.destination);
+            },
+            onmessage: (message: LiveServerMessage) => {
+              if (message.serverContent?.inputTranscription) {
+                  const newText = message.serverContent.inputTranscription.text;
+                  if (message.serverContent.inputTranscription.isFinal) {
+                      currentTranscription += newText + ' ';
+                      draftBeforeRecordingRef.current = currentTranscription;
+                  }
+                  handleInputChange(draftBeforeRecordingRef.current + newText);
+              }
+            },
+            onerror: (e: ErrorEvent) => {
+              console.error('Live session error:', e);
+              setToastInfo({ message: 'Voice transcription error.', type: 'error' });
+              stopRecording();
+            },
+            onclose: () => {
+              console.log('Live session closed.');
+              if(isRecording) stopRecording();
+            },
+          },
+          config: {
+            responseModalities: [Modality.AUDIO],
+            inputAudioTranscription: {},
+          },
+        });
+
+        setSessionPromise(newSessionPromise);
+
+      } catch (err) {
+        console.error("Failed to start recording:", err);
+        setToastInfo({ message: "Microphone access denied or not available.", type: 'error' });
+        setIsSpeechSupported(false);
       }
     }
-  }, [isSpeechSupported, isRecording, activeChat?.draft, handleInputChange]);
+  }, [isRecording, isLoading, activeChat?.draft, handleInputChange, stopRecording, setToastInfo]);
 
-
-  // --- Voice Input Logic ---
   useEffect(() => {
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognitionAPI) {
-      setIsSpeechSupported(true);
-      const recognition = new SpeechRecognitionAPI();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = profile.appLanguage === 'ar' ? 'ar-SA' : 'en-US';
+    return () => {
+      // Cleanup on component unmount
+      if (isRecording) {
+        stopRecording();
+      }
+    };
+  }, [isRecording, stopRecording]);
 
-      recognition.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-            } else {
-                interimTranscript += event.results[i][0].transcript;
-            }
-        }
-        handleInputChange(draftBeforeRecordingRef.current + finalTranscript + interimTranscript);
-      };
-
-      recognition.onend = () => {
-        setIsRecording(false);
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        let message = "An unknown voice input error occurred.";
-        switch (event.error) {
-            case 'not-allowed':
-            case 'service-not-allowed':
-                message = "Microphone access denied. Please allow microphone access in your browser settings.";
-                break;
-            case 'no-speech':
-                message = "No speech was detected. Please try again.";
-                break;
-            case 'network':
-                message = "A network error occurred during speech recognition. Please check your connection.";
-                break;
-            case 'aborted':
-                // This is a user-initiated stop, not an error.
-                return;
-        }
-        setToastInfo({ message, type: 'error' });
-        setIsRecording(false);
-      };
-
-      recognitionRef.current = recognition;
-    } else {
-        console.warn("Speech Recognition not supported by this browser.");
-        setIsSpeechSupported(false);
-    }
-  }, [handleInputChange, profile.appLanguage]);
   
   const handleSendMessage = async (query: string) => {
     if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
@@ -503,7 +533,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
   return (
     <SpeechProvider>
-      <div className="flex h-full w-full bg-transparent overflow-hidden">
+      <div className="flex h-full w-full overflow-hidden">
           <Suspense fallback={<SuspenseLoader />}>
             {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
             {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
@@ -512,8 +542,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-          <aside className={`absolute md:static top-0 start-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-e border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : sidebarHiddenClass} md:translate-x-0`}>
-              <div className="p-2 border-b border-[var(--color-border)]">
+          <aside className={`absolute md:static top-0 start-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-e border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : sidebarHiddenClass} md:translate-x-0 flex-shrink-0`}>
+              <div className="p-2 border-b border-[var(--color-border)] flex-shrink-0">
                   <button onClick={handleNewChat} className="flex items-center justify-center gap-2 w-full p-3 rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-border)] font-semibold transition-colors active:scale-95">
                       <PlusIcon />
                       {t('newChat')}
@@ -534,8 +564,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
           </aside>
 
-          <div className={`flex flex-col flex-1 h-full relative main-panel-transition ${isSidebarOpen ? 'md:rounded-none md:translate-x-0' : ''}`}>
-              <header className="flex items-center justify-between p-2 sm:p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 flex-shrink-0 rtl:flex-row-reverse">
+          <div className="flex flex-col flex-1 relative overflow-hidden">
+              <header className="flex-shrink-0 flex items-center justify-between p-2 sm:p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 rtl:flex-row-reverse">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
@@ -562,31 +592,34 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                   </div>
               </header>
 
-              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
-                  {!activeChat || activeChat.messages.length === 0 ? (
-                  <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
-                  ) : (
-                  activeChat.messages.map((message) => (
-                      <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
-                  ))
-                  )}
-                  <div ref={messagesEndRef} />
+              <div className="flex-1 relative min-h-0">
+                <div ref={scrollContainerRef} className="absolute inset-0 overflow-y-auto p-4 md:p-6 flex flex-col space-y-6">
+                    {!activeChat || activeChat.messages.length === 0 ? (
+                    <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
+                    ) : (
+                    activeChat.messages.map((message) => (
+                        <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
+                    ))
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+                 <ScrollToBottomButton onClick={() => scrollToBottom('smooth')} visible={showScrollButton} />
               </div>
-              
-              <ScrollToBottomButton onClick={() => scrollToBottom('smooth')} visible={showScrollButton} />
 
-              <MessageInput 
-                  input={activeChat?.draft || ''}
-                  setInput={handleInputChange}
-                  handleSubmit={handleSubmit}
-                  isLoading={isLoading}
-                  isRecording={isRecording}
-                  onToggleRecording={handleToggleRecording}
-                  isSpeechSupported={isSpeechSupported}
-                  file={activeChat?.draftFile || null}
-                  onFileChange={handleFileChange}
-                  onRemoveFile={handleRemoveFile}
-              />
+              <div className="flex-shrink-0">
+                <MessageInput 
+                    input={activeChat?.draft || ''}
+                    setInput={handleInputChange}
+                    handleSubmit={handleSubmit}
+                    isLoading={isLoading}
+                    isRecording={isRecording}
+                    onToggleRecording={handleToggleRecording}
+                    isSpeechSupported={isSpeechSupported}
+                    file={activeChat?.draftFile || null}
+                    onFileChange={handleFileChange}
+                    onRemoveFile={handleRemoveFile}
+                />
+              </div>
           </div>
           {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       </div>

@@ -155,30 +155,32 @@ const QuranReader: React.FC<{
       onClick={onClose}
     >
       <div className="quran-reader-modal" onClick={e => e.stopPropagation()}>
+        {/* Backdrop for side panels on mobile */}
+        {isPanelOpen && <div onClick={handleClosePanels} className="absolute inset-0 bg-black/40 z-50 transition-opacity lg:hidden" aria-hidden="true" />}
         <aside className="quran-reader-nav flex flex-col">
-          <header className="p-4 border-b border-[var(--color-border)] flex-shrink-0 flex items-center justify-between">
-            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">The Holy Qur'an</h1>
-            <button onClick={onClose} className="p-2 -mr-2 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors active:scale-90 lg:hidden">
+          <header className="p-2 lg:p-4 border-b border-[var(--color-border)] flex-shrink-0 flex items-center justify-between">
+            <h1 className="text-lg lg:text-xl font-bold text-[var(--color-text-primary)]">The Holy Qur'an</h1>
+            <button onClick={onClose} className="p-2 -mr-2 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors active:scale-90">
               <CloseIcon />
             </button>
           </header>
           <div className="flex-1 overflow-y-auto">
              <div className="border-b border-[var(--color-border)]">
                 <div className="grid grid-cols-2">
-                    <button onClick={() => setActiveTab('surahs')} className={`p-4 font-semibold ${activeTab === 'surahs' ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' : 'text-[var(--color-text-subtle)]'}`}>Surahs</button>
-                    <button onClick={() => setActiveTab('bookmarks')} className={`p-4 font-semibold ${activeTab === 'bookmarks' ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' : 'text-[var(--color-text-subtle)]'}`}>{t('bookmarks')}</button>
+                    <button onClick={() => setActiveTab('surahs')} className={`p-3 lg:p-4 font-semibold ${activeTab === 'surahs' ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' : 'text-[var(--color-text-subtle)]'}`}>Surahs</button>
+                    <button onClick={() => setActiveTab('bookmarks')} className={`p-3 lg:p-4 font-semibold ${activeTab === 'bookmarks' ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' : 'text-[var(--color-text-subtle)]'}`}>{t('bookmarks')}</button>
                 </div>
             </div>
             {activeTab === 'surahs' && (
-                <div className="p-4">
+                <div className="p-2 lg:p-4">
                     <label htmlFor="surah-select" className="text-sm font-semibold text-[var(--color-text-secondary)]">Select Surah</label>
-                    <select id="surah-select" value={selectedSurah} onChange={e => setSelectedSurah(Number(e.target.value))} className="mt-2 w-full px-4 py-2.5 text-base bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] custom-select">
+                    <select id="surah-select" value={selectedSurah} onChange={e => setSelectedSurah(Number(e.target.value))} className="mt-1 lg:mt-2 w-full px-3 py-2 lg:py-2.5 text-base bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] custom-select">
                         {SURAH_INFO.map((info) => (<option key={info.number} value={info.number}>{info.number}. {info.name} - {info.name_arabic}</option>))}
                     </select>
                 </div>
             )}
             {activeTab === 'bookmarks' && (
-                 <div className="p-4 space-y-2">
+                 <div className="p-2 lg:p-4 space-y-1">
                     {bookmarks.length === 0 ? <p className="text-center text-sm text-[var(--color-text-subtle)] mt-4">{t('noBookmarks')}</p> :
                     bookmarks.map(bookmark => (
                         <button key={`${bookmark.surahNumber}-${bookmark.ayahNumber}`} onClick={() => jumpToBookmark(bookmark)} className="w-full text-left p-2 rounded-lg hover:bg-[var(--color-border)]">

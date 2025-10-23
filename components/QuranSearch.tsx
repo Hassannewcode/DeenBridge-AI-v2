@@ -13,6 +13,8 @@ interface QuranSearchProps {
   profile: UserProfile;
 }
 
+const VERSE_BATCH_SIZE = 10;
+
 const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) => {
   const [query, setQuery] = useState('');
   const [analysisResult, setAnalysisResult] = useState<QuranAnalysisResult | null>(null);
@@ -21,6 +23,7 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
   const [hasSearched, setHasSearched] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [visibleVerseCount, setVisibleVerseCount] = useState(VERSE_BATCH_SIZE);
   
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { t } = useLocale();
@@ -75,6 +78,7 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
     e?.preventDefault();
     if (!query.trim()) return;
 
+    setVisibleVerseCount(VERSE_BATCH_SIZE);
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
@@ -154,9 +158,12 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
                             <p className="text-[var(--color-text-secondary)] italic">{analysisResult.statistical_summary}</p>
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-[var(--color-primary)] mb-2">{t('relevantVerses')}</h3>
+                            <h3 className="text-xl font-bold text-[var(--color-primary)] mb-2">
+                                {t('relevantVerses')}
+                                {analysisResult.relevant_verses.length > 0 && <span className="text-sm font-normal text-[var(--color-text-subtle)]"> ({t('versesFound', { count: analysisResult.relevant_verses.length })})</span>}
+                            </h3>
                             <div className="space-y-3">
-                                {analysisResult.relevant_verses.map((verse, index) => {
+                                {analysisResult.relevant_verses.slice(0, visibleVerseCount).map((verse, index) => {
                                     const result: ScripturalResult = {
                                         text: verse.arabic_text,
                                         source: {
@@ -168,6 +175,16 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
                                     return <QuranVerseCard key={`${verse.surah_number}-${verse.verse_number}`} result={result} index={index} profile={profile} />
                                 })}
                             </div>
+                             {analysisResult.relevant_verses.length > visibleVerseCount && (
+                                <div className="mt-6 text-center">
+                                    <button 
+                                        onClick={() => setVisibleVerseCount(prev => prev + VERSE_BATCH_SIZE)}
+                                        className="px-6 py-2 bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)] rounded-full transition-colors font-semibold active:scale-95"
+                                    >
+                                        {t('showMore')} ({analysisResult.relevant_verses.length - visibleVerseCount} {t('remaining')})
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 ) : (

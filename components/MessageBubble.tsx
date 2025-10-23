@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import type { Message, Denomination, UserProfile } from '../types';
 import { MessageSender } from '../types';
-import { DeenBridgeAIIcon, CitationIcon, FileIcon, VolumeUpIcon, StopCircleIcon } from './icons';
+import { DeenBridgeAIIcon, CitationIcon, FileIcon, VolumeUpIcon, StopCircleIcon, LoadingSpinner } from './icons';
 import WebSourceCard from './cards/WebSourceCard';
 import QuranVerseCard from './cards/QuranVerseCard';
 import SkeletonLoader from './SkeletonLoader';
@@ -43,7 +43,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
   const [citationsStyle, setCitationsStyle] = useState<React.CSSProperties>({});
   const { t, locale } = useLocale();
   
-  const { speak, cancel, speakingMessageId, isSupported } = useSpeech();
+  const { speak, cancel, speakingMessageId, loadingMessageId, isLoading, isSupported } = useSpeech();
 
   const [elapsedTime, setElapsedTime] = useState('0.0s');
   const res = message.response;
@@ -121,13 +121,15 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
 
 
   const isThisBubbleSpeaking = speakingMessageId === message.id;
+  const isThisBubbleLoading = isLoading && loadingMessageId === message.id;
+  const isThisBubbleActive = isThisBubbleSpeaking || isThisBubbleLoading;
 
   const handleSpeakButtonClick = () => {
     if (!res?.summary) return;
-    if (isThisBubbleSpeaking) {
+    if (isThisBubbleActive) {
       cancel();
     } else {
-      speak(message.id, res.summary, locale);
+      speak(message.id, res.summary, locale, profile.ttsSettings);
     }
   };
 
@@ -240,17 +242,19 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
                             {isSupported && profile.enableSound && res?.summary && (
                                 <button 
                                     onClick={handleSpeakButtonClick} 
-                                    className={`flex items-center gap-1.5 text-xs font-semibold transition-colors p-2 -m-2 rounded-md ${isThisBubbleSpeaking ? 'text-red-500 hover:bg-red-500/10' : 'text-[var(--color-text-subtle)] hover:text-[var(--color-primary)]'}`}
-                                    aria-label={isThisBubbleSpeaking ? t('stopReading') : t('readAloud')}
+                                    className={`flex items-center gap-1.5 text-xs font-semibold transition-colors p-2 -m-2 rounded-md ${isThisBubbleActive ? 'text-red-500 hover:bg-red-500/10' : 'text-[var(--color-text-subtle)] hover:text-[var(--color-primary)]'}`}
+                                    aria-label={isThisBubbleActive ? t('stopReading') : t('readAloud')}
                                 >
-                                    {isThisBubbleSpeaking ? (
-                                        <>
-                                            <StopCircleIcon /> {t('stopReading')}
-                                        </>
+                                    {isThisBubbleActive ? (
+                                        <div className="flex items-center gap-1.5">
+                                            {isThisBubbleLoading ? <LoadingSpinner className="h-4 w-4" /> : <StopCircleIcon />}
+                                            <span>{t('stopReading')}</span>
+                                        </div>
                                     ) : (
-                                        <>
-                                            <VolumeUpIcon /> {t('readAloud')}
-                                        </>
+                                        <div className="flex items-center gap-1.5">
+                                            <VolumeUpIcon />
+                                            <span>{t('readAloud')}</span>
+                                        </div>
                                     )}
                                 </button>
                             )}
