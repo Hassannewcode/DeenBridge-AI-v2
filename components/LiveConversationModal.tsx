@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
@@ -100,7 +101,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
           config: { systemInstruction, responseModalities: [Modality.AUDIO], inputAudioTranscription: {}, outputAudioTranscription: {} },
           callbacks: {
             onopen: async () => {
-              // FIX: Use `await` to correctly resolve the session promise. The onopen callback is now async.
               sessionRef.current = sessionPromise ? await sessionPromise : null;
               setStatus('listening');
               if (profile.liveChatMode === 'toggle') {
@@ -111,7 +111,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                 if (isMicActiveRef.current) {
                   const inputData = e.inputBuffer.getChannelData(0);
                   const pcmBlob = createAudioBlob(inputData);
-                  // FIX: Adhere to Gemini API guidelines by using the session promise directly to prevent stale closures.
                   sessionPromise?.then((session) => {
                     session.sendRealtimeInput({ media: pcmBlob });
                   });

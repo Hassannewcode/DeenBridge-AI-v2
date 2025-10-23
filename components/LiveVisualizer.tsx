@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { MicrophoneIcon } from './icons';
 
@@ -40,4 +41,3 @@ const LiveVisualizer: React.FC<LiveVisualizerProps> = ({ status, isMicActive }) 
 };
 
 export default LiveVisualizer;
-      

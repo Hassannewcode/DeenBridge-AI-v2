@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import type { UserProfile } from '../types';
 import { AlertIcon, CheckIcon, CloseIcon } from './icons';
@@ -215,4 +216,3 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
 };
 
 export default SettingsModal;
-      

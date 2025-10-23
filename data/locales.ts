@@ -331,4 +331,3 @@ export const locales = {
     versesFound: "تم العثور على {count} آيات",
   }
 };
-      
