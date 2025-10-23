@@ -71,15 +71,15 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
         const systemInstruction = generateSystemInstruction(denomination, profile);
-        const history = buildGeminiHistory(messages);
+        // The `history` from previous messages is not directly supported by `ai.live.connect`.
+        // Context is managed within the session or via systemInstruction.
+        // const history = buildGeminiHistory(messages);
         
         const transcriptParts = { user: '', ai: '' };
 
         const sessionPromise = ai.live.connect({
           model: 'gemini-2.5-flash-native-audio-preview-09-2025',
           config: {
-            // FIX: The 'history' parameter is likely part of the config object for live sessions, not a top-level property.
-            history,
             systemInstruction, 
             responseModalities: [Modality.AUDIO], 
             inputAudioTranscription: {}, 
@@ -229,7 +229,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             </header>
             
             <div className="flex-1 overflow-y-auto px-4 pb-96 min-h-0">
-                <div className="text-white text-2xl leading-relaxed space-y-6">
+                <div className="text-white text-lg sm:text-2xl leading-relaxed space-y-6">
                     {userTranscript && <p><strong className="text-slate-400 font-medium">{t('liveYou')}: </strong>{userTranscript}</p>}
                     {aiTranscript && <p><strong className="text-cyan-400 font-medium">{t('liveAI')}: </strong>{aiTranscript}</p>}
                 </div>

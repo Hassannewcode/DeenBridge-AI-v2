@@ -199,7 +199,9 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
                     />
                     ) : (
                     <div className="p-3 bg-black/20 rounded-lg flex items-center gap-3 max-w-xs">
-                        <FileIcon className="w-8 h-8 text-white/70 flex-shrink-0" />
+                        <div className="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center bg-black/20 rounded">
+                            <FileIcon className="h-7 w-7 sm:h-8 sm:w-8 text-white/70 flex-shrink-0" />
+                        </div>
                         <div className="min-w-0">
                             <p className="text-sm font-semibold truncate user-message-text-color">{message.file.name}</p>
                             <p className="text-xs text-white/70">{message.file.mimeType}</p>

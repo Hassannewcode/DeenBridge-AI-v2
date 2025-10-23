@@ -108,7 +108,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
                     {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
                 </h1>
-                <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
+                <p className="mt-4 text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
                     {t('digitalLibrarian')}
                 </p>
                 </header>
@@ -130,7 +130,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder={t('enterYourName')}
-                                className="w-full text-center text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
+                                className="w-full text-center text-base sm:text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
                                 autoFocus
                                 required
                             />

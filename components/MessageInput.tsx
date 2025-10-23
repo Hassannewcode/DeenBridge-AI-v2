@@ -72,7 +72,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholderText}
-          className={`w-full text-[var(--color-text-primary)] ps-24 pe-28 sm:ps-28 sm:pe-32 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
+          className={`w-full text-[var(--color-text-primary)] ps-20 pe-24 py-3 sm:ps-28 sm:pe-32 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
           disabled={isLoading}
           aria-label="Chat input"
         />
@@ -89,7 +89,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             <button
                 type="button"
                 onClick={handleAttachClick}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
                 disabled={isLoading}
                 aria-label="Attach file"
             >
@@ -98,7 +98,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
              <button
                 type="button"
                 onClick={onToggleListening}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors 
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors 
                     ${!isSpeechRecognitionSupported ? 'opacity-50 cursor-not-allowed' : ''}
                     ${isListening ? 'bg-red-500/10 text-red-500 animate-pulse-red-glow' : 'text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]'}`
                 }
@@ -115,7 +115,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
              <button
                 type="button"
                 onClick={onStartLiveConversation}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
                 disabled={isLoading}
                 aria-label={t('liveConversationTitle')}
                 title={t('liveConversationTitle')}

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Denomination } from '../types';
 import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon } from './icons';
@@ -38,7 +36,7 @@ const DenominationSelector: React.FC<{ onSelect: (denomination: Denomination) =>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[var(--color-text-primary)]">
             {t('welcomeTo')} <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">DeenBridge</span>
           </h1>
-          <p className="mt-4 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
+          <p className="mt-4 text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
             {t('denominationSelectorPrompt')}
           </p>
         </header>

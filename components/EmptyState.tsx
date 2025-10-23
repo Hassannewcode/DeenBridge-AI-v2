@@ -19,8 +19,8 @@ const EmptyState: React.FC<{ denomination: Denomination; onQuery: (query: string
             <div className="w-24 h-24 p-4 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-lg text-white">
                 <DeenBridgeLogoIcon />
             </div>
-            <h2 className="mt-6 text-3xl font-bold text-[var(--color-text-primary)]">{t('beginYourInquiry')}</h2>
-            <p className="mt-2 text-[var(--color-text-secondary)] max-w-lg">
+            <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('beginYourInquiry')}</h2>
+            <p className="mt-2 text-base sm:text-lg text-[var(--color-text-secondary)] max-w-lg">
                 {t('beginYourInquirySubtext').replace('{denomination}', denomination)}
             </p>
             <div className="w-full max-w-lg mt-8 space-y-3">
