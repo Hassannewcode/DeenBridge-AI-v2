@@ -129,6 +129,9 @@ export const useEnhancedSpeech = () => {
                 if (isCancelledRef.current) return; 
                 
                 const audioCtx = audioContextRef.current!;
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
                 const audioBytes = decode(audioBase64);
                 const audioBuffer = await decodeAudioData(audioBytes, audioCtx, 24000, 1);
 
@@ -137,7 +140,7 @@ export const useEnhancedSpeech = () => {
                 const source = audioCtx.createBufferSource();
                 source.buffer = audioBuffer;
                 source.playbackRate.value = settings.rate;
-                source.detune.value = (settings.pitch - 1) * 600;
+                source.detune.value = (settings.pitch - 1) * 600; // Pitch adjustment for Web Audio API
                 source.connect(audioCtx.destination);
                 
                 source.onended = () => {
@@ -166,17 +169,25 @@ export const useEnhancedSpeech = () => {
                     utterance.rate = settings.rate;
                     
                     const voices = window.speechSynthesis.getVoices();
-                    let voice;
-
-                    const isMaleGeminiVoice = ['Zephyr', 'Fenrir', 'Charon'].includes(settings.voice);
+                    let voice: SpeechSynthesisVoice | undefined;
 
                     if (lang === 'ar') {
                         voice = voices.find(v => v.lang.startsWith('ar'));
                     } else {
-                        voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name))) ||
-                                voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || 
-                                voices.find(v => v.lang.startsWith('en'));
+                        // Only apply gender logic if falling back from a specific Gemini voice
+                        if (cloudTtsFailed) {
+                            const isMaleGeminiVoice = ['Zephyr', 'Fenrir', 'Charon'].includes(settings.voice);
+                            voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name)));
+                        }
+
+                        // If no gender-specific voice is found, or if 'native' was selected, use a fallback sequence.
+                        if (!voice) {
+                            voice = voices.find(v => v.lang.startsWith('en') && v.default) ||
+                                    voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || 
+                                    voices.find(v => v.lang.startsWith('en'));
+                        }
                     }
+                    
                     if (voice) utterance.voice = voice;
                     
                     utterance.onend = handleEnd;

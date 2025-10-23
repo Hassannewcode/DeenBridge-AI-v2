@@ -8,11 +8,11 @@ interface TTSSettingsProps {
 }
 
 const voices = [
-    { value: 'Zephyr', label: 'Zephyr (Male - Default)', group: 'Gemini' },
-    { value: 'Fenrir', label: 'Fenrir (Male)', group: 'Gemini' },
-    { value: 'Charon', label: 'Charon (Male)', group: 'Gemini' },
-    { value: 'Puck', label: 'Puck (Female)', group: 'Gemini' },
-    { value: 'Kore', label: 'Kore (Female)', group: 'Gemini' },
+    { value: 'Zephyr', label: 'Zephyr', group: 'Gemini Male' },
+    { value: 'Fenrir', label: 'Fenrir', group: 'Gemini Male' },
+    { value: 'Charon', label: 'Charon', group: 'Gemini Male' },
+    { value: 'Puck', label: 'Puck', group: 'Gemini Female' },
+    { value: 'Kore', label: 'Kore', group: 'Gemini Female' },
     { value: 'native', label: 'Native Browser Voice', group: 'System' },
 ];
 
@@ -35,8 +35,15 @@ const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
           onChange={(e) => handleSettingChange('voice', e.target.value)}
           className="w-full px-3 py-2 bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] custom-select"
         >
-          <optgroup label="Gemini High-Quality Voices">
-            {voices.filter(v => v.group === 'Gemini').map(voice => (
+          <optgroup label="Gemini Voices (Male)">
+            {voices.filter(v => v.group === 'Gemini Male').map(voice => (
+                <option key={voice.value} value={voice.value}>
+                    {voice.label} {voice.value === 'Zephyr' && '(Default)'}
+                </option>
+            ))}
+          </optgroup>
+          <optgroup label="Gemini Voices (Female)">
+             {voices.filter(v => v.group === 'Gemini Female').map(voice => (
                 <option key={voice.value} value={voice.value}>{voice.label}</option>
             ))}
           </optgroup>
