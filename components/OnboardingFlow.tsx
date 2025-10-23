@@ -199,6 +199,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                     <form onSubmit={handleFormSubmit} className="w-full max-w-md space-y-6 text-center">
                         <h2 className="text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('oneLastThing')}</h2>
                         <p className="text-[var(--color-text-secondary)]">{t('additionalContextPrompt')}</p>
+                         <p className="text-sm text-[var(--color-text-subtle)] -mt-4">{t('canBeSkipped')}</p>
                         <div>
                             <label htmlFor="extraInfo" className="sr-only">{t('additionalContext')}</label>
                             <textarea

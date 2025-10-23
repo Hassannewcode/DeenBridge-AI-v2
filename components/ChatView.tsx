@@ -9,15 +9,16 @@ import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import Toast from './Toast';
 import { SpeechProvider } from '../contexts/SpeechContext';
-import type { Chat, GenerateContentResponse, LiveSession, LiveServerMessage } from '@google/genai';
-import { GoogleGenAI, Modality } from '@google/genai';
-import { createAudioBlob } from '../utils/audioUtils';
+import type { Chat, GenerateContentResponse } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
+const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
+
 
 // --- Audio Utility ---
 const playNotificationSound = () => {
@@ -49,22 +50,14 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const [editingTitle, setEditingTitle] = useState('');
   const [isQuranReaderOpen, setIsQuranReaderOpen] = useState(false);
   const [isQuranSearchOpen, setIsQuranSearchOpen] = useState(false);
+  const [isLiveModeOpen, setIsLiveModeOpen] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
   
   // --- Voice Input State ---
-  const [isRecording, setIsRecording] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(true); // Assume supported, check on use.
-  const draftBeforeRecordingRef = useRef('');
-  const [sessionPromise, setSessionPromise] = useState<Promise<LiveSession> | null>(null);
-  const audioResources = useRef<{
-    stream: MediaStream | null;
-    context: AudioContext | null;
-    source: MediaStreamAudioSourceNode | null;
-    processor: ScriptProcessorNode | null;
-  }>({ stream: null, context: null, source: null, processor: null });
 
 
   // --- Toast State ---
@@ -174,102 +167,37 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     );
   };
   
-  const stopRecording = useCallback(() => {
-    if (!audioResources.current.stream && !sessionPromise) return;
-
-    audioResources.current.stream?.getTracks().forEach(track => track.stop());
-    audioResources.current.processor?.disconnect();
-    audioResources.current.source?.disconnect();
-    
-    sessionPromise?.then(session => {
-        try { session.close(); } catch(e) { console.warn("Session already closed."); }
-    });
-
-    audioResources.current = { stream: null, context: null, source: null, processor: null };
-    setSessionPromise(null);
-    setIsRecording(false);
-  }, [sessionPromise]);
-
-  const handleToggleRecording = useCallback(async () => {
+  const handleStartLiveConversation = useCallback(() => {
     if (isLoading) return;
+    setIsLiveModeOpen(true);
+  }, [isLoading]);
 
-    if (isRecording) {
-      stopRecording();
-    } else {
-      draftBeforeRecordingRef.current = activeChat?.draft ? activeChat.draft + ' ' : '';
-      let currentTranscription = "";
+  const handleTurnComplete = useCallback((userText: string, aiText: string) => {
+      if (!activeChatId || (!userText.trim() && !aiText.trim())) return;
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const context = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-        const source = context.createMediaStreamSource(stream);
-        const processor = context.createScriptProcessor(4096, 1, 1);
-        
-        audioResources.current = { stream, context, source, processor };
-        
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-        
-        const newSessionPromise = ai.live.connect({
-          model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-          callbacks: {
-            onopen: () => {
-              console.log('Live session opened.');
-              setIsRecording(true);
-              processor.onaudioprocess = (audioProcessingEvent) => {
-                const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-                const pcmBlob = createAudioBlob(inputData);
-                newSessionPromise.then((session) => {
-                  if (session) session.sendRealtimeInput({ media: pcmBlob });
-                });
-              };
-              source.connect(processor);
-              processor.connect(context.destination);
-            },
-            onmessage: (message: LiveServerMessage) => {
-              if (message.serverContent?.inputTranscription) {
-                  const newText = message.serverContent.inputTranscription.text;
-                  if (message.serverContent.inputTranscription.isFinal) {
-                      currentTranscription += newText + ' ';
-                      draftBeforeRecordingRef.current = currentTranscription;
-                  }
-                  handleInputChange(draftBeforeRecordingRef.current + newText);
-              }
-            },
-            onerror: (e: ErrorEvent) => {
-              console.error('Live session error:', e);
-              setToastInfo({ message: 'Voice transcription error.', type: 'error' });
-              stopRecording();
-            },
-            onclose: () => {
-              console.log('Live session closed.');
-              if(isRecording) stopRecording();
-            },
-          },
-          config: {
-            responseModalities: [Modality.AUDIO],
-            inputAudioTranscription: {},
-          },
-        });
+      const userMessage: Message = {
+          id: Date.now().toString(),
+          sender: MessageSender.User,
+          text: userText,
+          createdAt: Date.now(),
+      };
+      
+      const parsedData = parseMarkdownResponse(aiText);
+      const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          sender: MessageSender.AI,
+          response: parsedData,
+          rawResponseText: aiText,
+          createdAt: Date.now() + 1,
+      };
+      
+      setChats(prevChats => prevChats.map(c => 
+        c.id === activeChatId ? { ...c, messages: [...c.messages, userMessage, aiMessage] } : c
+      ));
 
-        setSessionPromise(newSessionPromise);
+      if (profile.enableSound) playNotificationSound();
 
-      } catch (err) {
-        console.error("Failed to start recording:", err);
-        setToastInfo({ message: "Microphone access denied or not available.", type: 'error' });
-        setIsSpeechSupported(false);
-      }
-    }
-  }, [isRecording, isLoading, activeChat?.draft, handleInputChange, stopRecording, setToastInfo]);
-
-  useEffect(() => {
-    return () => {
-      // Cleanup on component unmount
-      if (isRecording) {
-        stopRecording();
-      }
-    };
-  }, [isRecording, stopRecording]);
-
+  }, [activeChatId, setChats, profile.enableSound]);
   
   const handleSendMessage = async (query: string) => {
     if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
@@ -409,10 +337,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isRecording) {
-      handleToggleRecording(); // Stop recording, let user press send again
-      return;
-    }
     handleSendMessage(activeChat?.draft || '');
   };
   
@@ -537,6 +461,15 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
           <Suspense fallback={<SuspenseLoader />}>
             {isQuranReaderOpen && <QuranReader isOpen={isQuranReaderOpen} onClose={() => setIsQuranReaderOpen(false)} profile={profile} setToastInfo={setToastInfo} />}
             {isQuranSearchOpen && <QuranSearch isOpen={isQuranSearchOpen} onClose={() => setIsQuranSearchOpen(false)} profile={profile} />}
+            {isLiveModeOpen && 
+                <LiveConversationModal 
+                    isOpen={isLiveModeOpen} 
+                    onClose={() => setIsLiveModeOpen(false)}
+                    profile={profile}
+                    denomination={denomination}
+                    onTurnComplete={handleTurnComplete}
+                />
+            }
           </Suspense>
 
           {/* Backdrop for mobile sidebar */}
@@ -612,8 +545,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     setInput={handleInputChange}
                     handleSubmit={handleSubmit}
                     isLoading={isLoading}
-                    isRecording={isRecording}
-                    onToggleRecording={handleToggleRecording}
+                    onStartLiveConversation={handleStartLiveConversation}
                     isSpeechSupported={isSpeechSupported}
                     file={activeChat?.draftFile || null}
                     onFileChange={handleFileChange}

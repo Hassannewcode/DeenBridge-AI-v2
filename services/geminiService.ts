@@ -1,4 +1,3 @@
-// Fix: The `Surah` type is not from @google/genai, it is a local type.
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
 import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah } from '../types';
 import { CORE_POINTS } from '../constants';
@@ -31,7 +30,7 @@ const withSilentRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 10
   }
 };
 
-const generateSystemInstruction = (denomination: Denomination, profile: UserProfile): string => {
+export const generateSystemInstruction = (denomination: Denomination, profile: UserProfile): string => {
   const points = CORE_POINTS[denomination].map(p => `- ${p.title}: ${p.description}`).join('\n');
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)

@@ -7,8 +7,7 @@ interface MessageInputProps {
   setInput: (value: string) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
-  isRecording: boolean;
-  onToggleRecording: () => void;
+  onStartLiveConversation: () => void;
   isSpeechSupported: boolean;
   file: { name: string; mimeType: string; data: string } | null;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,7 +16,7 @@ interface MessageInputProps {
 
 const MessageInput: React.FC<MessageInputProps> = ({ 
     input, setInput, handleSubmit, isLoading, 
-    isRecording, onToggleRecording, isSpeechSupported,
+    onStartLiveConversation, isSpeechSupported,
     file, onFileChange, onRemoveFile
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,8 +30,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
     
     const placeholderText = file 
       ? t('inputPlaceholderWithFile')
-      : isRecording 
-      ? t('inputPlaceholderRecording') 
       : t('inputPlaceholder');
 
 
@@ -97,14 +94,11 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <div className="absolute end-12 sm:end-16 top-1/2 -translate-y-1/2 flex items-center">
             <button
                 type="button"
-                onClick={onToggleRecording}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors
-                    ${isRecording ? 'bg-red-500/20 text-red-500 animate-pulse-opacity' : 'text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]'}
-                    ${!isSpeechSupported ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
+                onClick={onStartLiveConversation}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] ${!isSpeechSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
                 disabled={isLoading || !isSpeechSupported}
-                aria-label={isRecording ? "Stop recording" : "Start recording"}
-                title={isSpeechSupported ? (isRecording ? "Stop recording" : "Start recording") : "Voice input is not supported by your browser."}
+                aria-label="Start live conversation"
+                title={isSpeechSupported ? "Start live conversation" : "Voice input is not supported by your browser."}
             >
                 <MicrophoneIcon className="w-5 h-5" />
             </button>
@@ -114,7 +108,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         <button
           type="submit"
           className="absolute end-1 sm:end-2 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-full text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
-          disabled={isLoading || !hasContent || isRecording}
+          disabled={isLoading || !hasContent}
           aria-label={isLoading ? "Sending..." : "Send message"}
         >
           {isLoading ? <LoadingSpinner /> : <MinaretArrowIcon />}
