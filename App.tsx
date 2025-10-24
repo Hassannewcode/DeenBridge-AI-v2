@@ -11,6 +11,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import OfflineBanner from './components/OfflineBanner';
 
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
+const AboutModal = lazy(() => import('./components/AboutModal'));
 
 const defaultProfile: UserProfile = {
   name: '',
@@ -37,6 +38,7 @@ const App: React.FC = () => {
   const [denomination, setDenomination] = useLocalStorage<Denomination | null>('deenbridge-denomination', null);
   const [profile, setProfile] = useLocalStorage<UserProfile>('deenbridge-profile', defaultProfile);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [isAboutOpen, setIsAboutOpen] = React.useState(false);
   const { isMobile } = useDevice();
   const isOnline = useOnlineStatus();
   
@@ -123,6 +125,11 @@ const App: React.FC = () => {
                 setProfile={setProfile}
                 onResetDenomination={handleResetDenomination}
                 isOnline={isOnline}
+                onOpenAbout={() => setIsAboutOpen(true)}
+              />
+              <AboutModal 
+                isOpen={isAboutOpen}
+                onClose={() => setIsAboutOpen(false)}
               />
             </Suspense>
           </>

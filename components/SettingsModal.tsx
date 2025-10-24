@@ -20,6 +20,7 @@ interface SettingsModalProps {
   setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   onResetDenomination: () => void;
   isOnline: boolean;
+  onOpenAbout: () => void;
 }
 
 const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
@@ -64,7 +65,7 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
 };
 
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline, onOpenAbout }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const isNameValid = localProfile.name.trim().length > 2;
@@ -91,6 +92,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
   const clearDob = () => {
     setLocalProfile(prev => ({ ...prev, dob: null }));
   }
+  
+  const handleOpenAbout = () => {
+    onClose(); // Close settings modal
+    setTimeout(onOpenAbout, 300); // Open about modal after animation
+  };
 
   const handleSave = () => {
     if (!isNameValid) return;
@@ -288,6 +294,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           {/* Footer */}
           <div className="p-6 pt-4 flex-shrink-0">
             <div className="pt-4 border-t border-[var(--color-border)] space-y-3">
+               <button type="button" onClick={handleOpenAbout} className="w-full text-center px-4 py-2.5 bg-transparent border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95">
+                About DeenBridge
+              </button>
                <button type="button" onClick={handleDenominationChange} className="w-full text-center px-4 py-2.5 bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)] rounded-lg transition-colors font-semibold active:scale-95">
                 {t('changeSchoolOfThought')}
               </button>
