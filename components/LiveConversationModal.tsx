@@ -87,9 +87,12 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   }, []);
 
   const handleClose = useCallback(() => {
+    if (userTranscript.trim() || aiTranscript.trim()) {
+        onTurnComplete(userTranscript.trim(), aiTranscript.trim());
+    }
     cleanup();
     onClose();
-  }, [cleanup, onClose]);
+  }, [cleanup, onClose, onTurnComplete, userTranscript, aiTranscript]);
 
   const handleReconnect = useCallback(() => {
     if (isCancelledRef.current) return;
@@ -108,6 +111,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         if (!isCancelledRef.current && startSessionRef.current) {
             console.log(`Attempting to reconnect... (Attempt ${reconnectAttemptsRef.current})`);
             cleanup();
+            isCancelledRef.current = false; // Reset cancellation flag for the new attempt
             startSessionRef.current();
         }
     }, delay);
@@ -166,7 +170,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
               source.connect(processor);
               processor.connect(inputContext.destination);
             },
-            onmessage: async (message) => {
+            onmessage: async (message: LiveServerMessage) => {
               if (isCancelledRef.current) return;
               const audioRes = audioResourcesRef.current;
               if (!audioRes) return;
