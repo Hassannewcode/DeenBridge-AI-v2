@@ -161,8 +161,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && activeChatId) {
-      if(file.size > 2 * 1024 * 1024) { // 2MB limit
-          alert("File is too large. Please select a file smaller than 2MB.");
+      if(file.size > 4 * 1024 * 1024) { // 4MB limit
+          alert("File is too large. Please select a file smaller than 4MB.");
           return;
       }
       const reader = new FileReader();

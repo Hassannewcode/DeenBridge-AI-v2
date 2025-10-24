@@ -1,6 +1,6 @@
-# Checkpoint: Live Conversation & Settings Overhaul
+# Checkpoint: Live Conversation & PWA Stability
 
-This checkpoint marks a significant enhancement to the DeenBridge application, focusing on a complete overhaul of the live conversation feature and the introduction of key user settings.
+This checkpoint marks significant enhancements to the DeenBridge application, focusing on a complete overhaul of the live conversation feature and major stability improvements for PWA functionality.
 
 ## Major Features & Updates
 
@@ -19,17 +19,17 @@ This checkpoint marks a significant enhancement to the DeenBridge application, f
 
 ### 3. Enhanced User Experience & Visual Feedback
 
--   **Dynamic Visualizer:** The orb in the live chat modal now provides intuitive visual feedback:
-    -   *Pulses gently* when the microphone is active and listening.
-    -   *Transforms into a vibrant sound wave* when the AI is speaking.
-    -   *Remains idle* when the microphone is off.
--   **Default Male Voice:** The AI's default Text-to-Speech voice is now "Zephyr," a high-quality male voice from Gemini, which can be configured in the TTS settings.
+-   **Dynamic Visualizer:** The orb in the live chat modal now provides intuitive visual feedback: it pulses when listening, transforms into a sound wave when speaking, and remains idle otherwise.
+-   **Default Male Voice:** The AI's default Text-to-Speech voice is now a high-quality male voice from Gemini, configurable in the TTS settings.
 
 ## Bug Fixes & Technical Refinements
 
--   **Gemini Service:** Corrected a minor character error (`с` vs. `س`) in an example Arabic verse within the system instruction prompt.
--   **Speech Recognition Hook:** Added explicit TypeScript type definitions for the Web Speech API to resolve compilation errors and improve type safety.
+-   **Service Worker Registration:** Corrected the path for `sw.js` registration to an absolute path (`/sw.js`). This resolves critical cross-origin errors in sandboxed iframe environments, ensuring PWA functionality (offline access, installability) works reliably.
 -   **Live API Implementation:**
     -   Resolved type errors by updating `LiveSession` to the correct `Session` type from the `@google/genai` SDK.
     -   Fixed an issue where an `onopen` callback was incorrectly using `await` without being an `async` function.
     -   Refactored audio processing to use the `sessionPromise` directly, adhering to Gemini API best practices and preventing stale closures.
+-   **Gemini Service:** Corrected a minor character error in an example Arabic verse within the system instruction prompt.
+-   **Error Boundary:** Improved the "Hot Restart" functionality by removing a deprecated call, relying on the service worker to manage cache updates correctly.
+-   **PWA Caching Strategy:** Refined the service worker's caching strategy. The main app shell now uses a network-first approach to ensure users get the latest version, while other assets remain cache-first for performance.
+-   **Offline Indicator:** Added a banner to inform users when they are offline.
