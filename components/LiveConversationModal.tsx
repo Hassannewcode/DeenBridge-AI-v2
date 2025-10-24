@@ -9,6 +9,7 @@ import { CloseIcon, LoadingSpinner, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 import LiveVisualizer from './LiveVisualizer';
 import { useFocusTrap } from '../lib/focus';
+import { useOnlineStatus } from '../contexts/OnlineStatusContext';
 
 interface LiveConversationModalProps {
   isOpen: boolean;
@@ -21,9 +22,11 @@ interface LiveConversationModalProps {
 
 const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, onClose, profile, denomination, onTurnComplete, messages }) => {
   const { t } = useLocale();
+  const { isOnline } = useOnlineStatus();
   const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error' | 'reconnecting'>('idle');
   const [userTranscript, setUserTranscript] = useState('');
   const [aiTranscript, setAiTranscript] = useState('');
+  const [systemMessage, setSystemMessage] = useState('');
   const [isMicActive, setIsMicActive] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -44,11 +47,11 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [userTranscript, aiTranscript]);
+  }, [userTranscript, aiTranscript, systemMessage]);
 
   const cleanup = useCallback(() => {
     if (sessionRef.current) {
-        sessionRef.current.close();
+        try { sessionRef.current.close(); } catch(e) {}
         sessionRef.current = null;
     }
     const res = audioResourcesRef.current;
@@ -66,17 +69,23 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   }, []);
 
   const handleReconnect = useCallback(() => {
-    if (isCancelledRef.current) return;
+    if (isCancelledRef.current || !isOnline) {
+      setStatus('error');
+      setSystemMessage('Cannot connect while offline.');
+      return;
+    }
     
     reconnectAttemptsRef.current += 1;
     if (reconnectAttemptsRef.current > 3) {
       console.error("Reconnection failed after multiple attempts.");
       setStatus('error');
+      setSystemMessage('Failed to reconnect after multiple attempts. Please check your connection and try again.');
       return;
     }
 
-    const delay = Math.pow(2, reconnectAttemptsRef.current) * 1000;
+    const delay = Math.pow(2, reconnectAttemptsRef.current - 1) * 1000; // 1s, 2s, 4s
     setStatus('reconnecting');
+    setSystemMessage(`Connection lost. Reconnecting in ${delay/1000}s...`);
 
     setTimeout(() => {
         if (!isCancelledRef.current && startSessionRef.current) {
@@ -85,16 +94,24 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             startSessionRef.current();
         }
     }, delay);
-  }, [cleanup]);
+  }, [cleanup, isOnline]);
 
 
   useEffect(() => {
     if (!isOpen) return;
 
     isCancelledRef.current = false;
+    reconnectAttemptsRef.current = 0;
 
     const startSession = async () => {
+      if (!isOnline) {
+        setStatus('error');
+        setSystemMessage('Live Conversation requires an internet connection.');
+        return;
+      }
+
       setStatus('connecting');
+      setSystemMessage('');
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         if (isCancelledRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
@@ -127,6 +144,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
               if (isCancelledRef.current) return;
               reconnectAttemptsRef.current = 0;
               setStatus('listening');
+              setSystemMessage('');
               if (profile.liveChatMode === 'toggle') setIsMicActive(true);
 
               processor.onaudioprocess = (e) => {
@@ -196,8 +214,9 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             onerror: (e) => { console.error('Live session error:', e); if (!isCancelledRef.current) handleReconnect(); },
             onclose: (e) => { 
                 console.log('Live session closed. Code:', e.code, 'Reason:', e.reason);
-                // 1000 is a normal closure, don't reconnect
-                if (!isCancelledRef.current && e.code !== 1000) handleReconnect();
+                if (!isCancelledRef.current && e.code !== 1000) {
+                    handleReconnect();
+                }
             },
           },
         });
@@ -217,7 +236,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
       isCancelledRef.current = true;
       cleanup();
     };
-  }, [isOpen, denomination, profile, onTurnComplete, messages, cleanup, handleReconnect]);
+  }, [isOpen, denomination, profile, onTurnComplete, messages, cleanup, handleReconnect, isOnline]);
 
 
   const handleToggleMic = () => setIsMicActive(prev => !prev);
@@ -272,12 +291,17 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                             <span>{aiTranscript}</span>
                         </div>
                     )}
+                    {systemMessage && (
+                        <div className="animate-fade-in-up text-center text-sm text-amber-400 italic py-4">
+                           {systemMessage}
+                        </div>
+                    )}
                 </div>
                 <div ref={transcriptEndRef} />
             </div>
 
             <footer className="absolute bottom-0 left-0 right-0 h-96 flex flex-col items-center justify-end p-4 sm:p-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
-                <button {...interactionHandlers} className="pointer-events-auto rounded-full focus:outline-none focus:ring-4 focus:ring-slate-500" aria-label={profile.liveChatMode === 'toggle' ? 'Toggle Microphone' : 'Hold to Talk'}>
+                <button {...interactionHandlers} className="pointer-events-auto rounded-full focus:outline-none focus:ring-4 focus:ring-slate-500 disabled:cursor-not-allowed" aria-label={profile.liveChatMode === 'toggle' ? 'Toggle Microphone' : 'Hold to Talk'} disabled={!isOnline || status === 'error'}>
                     <LiveVisualizer status={status} isMicActive={isMicActive} />
                 </button>
                 <button onClick={onClose} className="mt-8 px-8 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors pointer-events-auto flex items-center gap-2">

@@ -6,6 +6,7 @@ import { DeviceProvider } from './contexts/DeviceContext';
 import registerServiceWorker from './registerServiceWorker';
 import ErrorBoundary from './components/ErrorBoundary';
 import { A11yProvider } from './contexts/A11yContext';
+import { OnlineStatusProvider } from './contexts/OnlineStatusContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -83,7 +84,9 @@ root.render(
       <ThemeProvider>
         <DeviceProvider>
           <A11yProvider>
-            <App />
+            <OnlineStatusProvider>
+              <App />
+            </OnlineStatusProvider>
           </A11yProvider>
         </DeviceProvider>
       </ThemeProvider>
