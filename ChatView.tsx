@@ -15,10 +15,13 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
 import { triggerHapticFeedback } from '../lib/haptics';
+import { useDevice } from '../contexts/DeviceContext';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
+
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
-const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
+const LiveConversationModal = lazy(() => import('./components/LiveConversationModal'));
 
 
 // --- Audio Utility ---
@@ -56,6 +59,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
+  const { isMobile } = useDevice();
 
   // --- Toast State ---
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
@@ -161,8 +165,8 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && activeChatId) {
-      if(file.size > 2 * 1024 * 1024) { // 2MB limit
-          alert("File is too large. Please select a file smaller than 2MB.");
+      if(file.size > 4 * 1024 * 1024) { // 4MB limit
+          alert("File is too large. Please select a file smaller than 4MB.");
           return;
       }
       const reader = new FileReader();
@@ -497,7 +501,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
           {/* Backdrop for mobile sidebar */}
           <div onClick={() => setIsSidebarOpen(false)} className={`fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-          <aside className={`absolute md:static top-0 start-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-e border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : sidebarHiddenClass} md:translate-x-0 flex-shrink-0`}>
+          <aside className={`absolute md:static top-0 start-0 h-full w-64 md:w-72 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_70%)] backdrop-blur-xl border-e border-[var(--color-border)] flex flex-col z-30 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : sidebarHiddenClass} md:translate-x-0 flex-shrink-0`} style={{paddingTop: `env(safe-area-inset-top)`}}>
               <div className="p-2 border-b border-[var(--color-border)] flex-shrink-0">
                   <button onClick={handleNewChat} className="flex items-center justify-center gap-2 w-full p-3 rounded-lg text-[var(--color-text-primary)] hover:bg-[var(--color-border)] font-semibold transition-colors active:scale-95">
                       <PlusIcon />
@@ -553,7 +557,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
                     ) : (
                     activeChat.messages.map((message) => (
-                        <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
+                        <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} isMobile={isMobile} />
                     ))
                     )}
                     <div ref={messagesEndRef} />

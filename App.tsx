@@ -110,6 +110,7 @@ const App: React.FC = () => {
           <OnboardingFlow onComplete={handleOnboardingComplete} />
         ) : denomination ? (
           <>
+            {/* FIX: Pass isMobile and isOnline props to ChatView to satisfy its prop types. */}
             <ChatView 
               denomination={denomination} 
               onOpenSettings={() => setIsSettingsOpen(true)}
