@@ -67,46 +67,53 @@ export const useSpeechRecognition = ({ lang }: { lang: string }): SpeechRecognit
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSupported, setIsSupported] = useState(!!SpeechRecognitionAPI);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    if (!SpeechRecognitionAPI) {
+    if (!isSupported) {
       return;
     }
 
-    const recognition = new SpeechRecognitionAPI();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+    try {
+        const recognition = new SpeechRecognitionAPI();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
 
-    const handleResult = (event: SpeechRecognitionEvent) => {
-      const fullTranscript = Array.from(event.results)
-        .map(result => result[0])
-        .map(result => result.transcript)
-        .join('');
-      setTranscript(fullTranscript);
-    };
+        const handleResult = (event: SpeechRecognitionEvent) => {
+        const fullTranscript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+        setTranscript(fullTranscript);
+        };
 
-    recognition.onresult = handleResult;
+        recognition.onresult = handleResult;
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('SpeechRecognition error:', event.error);
-      setError(event.error);
-      setIsListening(false);
-    };
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('SpeechRecognition error:', event.error);
+        setError(event.error);
+        setIsListening(false);
+        };
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+        recognition.onend = () => {
+        setIsListening(false);
+        };
 
-    recognitionRef.current = recognition;
+        recognitionRef.current = recognition;
+    } catch (err) {
+        console.error("Failed to initialize SpeechRecognition:", err);
+        setIsSupported(false);
+    }
+
 
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
-  }, [lang]);
+  }, [lang, isSupported]);
 
   const startListening = useCallback(() => {
     if (recognitionRef.current && !isListening) {
@@ -134,7 +141,7 @@ export const useSpeechRecognition = ({ lang }: { lang: string }): SpeechRecognit
     transcript, 
     startListening, 
     stopListening, 
-    isSupported: !!SpeechRecognitionAPI,
+    isSupported,
     error 
   };
 };
