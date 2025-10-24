@@ -189,8 +189,6 @@
         overflow: hidden; /* Contains the app and prevents body scroll */
         display: flex;
         flex-direction: column;
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
       }
 
       body.is-mobile {
@@ -523,8 +521,8 @@
       .quran-reader-modal {
           display: flex;
           flex-direction: column;
-          width: 100%;
-          max-width: 90rem; /* Increased max width */
+          width: 95%;
+          max-width: 110rem; /* Increased max width for immersion */
           height: 95vh;
           height: 95dvh;
           background-color: var(--color-card-bg);
@@ -570,7 +568,7 @@
       [dir="rtl"] .quran-reader-main.panel-open { padding-right: 2rem; padding-left: 420px; }
 
       .qr-page-container {
-        max-width: 65rem;
+        max-width: 80rem;
         margin: 0 auto;
         padding: 0.5rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -595,7 +593,7 @@
         background-color: transparent;
       }
       .qr-surah-title-arabic {
-        font-size: clamp(2rem, 8vw, 3.5rem);
+        font-size: clamp(2.2rem, 8vw, 4rem);
         font-weight: bold;
         color: var(--quran-text-color);
         line-height: 1.2;
@@ -636,7 +634,7 @@
       .qr-ayah-text {
         font-kerning: normal;
         text-rendering: optimizeLegibility;
-        font-size: clamp(1.5rem, 5vw, 2.2rem);
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
         color: var(--quran-text-color);
       }
       .qr-ayah-marker {
@@ -817,9 +815,9 @@
     "@google/genai": "https://esm.sh/@google/genai@1.13.0",
     "marked": "https://esm.sh/marked@12.0.2",
     "dompurify": "https://esm.sh/dompurify@3.1.5",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
   }
 }
 </script>

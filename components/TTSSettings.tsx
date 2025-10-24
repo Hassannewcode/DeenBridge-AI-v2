@@ -119,7 +119,7 @@ const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
 
       <div>
         <label htmlFor="tts-pitch" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-          Pitch <span className="text-xs font-mono">({Number(settings.pitch).toFixed(2)}x)</span>
+          Pitch <span className="text-xs font-mono">({Number(settings.pitch).toFixed(1)}x)</span>
         </label>
         <input
           id="tts-pitch"

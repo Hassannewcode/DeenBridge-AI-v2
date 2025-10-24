@@ -23,7 +23,8 @@ interface SettingsModalProps {
 
 const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
     const commonContent = (
-        <div className="flex-1 bg-[var(--color-bg)] p-1 space-y-1">
+        <div className="flex-1 bg-[var(--color-bg)] p-1.5 space-y-1.5">
+            <div className="h-2 w-3/4 mx-auto bg-[var(--color-border)] rounded-sm opacity-50"></div>
             <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
             <div className="h-1 w-5/6 bg-[var(--color-border)] rounded-sm"></div>
             <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
@@ -33,9 +34,12 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
     if (layout === 'split' && !isMobile) {
         return (
             <div className="w-full h-20 border border-[var(--color-border)] rounded-md flex overflow-hidden bg-[var(--color-card-bg)]">
-                <div className="w-1/3 bg-[var(--color-card-quran-bg)] border-r border-[var(--color-border)] p-1 space-y-1">
-                    <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
-                    <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
+                <div className="w-1/3 bg-[var(--color-card-quran-bg)] border-r border-[var(--color-border)] p-1.5 space-y-2">
+                    {/* Mimics a header and a list item */}
+                    <div className="h-2 w-3/4 bg-[var(--color-border)] rounded-sm opacity-50"></div>
+                    <div className="h-1.5 w-full bg-[var(--color-border)] rounded-sm"></div>
+                    <div className="h-1.5 w-full bg-[var(--color-border)] rounded-sm"></div>
+                    <div className="h-1.5 w-full bg-[var(--color-border)] rounded-sm"></div>
                 </div>
                 {commonContent}
             </div>
@@ -45,8 +49,13 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
     // Stacked layout (and split layout on mobile) look the same in preview
     return (
         <div className="w-full h-20 border border-[var(--color-border)] rounded-md flex flex-col overflow-hidden bg-[var(--color-card-bg)]">
-            <div className="h-6 bg-[var(--color-card-quran-bg)] border-b border-[var(--color-border)] flex items-center p-1">
-                <div className="h-1 w-1/3 bg-[var(--color-border)] rounded-sm"></div>
+            <div className="h-6 bg-[var(--color-card-quran-bg)] border-b border-[var(--color-border)] flex items-center justify-between p-1.5">
+                 {/* Mimics a title and some icons */}
+                <div className="h-2 w-1/3 bg-[var(--color-border)] rounded-sm opacity-50"></div>
+                <div className="flex gap-1">
+                    <div className="h-3 w-3 rounded-full bg-[var(--color-border)] opacity-50"></div>
+                    <div className="h-3 w-3 rounded-full bg-[var(--color-border)] opacity-50"></div>
+                </div>
             </div>
             {commonContent}
         </div>
