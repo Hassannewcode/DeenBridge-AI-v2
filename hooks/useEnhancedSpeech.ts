@@ -121,7 +121,6 @@ export const useEnhancedSpeech = () => {
         };
         
         const useCloudTts = isCloudTtsSupported && settings.voice !== 'native' && audioContextRef.current;
-        let cloudTtsFailed = false;
         
         if (useCloudTts) {
             try {
@@ -154,12 +153,10 @@ export const useEnhancedSpeech = () => {
                 setIsLoading(false); // Playback has started
 
             } catch (error) {
-                console.error('Cloud TTS failed, falling back to native.', error);
-                cloudTtsFailed = true;
+                console.error('Cloud TTS failed. It will not fall back to native.', error);
+                handleEnd();
             }
-        } 
-        
-        if (!useCloudTts || cloudTtsFailed) {
+        } else { // Fallback to native only if 'native' is selected or cloud is unsupported
             if (isBrowserTtsSupported) {
                 try {
                     if (isCancelledRef.current) return;
@@ -175,16 +172,9 @@ export const useEnhancedSpeech = () => {
                     if (lang === 'ar') {
                         voice = voices.find(v => v.lang.startsWith('ar'));
                     } else {
-                        if (cloudTtsFailed) {
-                            const isMaleGeminiVoice = ['Charon'].includes(settings.voice);
-                            voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name)));
-                        }
-
-                        if (!voice) {
-                            voice = voices.find(v => v.lang.startsWith('en') && v.default) ||
-                                    voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || 
-                                    voices.find(v => v.lang.startsWith('en'));
-                        }
+                        // Just find a default english voice if native is selected
+                        voice = voices.find(v => v.lang.startsWith('en') && v.default) || 
+                                voices.find(v => v.lang.startsWith('en'));
                     }
                     
                     if (voice) utterance.voice = voice;
