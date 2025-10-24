@@ -109,6 +109,20 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             },
             onmessage: async (message) => {
               if (isCancelled) return;
+
+              if (message.serverContent?.interrupted) {
+                audioResources.outputSources.forEach(source => {
+                    try {
+                        source.onended = null; // Prevent onended from firing
+                        source.stop();
+                        source.disconnect();
+                    } catch (e) { console.warn("Error stopping interrupted audio source", e); }
+                });
+                audioResources.outputSources.clear();
+                audioResources.nextStartTime = 0;
+                setStatus('listening');
+              }
+
               if (message.serverContent?.inputTranscription) {
                 transcriptParts.user += message.serverContent.inputTranscription.text;
                 setUserTranscript(transcriptParts.user);
@@ -218,7 +232,10 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         <div ref={modalRef} className="w-full h-full max-w-4xl mx-auto flex-1 flex flex-col" onClick={e => e.stopPropagation()}>
             <header className="flex-shrink-0 p-4 flex justify-between items-center text-white">
                 <div className="text-sm font-semibold text-slate-300 w-32"><StatusIndicator /></div>
-                <h2 className="text-xl font-bold">{t('liveConversationTitle')}</h2>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  {t('liveConversationTitle')}
+                  <span className="text-xs font-semibold bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full align-middle">Beta</span>
+                </h2>
                 <div className="w-32 flex justify-end">
                     <button onClick={onClose} className="p-2 rounded-full text-slate-300 hover:bg-white/10">
                         <CloseIcon className="w-6 h-6"/>
@@ -228,8 +245,18 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             
             <div className="flex-1 overflow-y-auto px-4 pb-96 min-h-0">
                 <div className="text-white text-lg sm:text-2xl leading-relaxed space-y-6">
-                    {userTranscript && <p><strong className="text-slate-400 font-medium">{t('liveYou')}: </strong>{userTranscript}</p>}
-                    {aiTranscript && <p><strong className="text-cyan-400 font-medium">{t('liveAI')}: </strong>{aiTranscript}</p>}
+                    {userTranscript && (
+                      <div className="animate-fade-in-up">
+                          <strong className="text-slate-400 font-medium">{t('liveYou')}: </strong>
+                          <span>{userTranscript}</span>
+                      </div>
+                    )}
+                    {aiTranscript && (
+                        <div className="animate-fade-in-up">
+                            <strong className="text-cyan-400 font-medium">{t('liveAI')}: </strong>
+                            <span>{aiTranscript}</span>
+                        </div>
+                    )}
                 </div>
                 <div ref={transcriptEndRef} />
             </div>
