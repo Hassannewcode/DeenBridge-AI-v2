@@ -62,11 +62,10 @@ ${profile.extraInfo ? `- Additional Context: ${profile.extraInfo}`: ''}
 `;
 
   const livePersona = isLiveConversation ? `
-**Live Conversation Persona (CRITICAL):**
-When in a live voice conversation, you MUST adopt an even more natural, human-like cadence.
-- Use natural-sounding conversational fillers where appropriate (e.g., 'Umm, let me see...', 'Well, that's an interesting question.', 'Hmm, alright...').
-- Incorporate brief, natural pauses to simulate thought before answering complex parts of a question.
-- Keep your sentences slightly shorter and more direct than you would in writing. Your goal is to sound like a person speaking, not an essay being read aloud.
+**Live Conversation Persona & Rules (CRITICAL):**
+Your cadence must be natural and human-like for voice conversations.
+- **Natural Cadence:** Use fillers (e.g., 'Umm...', 'Well...', 'Hmm, alright...'). Incorporate brief pauses to simulate thought. Keep sentences shorter and more direct.
+- **MANDATORY 7-SECOND PAUSE:** After you detect the user has finished speaking, you MUST silently wait for a 7-second pause before you begin generating and speaking your response. This is a non-negotiable rule to allow the user to add follow-up thoughts. Do not start speaking immediately. Your system will handle the audio streaming; your task is to simply pause for 7 seconds before generating tokens for your reply.
 ` : '';
 
 

@@ -47,23 +47,49 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   }, [userTranscript, aiTranscript]);
 
   const cleanup = useCallback(() => {
+    isCancelledRef.current = true;
+    console.log('Live session: Cleaning up resources.');
+
     if (sessionRef.current) {
-        sessionRef.current.close();
+        try {
+            sessionRef.current.close();
+            console.log('Live session: Session closed.');
+        } catch (e) {
+            console.warn('Live session: Error closing session:', e);
+        }
         sessionRef.current = null;
     }
+
     const res = audioResourcesRef.current;
     if (res) {
         res.stream?.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+        console.log('Live session: Microphone stream stopped.');
+
         if (res.processor) res.processor.disconnect();
         if (res.source) res.source.disconnect();
+        
         res.outputSources?.forEach((s: AudioBufferSourceNode) => {
-            try { s.onended = null; s.stop(); s.disconnect(); } catch (e) {}
+            try {
+                s.onended = null;
+                s.stop();
+                s.disconnect();
+            } catch (e) {}
         });
-        if (res.inputContext?.state !== 'closed') res.inputContext?.close().catch(console.warn);
-        if (res.outputContext?.state !== 'closed') res.outputContext?.close().catch(console.warn);
+        res.outputSources.clear();
+        console.log('Live session: Output audio sources stopped.');
+
+        if (res.inputContext?.state !== 'closed') res.inputContext.close().catch((e: any) => console.warn('Input context close error:', e));
+        if (res.outputContext?.state !== 'closed') res.outputContext.close().catch((e: any) => console.warn('Output context close error:', e));
+        console.log('Live session: Audio contexts closed.');
     }
     audioResourcesRef.current = null;
+    setIsMicActive(false);
   }, []);
+
+  const handleClose = useCallback(() => {
+    cleanup();
+    onClose();
+  }, [cleanup, onClose]);
 
   const handleReconnect = useCallback(() => {
     if (isCancelledRef.current) return;
@@ -92,6 +118,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     if (!isOpen) return;
 
     isCancelledRef.current = false;
+    reconnectAttemptsRef.current = 0;
 
     const startSession = async () => {
       setStatus('connecting');
@@ -185,7 +212,9 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                 };
               }
               if (message.serverContent?.turnComplete) {
-                onTurnComplete(transcriptParts.user.trim(), transcriptParts.ai.trim());
+                if (transcriptParts.user.trim() || transcriptParts.ai.trim()) {
+                    onTurnComplete(transcriptParts.user.trim(), transcriptParts.ai.trim());
+                }
                 transcriptParts.user = '';
                 transcriptParts.ai = '';
                 setUserTranscript('');
@@ -196,7 +225,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             onerror: (e) => { console.error('Live session error:', e); if (!isCancelledRef.current) handleReconnect(); },
             onclose: (e) => { 
                 console.log('Live session closed. Code:', e.code, 'Reason:', e.reason);
-                // 1000 is a normal closure, don't reconnect
                 if (!isCancelledRef.current && e.code !== 1000) handleReconnect();
             },
           },
@@ -214,7 +242,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     startSession();
 
     return () => { 
-      isCancelledRef.current = true;
       cleanup();
     };
   }, [isOpen, denomination, profile, onTurnComplete, messages, cleanup, handleReconnect]);
@@ -243,7 +270,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   }
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black z-50 flex flex-col animate-fade-in-up" onClick={onClose}>
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black z-50 flex flex-col animate-fade-in-up" onClick={handleClose}>
         <div ref={modalRef} className="w-full h-full max-w-4xl mx-auto flex-1 flex flex-col" onClick={e => e.stopPropagation()}>
             <header className="flex-shrink-0 p-4 flex justify-between items-center text-white">
                 <div className="text-sm font-semibold text-slate-300 w-32"><StatusIndicator /></div>
@@ -252,7 +279,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                   <span className="text-xs font-semibold bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full align-middle">Beta</span>
                 </h2>
                 <div className="w-32 flex justify-end">
-                    <button onClick={onClose} className="p-2 rounded-full text-slate-300 hover:bg-white/10">
+                    <button onClick={handleClose} className="p-2 rounded-full text-slate-300 hover:bg-white/10">
                         <CloseIcon className="w-6 h-6"/>
                     </button>
                 </div>
@@ -280,7 +307,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                 <button {...interactionHandlers} className="pointer-events-auto rounded-full focus:outline-none focus:ring-4 focus:ring-slate-500" aria-label={profile.liveChatMode === 'toggle' ? 'Toggle Microphone' : 'Hold to Talk'}>
                     <LiveVisualizer status={status} isMicActive={isMicActive} />
                 </button>
-                <button onClick={onClose} className="mt-8 px-8 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors pointer-events-auto flex items-center gap-2">
+                <button onClick={handleClose} className="mt-8 px-8 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors pointer-events-auto flex items-center gap-2">
                     <PhoneIcon hangUp={true} className="w-5 h-5"/>
                     <span>{t('liveEndSession')}</span>
                 </button>
