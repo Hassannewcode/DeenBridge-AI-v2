@@ -1,34 +1,38 @@
 import React from 'react';
+import { getErrorDiagnosis } from '../services/geminiService';
 
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
+  aiDiagnosis: string | null;
+  isDiagnosing: boolean;
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
   constructor(props: React.PropsWithChildren<{}>) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, aiDiagnosis: null, isDiagnosing: false };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+    return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
-
-  handleReset = () => {
-    console.warn("Clearing local storage and reloading...");
+  
+  handleDiagnose = async () => {
+    if (!this.state.error) return;
+    this.setState({ isDiagnosing: true, aiDiagnosis: null });
     try {
-      localStorage.clear();
-      window.location.reload();
+        const diagnosis = await getErrorDiagnosis(this.state.error);
+        this.setState({ aiDiagnosis: diagnosis, isDiagnosing: false });
     } catch (e) {
-      console.error("Failed to clear local storage:", e);
-      alert("Could not reset application state. Please try clearing your browser cache manually.");
+        this.setState({ aiDiagnosis: "Sorry, the AI diagnosis service could not be reached. Please check your internet connection. You can still try reloading the page or performing a 'Hot Restart' to fetch the latest code.", isDiagnosing: false });
     }
   }
+
 
   render() {
     if (this.state.hasError) {
@@ -38,7 +42,6 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          // FIX: Removed duplicate 'height' property from style object.
           height: 'var(--app-height, 100vh)',
           fontFamily: 'sans-serif',
           backgroundColor: 'var(--color-bg, #f8f5f0)',
@@ -47,8 +50,10 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
           textAlign: 'center',
         }}>
           <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Something went wrong.</h1>
-          <p style={{ marginBottom: '2rem', maxWidth: '400px', color: 'var(--color-text-secondary, #475569)' }}>An unexpected error occurred. You can try reloading the page or resetting the application to fix the issue.</p>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <p style={{ marginBottom: '2rem', maxWidth: '500px', color: 'var(--color-text-secondary, #475569)' }}>
+            An unexpected error occurred. We're sorry for the inconvenience. Please try one of the recovery options below.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
             <button
               onClick={() => window.location.reload()}
               style={{
@@ -64,21 +69,65 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
               Reload Page
             </button>
             <button
-              onClick={this.handleReset}
+              // FIX: The `reload` method with a boolean argument is deprecated and can cause TypeScript errors.
+              // A standard reload is sufficient, especially with a service worker handling the caching strategy.
+              onClick={() => window.location.reload()}
+              title="Reloads the app and clears the cache to get the latest code, without affecting your saved data."
               style={{
                 padding: '0.75rem 1.5rem',
                 fontSize: '1rem',
                 color: 'white',
-                backgroundColor: '#ef4444',
+                backgroundColor: '#f59e0b',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer'
               }}
             >
-              Reset App
+              Hot Restart
+            </button>
+             <button
+              onClick={this.handleDiagnose}
+              disabled={this.state.isDiagnosing}
+              style={{
+                padding: '0.75rem 1.5rem',
+                fontSize: '1rem',
+                color: 'white',
+                backgroundColor: '#0ea5e9',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                opacity: this.state.isDiagnosing ? 0.7 : 1,
+              }}
+            >
+              {this.state.isDiagnosing && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+              {this.state.isDiagnosing ? 'Analyzing...' : 'Diagnose with AI'}
             </button>
           </div>
-          <details style={{ marginTop: '2.5rem', background: 'var(--color-border, #e2e8f0)', padding: '1rem', borderRadius: '8px', maxWidth: '90vw', textAlign: 'left' }}>
+          
+          {(this.state.isDiagnosing || this.state.aiDiagnosis) && (
+            <div style={{
+                marginTop: '2rem',
+                padding: '1rem',
+                borderRadius: '8px',
+                backgroundColor: 'var(--color-card-bg, #ffffff)',
+                border: '1px solid var(--color-border, #e2e8f0)',
+                maxWidth: '600px',
+                width: '100%',
+                textAlign: 'left'
+            }}>
+                <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>AI Diagnosis</h3>
+                {this.state.isDiagnosing ? (
+                    <p style={{color: 'var(--color-text-secondary, #475569)'}}>Please wait while the AI analyzes the error...</p>
+                ) : (
+                    <p style={{ whiteSpace: 'pre-wrap', color: 'var(--color-text-secondary, #475569)', fontSize: '0.9rem' }}>{this.state.aiDiagnosis}</p>
+                )}
+            </div>
+          )}
+
+          <details style={{ marginTop: '2.5rem', background: 'var(--color-border, #e2e8f0)', padding: '1rem', borderRadius: '8px', maxWidth: '600px', width: '100%', textAlign: 'left' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Error Details</summary>
             <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxHeight: '200px', overflowY: 'auto', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-text-secondary, #475569)' }}>
               {this.state.error?.toString()}

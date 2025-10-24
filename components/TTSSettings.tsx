@@ -8,6 +8,7 @@ interface TTSSettingsProps {
 }
 
 const voices = [
+    { value: 'Orion', label: 'Orion', group: 'Gemini Male' },
     { value: 'Fenrir', label: 'Fenrir', group: 'Gemini Male' },
     { value: 'Charon', label: 'Charon', group: 'Gemini Male' },
     { value: 'Zephyr', label: 'Zephyr', group: 'Gemini Female' },
@@ -38,7 +39,7 @@ const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
           <optgroup label="Gemini Voices (Male)">
             {voices.filter(v => v.group === 'Gemini Male').map(voice => (
                 <option key={voice.value} value={voice.value}>
-                    {voice.label} {voice.value === 'Fenrir' && '(Default)'}
+                    {voice.label} {voice.value === 'Orion' && '(Default)'}
                 </option>
             ))}
           </optgroup>

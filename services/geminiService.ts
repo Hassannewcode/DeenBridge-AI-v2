@@ -331,3 +331,34 @@ export const generateTitle = async (prompt: string, response: string): Promise<s
         return "New Chat";
     }
 };
+
+export const getErrorDiagnosis = async (error: Error): Promise<string> => {
+    const prompt = `You are a helpful assistant for a web application called DeenBridge. The app has crashed for a user.
+    Analyze the following technical error message and stack trace.
+    Your task is to explain the problem to a non-technical user in simple, reassuring language.
+    1. Briefly explain what might have gone wrong in simple terms (e.g., "It seems there was a problem loading some data," or "There might be an issue with a recent update.").
+    2. Suggest simple, actionable steps the user can take. The primary actions are:
+        - "Reloading the page".
+        - "Performing a Hot Restart" (which re-downloads the app's code without affecting saved data).
+        - If the problem persists, suggest "clearing the browser's site data" for this application as a last resort.
+    3. Do not be overly technical. Avoid jargon. The tone should be helpful and empathetic.
+
+    Error Message: ${error.message}
+    Stack Trace: ${error.stack}
+
+    Provide a concise explanation and suggestion for the user:`;
+
+    try {
+        const result: GenerateContentResponse = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.5,
+            },
+        });
+        return result.text.trim();
+    } catch (e) {
+        console.error("Error getting AI diagnosis:", e);
+        throw new Error("Could not connect to the diagnosis service.");
+    }
+};

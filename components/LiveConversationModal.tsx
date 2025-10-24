@@ -21,7 +21,7 @@ interface LiveConversationModalProps {
 
 const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, onClose, profile, denomination, onTurnComplete, messages }) => {
   const { t } = useLocale();
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'connecting' | 'listening' | 'speaking' | 'error' | 'reconnecting'>('idle');
   const [userTranscript, setUserTranscript] = useState('');
   const [aiTranscript, setAiTranscript] = useState('');
   const [isMicActive, setIsMicActive] = useState(false);
@@ -29,6 +29,13 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   const modalRef = useRef<HTMLDivElement>(null);
   
   const isMicActiveRef = useRef(isMicActive); 
+  const sessionRef = useRef<Session | null>(null);
+  const audioResourcesRef = useRef<any>(null);
+  const isCancelledRef = useRef(false);
+  const reconnectAttemptsRef = useRef(0);
+  const startSessionRef = useRef<(() => Promise<void>) | null>(null);
+
+
   useEffect(() => {
     isMicActiveRef.current = isMicActive;
   }, [isMicActive]);
@@ -39,40 +46,68 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [userTranscript, aiTranscript]);
 
+  const cleanup = useCallback(() => {
+    if (sessionRef.current) {
+        sessionRef.current.close();
+        sessionRef.current = null;
+    }
+    const res = audioResourcesRef.current;
+    if (res) {
+        res.stream?.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+        if (res.processor) res.processor.disconnect();
+        if (res.source) res.source.disconnect();
+        res.outputSources?.forEach((s: AudioBufferSourceNode) => {
+            try { s.onended = null; s.stop(); s.disconnect(); } catch (e) {}
+        });
+        if (res.inputContext?.state !== 'closed') res.inputContext?.close().catch(console.warn);
+        if (res.outputContext?.state !== 'closed') res.outputContext?.close().catch(console.warn);
+    }
+    audioResourcesRef.current = null;
+  }, []);
+
+  const handleReconnect = useCallback(() => {
+    if (isCancelledRef.current) return;
+    
+    reconnectAttemptsRef.current += 1;
+    if (reconnectAttemptsRef.current > 3) {
+      console.error("Reconnection failed after multiple attempts.");
+      setStatus('error');
+      return;
+    }
+
+    const delay = Math.pow(2, reconnectAttemptsRef.current) * 1000;
+    setStatus('reconnecting');
+
+    setTimeout(() => {
+        if (!isCancelledRef.current && startSessionRef.current) {
+            console.log(`Attempting to reconnect... (Attempt ${reconnectAttemptsRef.current})`);
+            cleanup();
+            startSessionRef.current();
+        }
+    }, delay);
+  }, [cleanup]);
+
+
   useEffect(() => {
     if (!isOpen) return;
 
-    let session: Session | null = null;
-    let audioResources: {
-        stream: MediaStream | null;
-        inputContext: AudioContext | null;
-        outputContext: AudioContext | null;
-        source: MediaStreamAudioSourceNode | null;
-        processor: ScriptProcessorNode | null;
-        outputSources: Set<AudioBufferSourceNode>;
-        nextStartTime: number;
-    } = { stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 };
-    
-    let isCancelled = false;
+    isCancelledRef.current = false;
 
     const startSession = async () => {
       setStatus('connecting');
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        if (isCancelled) {
-          stream.getTracks().forEach(track => track.stop());
-          return;
-        }
+        if (isCancelledRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
 
         const inputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
         const outputContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
         const source = inputContext.createMediaStreamSource(stream);
         const processor = inputContext.createScriptProcessor(4096, 1, 1);
 
-        audioResources = { stream, inputContext, outputContext, source, processor, outputSources: new Set(), nextStartTime: 0 };
+        audioResourcesRef.current = { stream, inputContext, outputContext, source, processor, outputSources: new Set(), nextStartTime: 0 };
         
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-        const systemInstruction = generateSystemInstruction(denomination, profile, true); // Use live conversation prompt
+        const systemInstruction = generateSystemInstruction(denomination, profile, true);
         
         const transcriptParts = { user: '', ai: '' };
 
@@ -84,42 +119,37 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             inputAudioTranscription: {}, 
             outputAudioTranscription: {},
             speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: profile.ttsSettings.voice === 'native' ? 'Zephyr' : profile.ttsSettings.voice } },
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: profile.ttsSettings.voice === 'native' ? 'Orion' : profile.ttsSettings.voice } },
             },
           },
           callbacks: {
             onopen: () => {
-              if (isCancelled) return;
+              if (isCancelledRef.current) return;
+              reconnectAttemptsRef.current = 0;
               setStatus('listening');
-              if (profile.liveChatMode === 'toggle') {
-                 setIsMicActive(true);
-              }
+              if (profile.liveChatMode === 'toggle') setIsMicActive(true);
 
               processor.onaudioprocess = (e) => {
                 if (isMicActiveRef.current) {
                   const inputData = e.inputBuffer.getChannelData(0);
                   const pcmBlob = createAudioBlob(inputData);
-                  sessionPromise.then((session) => {
-                    session.sendRealtimeInput({ media: pcmBlob });
-                  });
+                  sessionPromise.then((session) => session.sendRealtimeInput({ media: pcmBlob }));
                 }
               };
               source.connect(processor);
               processor.connect(inputContext.destination);
             },
             onmessage: async (message) => {
-              if (isCancelled) return;
+              if (isCancelledRef.current) return;
+              const audioRes = audioResourcesRef.current;
+              if (!audioRes) return;
 
               if (message.serverContent?.interrupted) {
-                audioResources.outputSources.forEach(source => {
-                    try {
-                        source.onended = null; // Prevent onended from firing
-                        source.stop();
-                        source.disconnect();
-                    } catch (e) { console.warn("Error stopping interrupted audio source", e); }
+                audioRes.outputSources.forEach((source: AudioBufferSourceNode) => {
+                    try { source.onended = null; source.stop(); source.disconnect(); } catch (e) {}
                 });
-                audioResources.outputSources.clear();
-                audioResources.nextStartTime = 0;
+                audioRes.outputSources.clear();
+                audioRes.nextStartTime = 0;
                 setStatus('listening');
               }
 
@@ -134,27 +164,24 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
               }
               if (message.serverContent?.modelTurn?.parts[0]?.inlineData?.data) {
                 const audioBase64 = message.serverContent.modelTurn.parts[0].inlineData.data;
-                const outCtx = audioResources.outputContext!;
+                const outCtx = audioRes.outputContext!;
                 if (outCtx.state === 'suspended') await outCtx.resume();
                 
-                audioResources.nextStartTime = Math.max(outCtx.currentTime, audioResources.nextStartTime);
+                audioRes.nextStartTime = Math.max(outCtx.currentTime, audioRes.nextStartTime);
                 const audioBuffer = await decodeAudioData(decode(audioBase64), outCtx, 24000, 1);
                 
-                if (isCancelled) return;
+                if (isCancelledRef.current) return;
 
                 const audioSource = outCtx.createBufferSource();
                 audioSource.buffer = audioBuffer;
                 audioSource.connect(outCtx.destination);
-                audioSource.start(audioResources.nextStartTime);
-                audioResources.nextStartTime += audioBuffer.duration;
+                audioSource.start(audioRes.nextStartTime);
+                audioRes.nextStartTime += audioBuffer.duration;
                 
-                const currentSources = audioResources.outputSources;
-                currentSources.add(audioSource);
+                audioRes.outputSources.add(audioSource);
                 audioSource.onended = () => {
-                  currentSources.delete(audioSource);
-                  if (currentSources.size === 0 && !isCancelled) {
-                      setStatus('listening');
-                  }
+                  audioRes.outputSources.delete(audioSource);
+                  if (audioRes.outputSources.size === 0 && !isCancelledRef.current) setStatus('listening');
                 };
               }
               if (message.serverContent?.turnComplete) {
@@ -163,47 +190,34 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                 transcriptParts.ai = '';
                 setUserTranscript('');
                 setAiTranscript('');
-                if (!isCancelled) setStatus('listening');
+                if (!isCancelledRef.current) setStatus('listening');
               }
             },
-            onerror: (e) => { console.error('Live session error:', e); if (!isCancelled) setStatus('error'); },
-            onclose: () => { if (!isCancelled) setStatus('idle'); },
+            onerror: (e) => { console.error('Live session error:', e); if (!isCancelledRef.current) handleReconnect(); },
+            onclose: (e) => { 
+                console.log('Live session closed. Code:', e.code, 'Reason:', e.reason);
+                // 1000 is a normal closure, don't reconnect
+                if (!isCancelledRef.current && e.code !== 1000) handleReconnect();
+            },
           },
         });
         
-        session = await sessionPromise;
+        sessionRef.current = await sessionPromise;
 
       } catch (err) {
         console.error("Failed to initialize session:", err);
-        if (!isCancelled) setStatus('error');
+        if (!isCancelledRef.current) handleReconnect();
       }
     };
-
+    
+    startSessionRef.current = startSession;
     startSession();
 
     return () => { 
-      isCancelled = true;
-      session?.close();
-      
-      const { stream, processor, source, inputContext, outputContext, outputSources } = audioResources;
-      stream?.getTracks().forEach(track => track.stop());
-      
-      if(processor) processor.disconnect();
-      if(source) source.disconnect();
-      
-      outputSources.forEach(s => { 
-        try { 
-          s.onended = null;
-          s.stop(); 
-          s.disconnect(); 
-        } catch (e) { console.warn("Error force-stopping audio source", e); } 
-      });
-      outputSources.clear();
-
-      if (inputContext?.state !== 'closed') inputContext?.close().catch(console.warn);
-      if (outputContext?.state !== 'closed') outputContext?.close().catch(console.warn);
+      isCancelledRef.current = true;
+      cleanup();
     };
-  }, [isOpen, denomination, profile, onTurnComplete, messages]);
+  }, [isOpen, denomination, profile, onTurnComplete, messages, cleanup, handleReconnect]);
 
 
   const handleToggleMic = () => setIsMicActive(prev => !prev);
@@ -220,6 +234,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   const StatusIndicator = () => {
     switch (status) {
         case 'connecting': return <div className="flex items-center gap-2"><LoadingSpinner className="w-4 h-4" /> <span>{t('liveStatusConnecting')}</span></div>;
+        case 'reconnecting': return <div className="flex items-center gap-2 text-amber-400"><LoadingSpinner className="w-4 h-4" /> <span>Reconnecting...</span></div>;
         case 'listening': return <div className="text-emerald-400">{isMicActive ? t('liveStatusListening') : 'Mic Off'}</div>;
         case 'speaking': return <div className="text-cyan-400">{t('liveStatusSpeaking')}</div>;
         case 'error': return <div className="text-red-400">{t('liveStatusError')}</div>;

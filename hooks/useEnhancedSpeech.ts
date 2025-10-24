@@ -176,7 +176,7 @@ export const useEnhancedSpeech = () => {
                     } else {
                         // Only apply gender logic if falling back from a specific Gemini voice
                         if (cloudTtsFailed) {
-                            const isMaleGeminiVoice = ['Fenrir', 'Charon'].includes(settings.voice);
+                            const isMaleGeminiVoice = ['Orion', 'Fenrir', 'Charon'].includes(settings.voice);
                             voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name)));
                         }
 
