@@ -13,7 +13,6 @@ const voiceOptions = [
     { value: 'Puck', label: 'Puck (M)', group: 'Gemini', description: 'A clear, friendly, and professional male voice.', recommended: false, pitch: 1.1 },
     { value: 'Kore', label: 'Kore (F)', group: 'Gemini', description: 'A smooth, gentle, and calming female voice.', recommended: true, pitch: 0.9 },
     { value: 'Zephyr', label: 'Zephyr (F)', group: 'Gemini', description: 'A warm, friendly, and slightly sassy female voice.', recommended: false, pitch: 1.0 },
-    { value: 'Fenrir', label: 'Fenrir (F)', group: 'Gemini', description: 'A crisp, professional, and articulate female voice.', recommended: false, pitch: 0.95 },
     { value: 'native', label: 'Native Browser Voice', group: 'System', description: 'Uses your device\'s built-in voice. Quality may vary.', recommended: false, pitch: 1.0 }
 ];
 

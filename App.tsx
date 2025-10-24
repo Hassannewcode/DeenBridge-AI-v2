@@ -26,8 +26,8 @@ const defaultProfile: UserProfile = {
   arabicFont: 'uthmanic',
   liveChatMode: 'toggle',
   ttsSettings: {
-    voice: 'Charon',
-    pitch: 1.15,
+    voice: 'Kore',
+    pitch: 0.9,
     rate: 1,
   },
   uiScale: 100,
