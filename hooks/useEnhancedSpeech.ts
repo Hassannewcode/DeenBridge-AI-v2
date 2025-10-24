@@ -51,6 +51,7 @@ export const useEnhancedSpeech = () => {
     const onEndCallbackRef = useRef<(() => void) | null>(null);
     const isCancelledRef = useRef(false);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null); // To prevent GC
+    const keepAliveIntervalRef = useRef<number | null>(null);
 
     // Initialize AudioContext once for Gemini TTS
     useEffect(() => {
@@ -82,6 +83,11 @@ export const useEnhancedSpeech = () => {
             }
             window.speechSynthesis.cancel();
             utteranceRef.current = null;
+        }
+
+        if (keepAliveIntervalRef.current) {
+            clearInterval(keepAliveIntervalRef.current);
+            keepAliveIntervalRef.current = null;
         }
         
         activeSourcesRef.current.forEach(source => {
@@ -117,7 +123,13 @@ export const useEnhancedSpeech = () => {
         };
     }, []);
 
-    const speak = useCallback(async (text: string, lang: 'en' | 'ar', settings: UserProfile['ttsSettings'], onEnd: () => void) => {
+    const speak = useCallback(async (
+        text: string, 
+        lang: 'en' | 'ar', 
+        settings: UserProfile['ttsSettings'], 
+        onEnd: () => void,
+        onError: (error: string) => void
+    ) => {
         cancel(); 
         isCancelledRef.current = false;
         onEndCallbackRef.current = onEnd;
@@ -137,6 +149,14 @@ export const useEnhancedSpeech = () => {
             }
             onEndCallbackRef.current = null;
             setIsLoading(false);
+        };
+
+        const handleError = (errorMsg: string, e?: any) => {
+            if (e) console.error('Speech Synthesis Error:', e);
+            if (!isCancelledRef.current) {
+                onError(errorMsg);
+            }
+            handleEnd();
         };
         
         const useCloudTts = isCloudTtsSupported && settings.voice !== 'native' && audioContextRef.current;
@@ -172,8 +192,7 @@ export const useEnhancedSpeech = () => {
                 setIsLoading(false); // Playback has started
 
             } catch (error) {
-                console.error('Cloud TTS failed. It will not fall back to native.', error);
-                handleEnd();
+                handleError('Cloud TTS service failed. Please try again later.', error);
             }
         } else { // Fallback to native only if 'native' is selected or cloud is unsupported
             if (isBrowserTtsSupported) {
@@ -200,21 +219,32 @@ export const useEnhancedSpeech = () => {
                     if (voice) utterance.voice = voice;
                     
                     utterance.onend = () => {
+                        if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
                         utteranceRef.current = null;
                         handleEnd();
                     };
                     utterance.onerror = (e) => {
-                        console.error('SpeechSynthesis Error:', e.error);
-                        utteranceRef.current = null;
-                        handleEnd();
+                        if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
+                        handleError(`Speech synthesis failed: ${e.error || 'Unknown error'}. Your browser's speech engine may be having issues.`, e);
                     };
                     
                     window.speechSynthesis.speak(utterance);
+                    
+                    // Keep-alive interval to prevent speech from cutting out
+                    if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
+                    keepAliveIntervalRef.current = window.setInterval(() => {
+                        if (window.speechSynthesis.speaking) {
+                            window.speechSynthesis.pause();
+                            window.speechSynthesis.resume();
+                        } else {
+                            if (keepAliveIntervalRef.current) clearInterval(keepAliveIntervalRef.current);
+                        }
+                    }, 10000); // every 10 seconds
+
                     setIsLoading(false);
 
                 } catch (error) {
-                    console.error('Native TTS also failed:', error);
-                    handleEnd();
+                    handleError('Native TTS failed to start.', error);
                 }
             } else {
                  handleEnd();

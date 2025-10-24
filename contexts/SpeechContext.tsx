@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { useEnhancedSpeech } from '../hooks/useEnhancedSpeech';
 import type { UserProfile } from '../types';
+import Toast from '../components/Toast';
 
 interface SpeechContextType {
   speak: (messageId: string, text: string, lang: 'en' | 'ar', settings: UserProfile['ttsSettings']) => void;
@@ -16,6 +17,7 @@ const SpeechContext = createContext<SpeechContextType | undefined>(undefined);
 export const SpeechProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
+  const [speechError, setSpeechError] = useState<string | null>(null);
 
   const handleSpeechEnd = useCallback(() => {
     setSpeakingMessageId(null);
@@ -28,7 +30,13 @@ export const SpeechProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!isSupported) return;
     setSpeakingMessageId(messageId);
     setLoadingMessageId(messageId);
-    enhancedSpeak(text, lang, settings, handleSpeechEnd);
+    setSpeechError(null);
+
+    const handleError = (error: string) => {
+        setSpeechError(error);
+    };
+
+    enhancedSpeak(text, lang, settings, handleSpeechEnd, handleError);
   }, [isSupported, enhancedSpeak, handleSpeechEnd]);
 
   const cancel = useCallback(() => {
@@ -49,6 +57,7 @@ export const SpeechProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   return (
     <SpeechContext.Provider value={value}>
       {children}
+      {speechError && <Toast message={speechError} type="error" onClose={() => setSpeechError(null)} />}
     </SpeechContext.Provider>
   );
 };
