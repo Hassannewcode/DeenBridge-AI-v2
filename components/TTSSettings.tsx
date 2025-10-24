@@ -1,24 +1,66 @@
 import React from 'react';
 import { useLocale } from '../contexts/LocaleContext';
 import type { UserProfile } from '../types';
+import { CheckIcon } from './icons';
 
 interface TTSSettingsProps {
   settings: UserProfile['ttsSettings'];
   onChange: (newSettings: UserProfile['ttsSettings']) => void;
 }
 
-const voices = [
-    { value: 'Orion', label: 'Orion', group: 'Gemini Male' },
-    { value: 'Fenrir', label: 'Fenrir', group: 'Gemini Male' },
-    { value: 'Charon', label: 'Charon', group: 'Gemini Male' },
-    { value: 'Zephyr', label: 'Zephyr', group: 'Gemini Female' },
-    { value: 'Puck', label: 'Puck', group: 'Gemini Female' },
-    { value: 'Kore', label: 'Kore', group: 'Gemini Female' },
-    { value: 'native', label: 'Native Browser Voice', group: 'System' },
+const voiceOptions = [
+    {
+        value: 'Charon',
+        label: 'Charon',
+        group: 'Gemini Male',
+        description: 'A strong, deep, and authoritative voice.',
+        recommended: true,
+        pitch: 1.15
+    },
+    {
+        value: 'Orion',
+        label: 'Orion',
+        group: 'Gemini Male',
+        description: 'A clear, professional, and engaging narrative voice.',
+        recommended: false,
+        pitch: 1.0
+    },
+    {
+        value: 'Kore',
+        label: 'Kore',
+        group: 'Gemini Female',
+        description: 'A smooth, gentle, and calming voice.',
+        recommended: true,
+        pitch: 0.9
+    },
+    {
+        value: 'Zephyr',
+        label: 'Zephyr',
+        group: 'Gemini Female',
+        description: 'A warm, friendly, and slightly sassy voice.',
+        recommended: false,
+        pitch: 1.0
+    },
+    {
+        value: 'native',
+        label: 'Native Browser Voice',
+        group: 'System',
+        description: 'Uses your device\'s built-in voice. Quality may vary.',
+        recommended: false,
+        pitch: 1.0
+    }
 ];
 
 const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
   const { t } = useLocale();
+
+  const handleVoiceChange = (voice: typeof voiceOptions[0]) => {
+    onChange({ 
+      ...settings, 
+      voice: voice.value,
+      pitch: voice.pitch // Automatically set recommended pitch
+    });
+  };
 
   const handleSettingChange = (field: keyof UserProfile['ttsSettings'], value: string | number) => {
     onChange({ ...settings, [field]: value });
@@ -29,31 +71,34 @@ const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
       <h3 className="text-lg font-bold text-[var(--color-primary)]">Text-to-Speech</h3>
       
       <div>
-        <label htmlFor="tts-voice" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Voice</label>
-        <select
-          id="tts-voice"
-          value={settings.voice}
-          onChange={(e) => handleSettingChange('voice', e.target.value)}
-          className="w-full px-3 py-2 bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] custom-select"
-        >
-          <optgroup label="Gemini Voices (Male)">
-            {voices.filter(v => v.group === 'Gemini Male').map(voice => (
-                <option key={voice.value} value={voice.value}>
-                    {voice.label} {voice.value === 'Orion' && '(Default)'}
-                </option>
+        <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Voice</label>
+        <div className="grid grid-cols-1 gap-2">
+            {voiceOptions.map(option => (
+                <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleVoiceChange(option)}
+                    className={`relative text-left p-3 rounded-lg border-2 transition-all duration-200 ${
+                        settings.voice === option.value
+                        ? 'border-[var(--color-accent)] ring-2 ring-[var(--color-accent)] bg-[var(--color-card-quran-bg)]'
+                        : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'
+                    }`}
+                >
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="font-bold text-[var(--color-text-primary)]">{option.label}</p>
+                            <p className="text-xs text-[var(--color-text-secondary)] mt-1">{option.description}</p>
+                        </div>
+                        {settings.voice === option.value && <CheckIcon className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 ms-2" />}
+                    </div>
+                    {option.recommended && (
+                        <div className="absolute -top-2 right-2 text-xs font-bold bg-[var(--color-accent)] text-white px-2 py-0.5 rounded-full shadow">
+                            Recommended
+                        </div>
+                    )}
+                </button>
             ))}
-          </optgroup>
-          <optgroup label="Gemini Voices (Female)">
-             {voices.filter(v => v.group === 'Gemini Female').map(voice => (
-                <option key={voice.value} value={voice.value}>{voice.label}</option>
-            ))}
-          </optgroup>
-          <optgroup label="System Fallback">
-             {voices.filter(v => v.group === 'System').map(voice => (
-                <option key={voice.value} value={voice.value}>{voice.label}</option>
-            ))}
-          </optgroup>
-        </select>
+        </div>
       </div>
 
       <div>
@@ -74,14 +119,14 @@ const TTSSettings: React.FC<TTSSettingsProps> = ({ settings, onChange }) => {
 
       <div>
         <label htmlFor="tts-pitch" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-          Pitch <span className="text-xs font-mono">({Number(settings.pitch).toFixed(1)}x)</span>
+          Pitch <span className="text-xs font-mono">({Number(settings.pitch).toFixed(2)}x)</span>
         </label>
         <input
           id="tts-pitch"
           type="range"
           min="0.5"
           max="2"
-          step="0.1"
+          step="0.05"
           value={settings.pitch}
           onChange={(e) => handleSettingChange('pitch', parseFloat(e.target.value))}
           className="w-full h-2 bg-[var(--color-border)] rounded-lg appearance-none cursor-pointer accent-[var(--color-accent)]"

@@ -119,7 +119,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
             inputAudioTranscription: {}, 
             outputAudioTranscription: {},
             speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: profile.ttsSettings.voice === 'native' ? 'Orion' : profile.ttsSettings.voice } },
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: profile.ttsSettings.voice === 'native' ? 'Charon' : profile.ttsSettings.voice } },
             },
           },
           callbacks: {

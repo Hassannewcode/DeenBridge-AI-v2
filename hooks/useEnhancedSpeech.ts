@@ -140,7 +140,11 @@ export const useEnhancedSpeech = () => {
                 const source = audioCtx.createBufferSource();
                 source.buffer = audioBuffer;
                 source.playbackRate.value = settings.rate;
-                source.detune.value = (settings.pitch - 1) * 600; // Pitch adjustment for Web Audio API
+                // Pitch in Web Audio API is measured in cents (1200 cents in an octave).
+                // A pitch of 2.0 is one octave higher. We map the 0.5-2.0 range to a reasonable cent range.
+                // A simple linear mapping: (pitch - 1) * 1200 is too extreme. Let's use a smaller factor.
+                const pitchInCents = (settings.pitch - 1) * 600; // e.g., pitch 1.5 = +300 cents, pitch 2.0 = +600 cents
+                source.detune.value = pitchInCents;
                 source.connect(audioCtx.destination);
                 
                 source.onended = () => {
@@ -176,7 +180,7 @@ export const useEnhancedSpeech = () => {
                     } else {
                         // Only apply gender logic if falling back from a specific Gemini voice
                         if (cloudTtsFailed) {
-                            const isMaleGeminiVoice = ['Orion', 'Fenrir', 'Charon'].includes(settings.voice);
+                            const isMaleGeminiVoice = ['Orion', 'Charon'].includes(settings.voice);
                             voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name)));
                         }
 

@@ -25,8 +25,8 @@ const defaultProfile: UserProfile = {
   arabicFont: 'uthmanic',
   liveChatMode: 'toggle', // Set toggle as default
   ttsSettings: {
-    voice: 'Orion', // Default to Orion, a high-quality male voice from Gemini.
-    pitch: 1,
+    voice: 'Charon', // Default to Charon, a strong male voice from Gemini.
+    pitch: 1.15,     // Set default pitch for Charon.
     rate: 1,
   },
 };
