@@ -1,11 +1,17 @@
 import React from 'react';
 
-// New: App Logo
+// App Logo (matches PWA icon)
 export const DeenBridgeLogoIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 17h20" />
-        <path d="M4 17c0-4.4 3.6-8 8-8s8 3.6 8 8" />
-        <path d="M12 5l1.5 3L15 9l-1.5 1.5L12 12l-1.5-1.5L9 9l1.5-1.5L12 5z" />
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1">
+        <defs>
+            <linearGradient id="bridgeIconGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{stopColor:'#ffffff', stopOpacity:1}} />
+                <stop offset="100%" style={{stopColor:'#e0e0e0', stopOpacity:1}} />
+            </linearGradient>
+        </defs>
+        <path d="M3 17h18" stroke="url(#bridgeIconGradient)" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M5 17a7 7 0 0 1 14 0" fill="none" stroke="url(#bridgeIconGradient)" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M12 5.5l1.2 2.5 2.8.4-2 1.9.5 2.7-2.5-1.3-2.5 1.3.5-2.7-2-1.9 2.8-.4L12 5.5z" fill="#c9ab4c" stroke="#c9ab4c" strokeWidth="1" strokeLinejoin="round"/>
     </svg>
 );
 

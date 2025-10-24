@@ -16,7 +16,7 @@ const EmptyState: React.FC<{ denomination: Denomination; onQuery: (query: string
 
     return (
         <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-8 animate-fade-in-up">
-            <div className="w-24 h-24 p-4 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-lg text-white">
+            <div className="w-24 h-24 bg-[var(--color-primary)] rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
                 <DeenBridgeLogoIcon />
             </div>
             <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-[var(--color-text-primary)]">{t('beginYourInquiry')}</h2>
