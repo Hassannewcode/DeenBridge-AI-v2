@@ -109,8 +109,17 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
 
   useEffect(() => {
     if (activeChat) {
-      const chatInstance = startChat(denomination, activeChat.messages, profile);
-      setChat(chatInstance);
+      try {
+        const chatInstance = startChat(denomination, activeChat.messages, profile);
+        setChat(chatInstance);
+      } catch (error) {
+        console.error("Failed to initialize chat session:", error);
+        setToastInfo({
+            message: "Failed to initialize chat. Please verify your API key and network connection.",
+            type: "error"
+        });
+        setChat(null);
+      }
     }
   }, [activeChatId, chats, denomination, profile]);
 
