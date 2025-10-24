@@ -1,4 +1,5 @@
 
+
 // Fix: Moved Ayah, Surah, and QuranBookmark interfaces here to centralize types.
 export interface Ayah {
     number: number;
@@ -108,6 +109,8 @@ export interface UserProfile {
     pitch: number;
     rate: number;
   };
+  uiScale: number; // Percentage value for UI/text scaling
+  quranReaderLayout: 'split' | 'stacked'; // Layout choice for the Quran reader
 }
 
 // For Quranic Analysis Service
@@ -123,4 +126,3 @@ export interface QuranAnalysisResult {
   statistical_summary: string;
   relevant_verses: QuranAnalysisVerse[];
 }
-      

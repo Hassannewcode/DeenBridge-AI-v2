@@ -29,6 +29,8 @@ const defaultProfile: UserProfile = {
     pitch: 1.15,     // Set default pitch for Charon.
     rate: 1,
   },
+  uiScale: 100, // Default UI scale is 100%
+  quranReaderLayout: 'split', // Default layout is 'split'
 };
 
 const App: React.FC = () => {
@@ -64,6 +66,28 @@ const App: React.FC = () => {
       document.body.classList.remove('is-mobile');
     }
   }, [isMobile]);
+
+  useEffect(() => {
+    const getBaseFontSize = () => {
+      // These values match the CSS in index.html
+      if (typeof window !== 'undefined') {
+        if (window.innerWidth <= 480) return 14;
+        if (window.innerWidth <= 768) return 15;
+      }
+      return 16;
+    }
+    
+    const applyScale = () => {
+      const baseSize = getBaseFontSize();
+      // Apply user's scale preference. Default is 100%.
+      document.documentElement.style.fontSize = `${((profile.uiScale || 100) / 100) * baseSize}px`;
+    }
+    
+    applyScale(); // Apply on initial load and when profile changes
+
+    window.addEventListener('resize', applyScale);
+    return () => window.removeEventListener('resize', applyScale);
+  }, [profile.uiScale]);
 
 
   return (

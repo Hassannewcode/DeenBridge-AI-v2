@@ -151,6 +151,8 @@ const QuranReader: React.FC<{
   }
 
   const isPanelOpen = selectedAyah || isSurahInfoOpen;
+  const isStackedLayout = profile.quranReaderLayout === 'stacked';
+
 
   return ReactDOM.createPortal(
     <div
@@ -158,10 +160,16 @@ const QuranReader: React.FC<{
       style={{ animationDuration: '0.3s' }}
       onClick={onClose}
     >
-      <div ref={modalRef} className="quran-reader-modal" onClick={e => e.stopPropagation()}>
+      <div 
+        ref={modalRef} 
+        className={`quran-reader-modal ${isStackedLayout ? 'flex-col' : 'lg:flex-row'}`} 
+        onClick={e => e.stopPropagation()}
+      >
         {/* Backdrop for side panels on mobile */}
         {isPanelOpen && <div onClick={handleClosePanels} className="absolute inset-0 bg-black/40 z-50 transition-opacity lg:hidden" aria-hidden="true" />}
-        <aside className="quran-reader-nav flex flex-col">
+        <aside 
+          className={`quran-reader-nav flex flex-col ${isStackedLayout ? 'w-full border-b lg:border-b' : 'lg:w-[320px] lg:border-r lg:border-b-0'}`}
+        >
           <header className="p-2 lg:p-4 border-b border-[var(--color-border)] flex-shrink-0 flex items-center justify-between">
             <h1 className="text-lg lg:text-xl font-bold text-[var(--color-text-primary)]">The Holy Qur'an</h1>
             <button onClick={onClose} className="p-2 -mr-2 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors active:scale-90">

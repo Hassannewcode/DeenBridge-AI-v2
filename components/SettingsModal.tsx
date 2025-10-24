@@ -10,6 +10,8 @@ import ArabicFontSwitcher from './ArabicFontSwitcher';
 import TTSSettings from './TTSSettings';
 import { useFocusTrap } from '../lib/focus';
 import { useA11y } from '../lib/a11y';
+import { triggerHapticFeedback } from '../lib/haptics';
+import { useDevice } from '../contexts/DeviceContext';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,6 +21,39 @@ interface SettingsModalProps {
   onResetDenomination: () => void;
 }
 
+const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
+    const commonContent = (
+        <div className="flex-1 bg-[var(--color-bg)] p-1 space-y-1">
+            <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
+            <div className="h-1 w-5/6 bg-[var(--color-border)] rounded-sm"></div>
+            <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
+        </div>
+    );
+
+    if (layout === 'split' && !isMobile) {
+        return (
+            <div className="w-full h-20 border border-[var(--color-border)] rounded-md flex overflow-hidden bg-[var(--color-card-bg)]">
+                <div className="w-1/3 bg-[var(--color-card-quran-bg)] border-r border-[var(--color-border)] p-1 space-y-1">
+                    <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
+                    <div className="h-1 w-full bg-[var(--color-border)] rounded-sm"></div>
+                </div>
+                {commonContent}
+            </div>
+        );
+    }
+    
+    // Stacked layout (and split layout on mobile) look the same in preview
+    return (
+        <div className="w-full h-20 border border-[var(--color-border)] rounded-md flex flex-col overflow-hidden bg-[var(--color-card-bg)]">
+            <div className="h-6 bg-[var(--color-card-quran-bg)] border-b border-[var(--color-border)] flex items-center p-1">
+                <div className="h-1 w-1/3 bg-[var(--color-border)] rounded-sm"></div>
+            </div>
+            {commonContent}
+        </div>
+    );
+};
+
+
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -26,6 +61,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
   const { t } = useLocale();
   const modalRef = useRef<HTMLDivElement>(null);
   const { announce } = useA11y();
+  const { isMobile } = useDevice();
+
 
   useFocusTrap(modalRef, isOpen);
 
@@ -66,7 +103,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
     const message = t('settingsSaved');
     setToastMessage(message);
     announce(message);
-    if (navigator.vibrate) navigator.vibrate(50);
+    triggerHapticFeedback(profile, 'success');
     setTimeout(onClose, 300);
   };
 
@@ -118,6 +155,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           <div className="flex-1 px-6 pb-2 overflow-y-auto">
             <div className="space-y-6">
               <ThemeSwitcher />
+              
+              <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-[var(--color-primary)]">Accessibility</h3>
+                  <div>
+                      <label htmlFor="ui-scale" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                          UI & Text Scale <span className="text-xs font-mono">({localProfile.uiScale}%)</span>
+                      </label>
+                      <input
+                          id="ui-scale"
+                          type="range"
+                          min="80"
+                          max="150"
+                          step="5"
+                          value={localProfile.uiScale}
+                          onChange={(e) => setLocalProfile(p => ({...p, uiScale: parseInt(e.target.value, 10)}))}
+                          className="w-full h-2 bg-[var(--color-border)] rounded-lg appearance-none cursor-pointer accent-[var(--color-accent)]"
+                      />
+                  </div>
+              </div>
+
               <ArabicFontSwitcher 
                   currentFont={localProfile.arabicFont} 
                   onFontChange={(font) => setLocalProfile(prev => ({ ...prev, arabicFont: font }))}
@@ -129,16 +186,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
               />
 
               <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-[var(--color-primary)]">Quran Reader Layout</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                      {(['split', 'stacked'] as const).map(layout => (
+                          <button key={layout} type="button" onClick={() => setLocalProfile(p => ({...p, quranReaderLayout: layout}))} className={`p-2 rounded-lg border-2 transition-all ${localProfile.quranReaderLayout === layout ? 'border-[var(--color-accent)] ring-2 ring-offset-2 ring-offset-[var(--color-card-bg)] ring-[var(--color-accent)]' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'}`}>
+                              <LayoutPreview layout={layout} isMobile={isMobile} />
+                              <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{layout === 'split' ? 'Split View' : 'Stacked View'}</span>
+                          </button>
+                      ))}
+                  </div>
+              </div>
+
+              <div className="space-y-4">
                   <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('liveChatModeTitle')}</h3>
                   <p className="text-sm text-[var(--color-text-secondary)] -mt-3">{t('liveChatModeDescription')}</p>
                   <div className="flex w-full bg-[var(--color-card-quran-bg)] p-1 rounded-lg border border-[var(--color-border)]">
                       <button
+                      type="button"
                       onClick={() => setLocalProfile(prev => ({ ...prev, liveChatMode: 'toggle' }))}
                       className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${localProfile.liveChatMode === 'toggle' ? 'bg-[var(--color-card-bg)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-subtle)]'}`}
                       >
                       {t('liveChatModeToggle')}
                       </button>
                       <button
+                      type="button"
                       onClick={() => setLocalProfile(prev => ({ ...prev, liveChatMode: 'holdToTalk' }))}
                       className={`w-1/2 p-2 rounded-md text-sm font-semibold transition-colors ${localProfile.liveChatMode === 'holdToTalk' ? 'bg-[var(--color-card-bg)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-subtle)]'}`}
                       >
@@ -207,7 +278,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           {/* Footer */}
           <div className="p-6 pt-4 flex-shrink-0">
             <div className="pt-4 border-t border-[var(--color-border)] space-y-3">
-               <button onClick={handleDenominationChange} className="w-full text-center px-4 py-2.5 bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)] rounded-lg transition-colors font-semibold active:scale-95">
+               <button type="button" onClick={handleDenominationChange} className="w-full text-center px-4 py-2.5 bg-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[color:rgb(from_var(--color-border)_r_g_b_/_50%)] rounded-lg transition-colors font-semibold active:scale-95">
                 {t('changeSchoolOfThought')}
               </button>
               <button onClick={handleSave} disabled={!isNameValid} className="w-full text-center px-4 py-3 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-[var(--color-text-inverted)] rounded-lg font-bold text-lg hover:shadow-xl hover:shadow-[color:rgb(from_var(--color-primary)_r_g_b_/_30%)] transition-all transform hover:scale-105 active:scale-95 disabled:from-slate-300 disabled:to-slate-300 disabled:text-slate-500 disabled:scale-100 disabled:shadow-none">

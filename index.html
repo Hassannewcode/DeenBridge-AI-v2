@@ -533,31 +533,29 @@
           overflow: hidden;
           position: relative;
       }
-      @media (min-width: 1024px) {
-          .quran-reader-modal {
-              flex-direction: row;
-          }
-          [dir="rtl"] .quran-reader-modal {
-              flex-direction: row-reverse;
-          }
+      .quran-reader-modal.lg\:flex-row {
+          flex-direction: row;
+      }
+       [dir="rtl"] .quran-reader-modal.lg\:flex-row {
+          flex-direction: row-reverse;
       }
       .quran-reader-nav {
           flex-shrink: 0;
-          width: 100%;
+      }
+      .quran-reader-nav.lg\:w-\[320px\] {
+          width: 320px;
+      }
+      .quran-reader-nav.lg\:border-r {
+          border-right: 1px solid var(--color-border);
+      }
+      [dir="rtl"] .quran-reader-nav.lg\:border-r {
+          border-right: none;
+          border-left: 1px solid var(--color-border);
+      }
+      .quran-reader-nav.lg\:border-b {
           border-bottom: 1px solid var(--color-border);
-          background-color: var(--color-bg);
       }
-      @media (min-width: 1024px) {
-          .quran-reader-nav {
-              width: 320px;
-              border-bottom: none;
-              border-right: 1px solid var(--color-border);
-          }
-          [dir="rtl"] .quran-reader-nav {
-              border-right: none;
-              border-left: 1px solid var(--color-border);
-          }
-      }
+      
       .quran-reader-main {
         flex-grow: 1;
         overflow-y: auto;
@@ -819,9 +817,9 @@
     "@google/genai": "https://esm.sh/@google/genai@1.13.0",
     "marked": "https://esm.sh/marked@12.0.2",
     "dompurify": "https://esm.sh/dompurify@3.1.5",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }
 }
 </script>

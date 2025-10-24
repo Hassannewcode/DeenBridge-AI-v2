@@ -41,3 +41,9 @@ This document provides a detailed overview of the key features available in the 
     -   Users can upload files (images, documents) to ask questions about them.
     -   Integrated voice-to-text allows for hands-free queries using the device's microphone.
 -   **Text-to-Speech (Read Aloud):** AI-generated responses can be read aloud, with support for both browser-native and high-quality cloud-based TTS.
+-   **UI & Text Scaling:** A global setting to increase or decrease the size of all text and interface elements for improved readability.
+-   **Customizable Reader Layouts:** Users can choose between a traditional `Split` view or a content-focused `Stacked` view for the Quran Reader.
+
+## Disclaimer
+
+DeenBridge is an AI-powered research and reference tool. It is **not** a qualified Islamic scholar or a replacement for one. It does **not** issue religious rulings (fatwas). While it strives for accuracy, AI can make mistakes. For personal religious guidance, it is essential to consult with a qualified local scholar.
