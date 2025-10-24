@@ -34,7 +34,7 @@ const BlinkingCursor = () => (
     <span className="inline-block w-[2px] h-5 bg-[var(--color-text-primary)] align-bottom ms-1 typing-cursor" />
 );
 
-const MessageBubble: React.FC<{ message: Message, denomination: Denomination, profile: UserProfile }> = ({ message, denomination, profile }) => {
+const MessageBubble: React.FC<{ message: Message, denomination: Denomination, profile: UserProfile, isMobile: boolean }> = ({ message, denomination, profile, isMobile }) => {
   const isUser = message.sender === MessageSender.User;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const citationsButtonRef = useRef<HTMLButtonElement>(null);
@@ -216,7 +216,7 @@ const MessageBubble: React.FC<{ message: Message, denomination: Denomination, pr
                 <div className="relative">
                     {!isPlaceholder && <DisclaimerBanner />}
                     { isPlaceholder ? (
-                        <SkeletonLoader />
+                        <SkeletonLoader isMobile={isMobile} />
                     ) : message.isStreaming ? (
                         <p className={`whitespace-pre-wrap text-[var(--color-text-secondary)]`}>
                             {displayedSummary}

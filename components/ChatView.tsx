@@ -41,7 +41,7 @@ const playNotificationSound = () => {
 };
 
 
-const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile }> = ({ denomination, onOpenSettings, profile }) => {
+const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile, isMobile: boolean }> = ({ denomination, onOpenSettings, profile, isMobile }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -553,7 +553,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                     <EmptyState denomination={denomination} onQuery={handleQueryFromHint} />
                     ) : (
                     activeChat.messages.map((message) => (
-                        <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} />
+                        <MessageBubble key={message.id} message={message} denomination={denomination} profile={profile} isMobile={isMobile} />
                     ))
                     )}
                     <div ref={messagesEndRef} />
@@ -561,7 +561,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                  <ScrollToBottomButton onClick={() => scrollToBottom('smooth')} visible={showScrollButton} />
               </div>
 
-              <div className="flex-shrink-0" style={{paddingBottom: `env(safe-area-inset-bottom)`}}>
+              <div className="flex-shrink-0" style={{paddingBottom: `calc(env(safe-area-inset-bottom) / 2)`}}>
                 <MessageInput 
                     input={activeChat?.draft || ''}
                     setInput={handleInputChange}

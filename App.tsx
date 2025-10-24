@@ -56,6 +56,20 @@ const App: React.FC = () => {
   };
   
   useEffect(() => {
+    // On first launch, set a device-specific default UI scale.
+    // We check for a flag to ensure this only runs once ever for a user.
+    const scaleInitialized = localStorage.getItem('deenbridge-scale-initialized');
+    if (!scaleInitialized) {
+        if (!isMobile) {
+            // It's a desktop device on first launch, set scale to 90%
+            setProfile(p => ({ ...p, uiScale: 90 }));
+        }
+        // For mobile, it remains at the default of 100%.
+        localStorage.setItem('deenbridge-scale-initialized', 'true');
+    }
+  }, [isMobile, setProfile]);
+
+  useEffect(() => {
     document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'uthmanic');
   }, [profile.arabicFont]);
 
@@ -101,7 +115,8 @@ const App: React.FC = () => {
             <ChatView 
               denomination={denomination} 
               onOpenSettings={() => setIsSettingsOpen(true)}
-              profile={profile} 
+              profile={profile}
+              isMobile={isMobile}
             />
             <Suspense fallback={null}>
               <SettingsModal 
