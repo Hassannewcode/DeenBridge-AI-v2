@@ -23,14 +23,14 @@ const defaultProfile: UserProfile = {
   appLanguage: 'en',
   translationLanguage: 'English',
   arabicFont: 'uthmanic',
-  liveChatMode: 'toggle', // Set toggle as default
+  liveChatMode: 'toggle',
   ttsSettings: {
-    voice: 'Charon', // Default to Charon, a strong male voice from Gemini.
-    pitch: 1.15,     // Set default pitch for Charon.
+    voice: 'Charon',
+    pitch: 1.15,
     rate: 1,
   },
-  uiScale: 100, // Default UI scale is 100%
-  quranReaderLayout: 'split', // Default layout is 'split'
+  uiScale: 100,
+  quranReaderLayout: 'split',
 };
 
 const App: React.FC = () => {
@@ -56,15 +56,13 @@ const App: React.FC = () => {
   };
   
   useEffect(() => {
-    // On first launch, set a device-specific default UI scale.
-    // We check for a flag to ensure this only runs once ever for a user.
     const scaleInitialized = localStorage.getItem('deenbridge-scale-initialized');
     if (!scaleInitialized) {
-        if (!isMobile) {
-            // It's a desktop device on first launch, set scale to 95%
+        if (isMobile) {
+            setProfile(p => ({ ...p, uiScale: 100 }));
+        } else {
             setProfile(p => ({ ...p, uiScale: 95 }));
         }
-        // For mobile, it remains at the default of 100%.
         localStorage.setItem('deenbridge-scale-initialized', 'true');
     }
   }, [isMobile, setProfile]);
@@ -83,7 +81,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const getBaseFontSize = () => {
-      // These values match the CSS in index.html
       if (typeof window !== 'undefined') {
         if (window.innerWidth <= 480) return 14;
         if (window.innerWidth <= 768) return 15;
@@ -93,11 +90,10 @@ const App: React.FC = () => {
     
     const applyScale = () => {
       const baseSize = getBaseFontSize();
-      // Apply user's scale preference. Default is 100%.
       document.documentElement.style.fontSize = `${((profile.uiScale || 100) / 100) * baseSize}px`;
     }
     
-    applyScale(); // Apply on initial load and when profile changes
+    applyScale();
 
     window.addEventListener('resize', applyScale);
     return () => window.removeEventListener('resize', applyScale);
@@ -106,8 +102,8 @@ const App: React.FC = () => {
 
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>
+      {!isOnline && <OfflineBanner />}
       <main className="flex-1 flex w-full font-sans min-h-0">
-        {!isOnline && <OfflineBanner />}
         {!profile.onboardingComplete ? (
           <OnboardingFlow onComplete={handleOnboardingComplete} />
         ) : denomination ? (
@@ -117,6 +113,7 @@ const App: React.FC = () => {
               onOpenSettings={() => setIsSettingsOpen(true)}
               profile={profile}
               isMobile={isMobile}
+              isOnline={isOnline}
             />
             <Suspense fallback={null}>
               <SettingsModal 
@@ -125,6 +122,7 @@ const App: React.FC = () => {
                 profile={profile}
                 setProfile={setProfile}
                 onResetDenomination={handleResetDenomination}
+                isOnline={isOnline}
               />
             </Suspense>
           </>

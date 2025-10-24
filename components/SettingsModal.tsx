@@ -19,6 +19,7 @@ interface SettingsModalProps {
   profile: UserProfile;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   onResetDenomination: () => void;
+  isOnline: boolean;
 }
 
 const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
@@ -63,7 +64,7 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
 };
 
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const isNameValid = localProfile.name.trim().length > 2;

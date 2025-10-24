@@ -41,7 +41,7 @@ const playNotificationSound = () => {
 };
 
 
-const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile, isMobile: boolean }> = ({ denomination, onOpenSettings, profile, isMobile }) => {
+const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile, isMobile: boolean, isOnline: boolean }> = ({ denomination, onOpenSettings, profile, isMobile, isOnline }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

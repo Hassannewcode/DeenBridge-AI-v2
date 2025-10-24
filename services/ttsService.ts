@@ -4,15 +4,15 @@ const API_KEY = process.env.API_KEY;
 
 export const isTtsServiceConfigured = (): boolean => !!API_KEY;
 
-export const getSpeech = async (text: string, voiceName: string): Promise<string> => {
+export const getSpeech = async (text: string, voiceName: string, lang: 'en' | 'ar'): Promise<string> => {
     if (!isTtsServiceConfigured()) {
         throw new Error("TTS service is not configured.");
     }
 
-    // A more descriptive prompt to guide the AI's vocal delivery.
-    const prompt = `Read the following text in a clear, engaging, and articulate voice: ${text}`;
+    const prompt = lang === 'ar' 
+        ? `اقرأ النص التالي بصوت واضح وجذاب: ${text}`
+        : `Read the following text in a clear, engaging, and articulate voice: ${text}`;
     
-    // 'native' is handled as a fallback in the hook, so voiceName will always be a Gemini voice here.
     const ai = new GoogleGenAI({ apiKey: API_KEY! });
 
     try {

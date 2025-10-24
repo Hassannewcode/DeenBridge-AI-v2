@@ -125,7 +125,7 @@ export const useEnhancedSpeech = () => {
         
         if (useCloudTts) {
             try {
-                const audioBase64 = await getSpeech(plainText, settings.voice);
+                const audioBase64 = await getSpeech(plainText, settings.voice, lang);
                 if (isCancelledRef.current) return; 
                 
                 const audioCtx = audioContextRef.current!;
@@ -140,10 +140,7 @@ export const useEnhancedSpeech = () => {
                 const source = audioCtx.createBufferSource();
                 source.buffer = audioBuffer;
                 source.playbackRate.value = settings.rate;
-                // Pitch in Web Audio API is measured in cents (1200 cents in an octave).
-                // A pitch of 2.0 is one octave higher. We map the 0.5-2.0 range to a reasonable cent range.
-                // A simple linear mapping: (pitch - 1) * 1200 is too extreme. Let's use a smaller factor.
-                const pitchInCents = (settings.pitch - 1) * 600; // e.g., pitch 1.5 = +300 cents, pitch 2.0 = +600 cents
+                const pitchInCents = (settings.pitch - 1) * 600;
                 source.detune.value = pitchInCents;
                 source.connect(audioCtx.destination);
                 
@@ -178,13 +175,11 @@ export const useEnhancedSpeech = () => {
                     if (lang === 'ar') {
                         voice = voices.find(v => v.lang.startsWith('ar'));
                     } else {
-                        // Only apply gender logic if falling back from a specific Gemini voice
                         if (cloudTtsFailed) {
-                            const isMaleGeminiVoice = ['Orion', 'Charon'].includes(settings.voice);
+                            const isMaleGeminiVoice = ['Charon'].includes(settings.voice);
                             voice = voices.find(v => v.lang.startsWith('en') && (isMaleGeminiVoice ? /male/i.test(v.name) : /female/i.test(v.name)));
                         }
 
-                        // If no gender-specific voice is found, or if 'native' was selected, use a fallback sequence.
                         if (!voice) {
                             voice = voices.find(v => v.lang.startsWith('en') && v.default) ||
                                     voices.find(v => v.lang.startsWith('en') && /google/i.test(v.name)) || 

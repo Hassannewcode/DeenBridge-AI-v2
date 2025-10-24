@@ -163,6 +163,7 @@ export const locales = {
     showMore: "Show More",
     remaining: "remaining",
     versesFound: "{count} verses found",
+    offlineWarning: 'You are currently offline. Functionality may be limited.',
   },
   ar: {
     // Settings
@@ -328,5 +329,6 @@ export const locales = {
     showMore: "إظهار المزيد",
     remaining: "متبقية",
     versesFound: "تم العثور على {count} آيات",
+    offlineWarning: 'أنت غير متصل بالإنترنت حاليًا. قد تكون الوظائف محدودة.',
   }
 };
