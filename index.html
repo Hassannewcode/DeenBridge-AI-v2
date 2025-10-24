@@ -142,6 +142,23 @@
         --quran-text-color: #e8d8c0;
       }
 
+      /* Responsive Scaling */
+      html {
+        font-size: 16px;
+      }
+      
+      @media (max-width: 768px) {
+        html {
+          font-size: 15px; /* Adjust base rem unit for tablets and large phones */
+        }
+      }
+
+      @media (max-width: 480px) {
+        html {
+          font-size: 14px; /* Adjust base rem unit for smaller phones */
+        }
+      }
+
       .user-message-text-color {
         color: var(--color-user-message-text);
       }
@@ -613,7 +630,7 @@
       .qr-ayah-text {
         font-kerning: normal;
         text-rendering: optimizeLegibility;
-        font-size: clamp(1.7rem, 4vw, 2.2rem);
+        font-size: clamp(1.5rem, 5vw, 2.2rem);
         color: var(--quran-text-color);
       }
       .qr-ayah-marker {
