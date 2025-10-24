@@ -25,8 +25,8 @@ const defaultProfile: UserProfile = {
   arabicFont: 'uthmanic',
   liveChatMode: 'toggle', // Set toggle as default
   ttsSettings: {
-    voice: 'Zephyr', // Default to Zephyr, a high-quality male voice from Gemini.
-    pitch: 1,
+    voice: 'Fenrir', // Default to Fenrir, a high-quality male voice from Gemini.
+    pitch: 0.8,
     rate: 1,
   },
 };

@@ -9,7 +9,13 @@ function useLocalStorage<T,>(key: string, initialValue: T): [T, Dispatch<SetStat
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.error(error);
+      console.error(`Error parsing localStorage key “${key}”:`, error);
+      console.warn(`Removing corrupted data for key "${key}".`);
+      try {
+        window.localStorage.removeItem(key);
+      } catch (removeError) {
+        console.error(`Failed to remove corrupted key "${key}" from localStorage:`, removeError);
+      }
       return initialValue;
     }
   });

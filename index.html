@@ -142,7 +142,11 @@
         --quran-text-color: #e8d8c0;
       }
 
-      /* Responsive Scaling */
+      /* Responsive Scaling & Mobile Viewport Fix */
+      :root {
+        --app-height: 100vh;
+      }
+      
       html {
         font-size: 16px;
         scroll-behavior: smooth;
@@ -175,8 +179,7 @@
         background-image: var(--body-bg-image), linear-gradient(to bottom, var(--color-bg-gradient-start), var(--color-bg-gradient-end)); 
         color: var(--color-text-secondary);
         transition: background-color .5s, color .5s;
-        height: 100vh; /* Fallback for browsers that do not support dvh */
-        height: 100dvh;
+        height: var(--app-height);
         overflow: hidden;
         -webkit-overflow-scrolling: touch;
       }
