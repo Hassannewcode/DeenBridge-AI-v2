@@ -4,7 +4,6 @@ import { MoreHorizontalIcon, CheckIcon, CopyIcon, ShareIcon } from './icons';
 import { LANGUAGES } from '../data/languages';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { useLocale } from '../contexts/LocaleContext';
-import { useOnlineStatus } from '../contexts/OnlineStatusContext';
 
 interface TranslationMenuProps {
   isLoading: string | null;
@@ -33,7 +32,6 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
   const [search, setSearch] = useState('');
   const [style, setStyle] = useState<React.CSSProperties>({});
   const { t } = useLocale();
-  const { isOnline } = useOnlineStatus();
   
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -69,9 +67,6 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
   }, [isOpen]);
   
   const handleAction = (action: (lang?: string) => void, lang?: string) => {
-    if (!isOnline && lang) return; // Disable translation actions when offline
-    if (!isOnline && (action === onTransliterate)) return;
-
     if (lang) {
       action(lang);
     } else {
@@ -114,7 +109,7 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
                 </li>
             ) : (
                 <li>
-                    <button onClick={() => handleAction(onTransliterate)} disabled={!isOnline} className="w-full text-left px-3 py-2 hover:bg-[var(--color-border)] rounded-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent">{t('transliterate')}</button>
+                    <button onClick={() => handleAction(onTransliterate)} className="w-full text-left px-3 py-2 hover:bg-[var(--color-border)] rounded-md">{t('transliterate')}</button>
                 </li>
             )}
           </ul>
@@ -135,8 +130,7 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
             <li key={lang}>
                 <button
                 onClick={() => handleAction(onTranslate, lang)}
-                disabled={!isOnline}
-                className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[var(--color-border)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent ${translation?.lang === lang ? 'font-bold text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}
+                className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[var(--color-border)] ${translation?.lang === lang ? 'font-bold text-[var(--color-primary)]' : 'text-[var(--color-text-secondary)]'}`}
                 >
                 <span>{isLoading === lang ? t('loading') : lang}</span>
                 {translation?.lang === lang && <CheckIcon className="w-4 h-4 text-[var(--color-accent)]" />}
@@ -153,10 +147,9 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(prev => !prev)}
-        className="p-1 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="p-1 rounded-full text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)] transition-colors"
         aria-haspopup="true"
         aria-expanded={isOpen}
-        disabled={!isOnline}
       >
         <MoreHorizontalIcon />
       </button>

@@ -32,7 +32,7 @@ const LiveVisualizer: React.FC<LiveVisualizerProps> = ({ status, isMicActive }) 
 
       {/* Reconnecting Pulse */}
       {isReconnecting && (
-         <div className="absolute w-full h-full rounded-full bg-amber-500/30 animate-[pulse-ring_1.5s_ease-in-out_infinite]"></div>
+         <div className="absolute w-full h-full rounded-full bg-amber-500/30 animate-[pulse-ring_2.5s_ease-in-out_infinite]"></div>
       )}
 
       {/* Central Icon */}

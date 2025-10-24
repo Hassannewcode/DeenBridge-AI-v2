@@ -18,14 +18,6 @@ const voiceOptions = [
         pitch: 1.15
     },
     {
-        value: 'Orion',
-        label: 'Orion',
-        group: 'Gemini Male',
-        description: 'A clear, professional, and engaging narrative voice.',
-        recommended: false,
-        pitch: 1.0
-    },
-    {
         value: 'Kore',
         label: 'Kore',
         group: 'Gemini Female',

@@ -7,7 +7,7 @@ import OnboardingFlow from './components/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { useDevice } from './contexts/DeviceContext';
 import A11yAnnouncer from './components/A11yAnnouncer';
-import { useOnlineStatus } from './contexts/OnlineStatusContext';
+import { useOnlineStatus } from './hooks/useOnlineStatus';
 import OfflineBanner from './components/OfflineBanner';
 
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [profile, setProfile] = useLocalStorage<UserProfile>('deenbridge-profile', defaultProfile);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const { isMobile } = useDevice();
-  const { isOnline } = useOnlineStatus();
+  const isOnline = useOnlineStatus();
   
   const handleOnboardingComplete = (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => {
     setProfile(prev => ({
@@ -61,8 +61,8 @@ const App: React.FC = () => {
     const scaleInitialized = localStorage.getItem('deenbridge-scale-initialized');
     if (!scaleInitialized) {
         if (!isMobile) {
-            // It's a desktop device on first launch, set scale to 90%
-            setProfile(p => ({ ...p, uiScale: 90 }));
+            // It's a desktop device on first launch, set scale to 95%
+            setProfile(p => ({ ...p, uiScale: 95 }));
         }
         // For mobile, it remains at the default of 100%.
         localStorage.setItem('deenbridge-scale-initialized', 'true');
@@ -106,8 +106,8 @@ const App: React.FC = () => {
 
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>
-       <OfflineBanner />
       <main className="flex-1 flex w-full font-sans min-h-0">
+        {!isOnline && <OfflineBanner />}
         {!profile.onboardingComplete ? (
           <OnboardingFlow onComplete={handleOnboardingComplete} />
         ) : denomination ? (

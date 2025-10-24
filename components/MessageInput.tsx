@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { MinaretArrowIcon, LoadingSpinner, MicrophoneIcon, PaperclipIcon, CloseIcon, FileIcon, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
-import { useOnlineStatus } from '../contexts/OnlineStatusContext';
 
 interface MessageInputProps {
   input: string;
@@ -21,7 +20,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { t } = useLocale();
-    const { isOnline } = useOnlineStatus();
 
     const handleAttachClick = () => {
         fileInputRef.current?.click();
@@ -29,9 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     const hasContent = input.trim() || file;
     
-    const placeholderText = !isOnline 
-        ? "You are offline. AI features are disabled."
-        : file 
+    const placeholderText = file 
         ? t('inputPlaceholderWithFile')
         : t('inputPlaceholder');
 
@@ -70,8 +66,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholderText}
-          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)] disabled:opacity-50 disabled:cursor-not-allowed`}
-          disabled={isLoading || !isOnline}
+          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
+          disabled={isLoading}
           aria-label="Chat input"
         />
         
@@ -80,7 +76,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
             ref={fileInputRef}
             onChange={onFileChange}
             className="hidden"
-            disabled={!isOnline}
         />
 
         {/* Left-side Icons */}
@@ -88,8 +83,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
             <button
                 type="button"
                 onClick={handleAttachClick}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                disabled={isLoading || !isOnline}
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
+                disabled={isLoading}
                 aria-label="Attach file"
             >
                 <PaperclipIcon />
@@ -97,8 +92,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
              <button
                 type="button"
                 onClick={onStartLiveConversation}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                disabled={isLoading || !isOnline}
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
+                disabled={isLoading}
                 aria-label={t('liveConversationTitle')}
                 title={t('liveConversationTitle')}
             >
@@ -111,7 +106,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             <button
               type="submit"
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
-              disabled={isLoading || !hasContent || !isOnline}
+              disabled={isLoading || !hasContent}
               aria-label={isLoading ? "Sending..." : "Send message"}
             >
               {isLoading ? <LoadingSpinner /> : <MinaretArrowIcon />}
