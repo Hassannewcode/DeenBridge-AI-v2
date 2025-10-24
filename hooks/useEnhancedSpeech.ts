@@ -50,6 +50,7 @@ export const useEnhancedSpeech = () => {
     const activeSourcesRef = useRef(new Set<AudioBufferSourceNode>());
     const onEndCallbackRef = useRef<(() => void) | null>(null);
     const isCancelledRef = useRef(false);
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null); // To prevent GC
 
     // Initialize AudioContext once for Gemini TTS
     useEffect(() => {
@@ -75,7 +76,12 @@ export const useEnhancedSpeech = () => {
     const cancel = useCallback(() => {
         isCancelledRef.current = true;
         if (isBrowserTtsSupported) {
+            if (utteranceRef.current) {
+                utteranceRef.current.onend = null;
+                utteranceRef.current.onerror = null;
+            }
             window.speechSynthesis.cancel();
+            utteranceRef.current = null;
         }
         
         activeSourcesRef.current.forEach(source => {
@@ -94,9 +100,22 @@ export const useEnhancedSpeech = () => {
         setIsLoading(false);
     }, [isBrowserTtsSupported]);
     
+    const cancelRef = useRef(cancel);
     useEffect(() => {
-        return () => cancel();
+        cancelRef.current = cancel;
     }, [cancel]);
+
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            cancelRef.current();
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        // This function is returned and will be called only on unmount.
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            cancelRef.current();
+        };
+    }, []);
 
     const speak = useCallback(async (text: string, lang: 'en' | 'ar', settings: UserProfile['ttsSettings'], onEnd: () => void) => {
         cancel(); 
@@ -162,6 +181,7 @@ export const useEnhancedSpeech = () => {
                     if (isCancelledRef.current) return;
                     
                     const utterance = new SpeechSynthesisUtterance(plainText);
+                    utteranceRef.current = utterance; // Prevent garbage collection
                     utterance.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
                     utterance.pitch = settings.pitch;
                     utterance.rate = settings.rate;
@@ -179,9 +199,13 @@ export const useEnhancedSpeech = () => {
                     
                     if (voice) utterance.voice = voice;
                     
-                    utterance.onend = handleEnd;
+                    utterance.onend = () => {
+                        utteranceRef.current = null;
+                        handleEnd();
+                    };
                     utterance.onerror = (e) => {
                         console.error('SpeechSynthesis Error:', e.error);
+                        utteranceRef.current = null;
                         handleEnd();
                     };
                     
