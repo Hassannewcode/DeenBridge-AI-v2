@@ -76,6 +76,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             ref={fileInputRef}
             onChange={onFileChange}
             className="hidden"
+            accept="image/*,application/pdf,text/plain"
         />
 
         {/* Left-side Icons */}
