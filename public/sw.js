@@ -1,27 +1,24 @@
-const CACHE_NAME = 'deenbridge-cache-v5'; // Bump version to trigger update
+const CACHE_NAME = 'deenbridge-cache-v6'; // Version bumped for update
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
-    '/index.tsx',
+    '/manifest.json',
+    '/icon.svg',
+    // Key external assets for a basic offline shell
     'https://cdn.tailwindcss.com',
-    'https://esm.sh/react@^19.1.1',
-    'https://esm.sh/react-dom@^19.1.1',
-    'https://esm.sh/@google/genai@^1.13.0',
-    'https://esm.sh/marked@^12.0.2',
-    'https://esm.sh/dompurify@^3.1.5',
-    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
-    'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=El+Messiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;700&display=swap'
+    'https://esm.sh/react@19.1.1',
+    'https://esm.sh/react-dom@19.1.1/client',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
         .then(cache => {
-            console.log('[Service Worker] Caching app shell');
+            console.log('[Service Worker] Precaching app shell');
             const promises = PRECACHE_ASSETS.map(url => {
                 return cache.add(new Request(url, { cache: 'reload' })).catch(err => {
-                    console.warn(`[Service Worker] Failed to cache ${url}:`, err);
+                    console.warn(`[Service Worker] Failed to precache ${url}:`, err);
                 });
             });
             return Promise.all(promises);
@@ -49,24 +46,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const { request } = event;
 
-    // Ignore non-GET requests
-    if (request.method !== 'GET') {
+    // Ignore non-GET requests and API calls to Google
+    if (request.method !== 'GET' || request.url.includes('googleapis.com')) {
         return;
     }
 
-    // Ignore API requests to Google
-    if (request.url.includes('googleapis.com')) {
-        return; // Let API requests go to the network
-    }
-
-    // For HTML and main script, use a network-first strategy.
-    const isAppShell = request.mode === 'navigate' || request.destination === 'script' || request.url.endsWith('index.tsx');
-
-    if (isAppShell) {
+    // Network-first strategy for HTML navigation requests.
+    if (request.mode === 'navigate') {
         event.respondWith(
             fetch(request)
                 .then(response => {
-                    // If the fetch is successful, clone it and cache it.
+                    // If the fetch is successful, clone it, cache it, and return it.
                     const responseToCache = response.clone();
                     caches.open(CACHE_NAME).then(cache => {
                         cache.put(request, responseToCache);
@@ -74,27 +64,32 @@ self.addEventListener('fetch', event => {
                     return response;
                 })
                 .catch(() => {
-                    // If the network fails, try to serve from cache.
-                    return caches.match(request);
+                    // If the network fails, try to serve the main page from cache.
+                    return caches.match('/');
                 })
         );
         return;
     }
 
-    // For all other assets (CSS, fonts, images), use a cache-first strategy.
+    // Stale-While-Revalidate strategy for all other assets (CSS, JS, fonts, images).
     event.respondWith(
-        caches.match(request).then(cachedResponse => {
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            return fetch(request).then(networkResponse => {
-                 if (networkResponse && networkResponse.ok) {
-                    const responseToCache = networkResponse.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(request, responseToCache);
-                    });
-                }
-                return networkResponse;
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.match(request).then(cachedResponse => {
+                const fetchPromise = fetch(request).then(networkResponse => {
+                    // Check if we received a valid response to cache
+                    if (networkResponse && networkResponse.status === 200) {
+                        cache.put(request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                }).catch(err => {
+                    console.warn(`[Service Worker] Fetch failed for ${request.url}:`, err);
+                    // This catch is to prevent the promise from rejecting if the network fails.
+                    // If there's a cachedResponse, it would have already been returned.
+                });
+
+                // Return the cached response immediately if it exists, otherwise wait for the network.
+                // The network fetch will happen in the background to update the cache for the next visit.
+                return cachedResponse || fetchPromise;
             });
         })
     );
