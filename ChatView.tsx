@@ -14,6 +14,7 @@ import { GoogleGenAI } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
+import { triggerHapticFeedback } from '../lib/haptics';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
@@ -84,6 +85,20 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     setActiveChatId(newChatId);
     setIsSidebarOpen(false);
   }, [setChats, setActiveChatId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+
+    if (action === 'new-chat') {
+        handleNewChat();
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (action === 'read-quran') {
+        setIsQuranReaderOpen(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [handleNewChat]);
   
  useEffect(() => {
     if (chats.length === 0) {
@@ -201,8 +216,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       ));
 
       if (profile.enableSound) playNotificationSound();
+      triggerHapticFeedback(profile, 'success');
 
-  }, [activeChatId, setChats, profile.enableSound]);
+  }, [activeChatId, setChats, profile.enableSound, profile]);
 
   const handleSendMessage = async (query: string) => {
     if ((!query.trim() && !activeChat?.draftFile) || !chat || isLoading || !activeChatId || !activeChat) return;
@@ -232,9 +248,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
       c.id === activeChatId ? { ...c, messages: [...c.messages, userMessage, placeholderAiMessage], draft: '', draftFile: null } : c
     ));
     
-    if (profile.enableHaptics && navigator.vibrate) {
-        navigator.vibrate(50);
-    }
+    triggerHapticFeedback(profile, 'light');
     
     const withRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 2000): Promise<T> => {
       try {
@@ -307,6 +321,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         }
         
         if (profile.enableSound) playNotificationSound();
+        triggerHapticFeedback(profile, 'success');
 
     } catch (error: any) {
         console.error("Error during streaming:", error);
@@ -320,6 +335,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         }
         
         setToastInfo({ message: errorMessage, type: 'error' });
+        triggerHapticFeedback(profile, 'error');
 
         const errorResponse: Message = { 
             id: aiMessageId, 
@@ -504,7 +520,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
           </aside>
 
           <div className="flex flex-col flex-1 relative overflow-hidden">
-              <header className="flex-shrink-0 flex items-center justify-between p-2 sm:p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 rtl:flex-row-reverse">
+              <header className="flex-shrink-0 flex items-center justify-between p-2 sm:p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_60%)] backdrop-blur-md shadow-sm border-b border-[var(--color-border)] z-10 rtl:flex-row-reverse" style={{paddingTop: `calc(0.5rem + env(safe-area-inset-top))`}}>
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
@@ -545,7 +561,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                  <ScrollToBottomButton onClick={() => scrollToBottom('smooth')} visible={showScrollButton} />
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0" style={{paddingBottom: `calc(env(safe-area-inset-bottom) / 2)`}}>
                 <MessageInput 
                     input={activeChat?.draft || ''}
                     setInput={handleInputChange}

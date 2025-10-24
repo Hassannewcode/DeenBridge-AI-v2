@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>DeenBridge</title>
     <meta name="theme-color" content="#1a3a6b" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -145,6 +145,7 @@
       /* Responsive Scaling */
       html {
         font-size: 16px;
+        scroll-behavior: smooth;
       }
       
       @media (max-width: 768px) {
@@ -177,6 +178,7 @@
         height: 100vh; /* Fallback for browsers that do not support dvh */
         height: 100dvh;
         overflow: hidden;
+        -webkit-overflow-scrolling: touch;
       }
       
       #root {
@@ -184,6 +186,8 @@
         overflow: hidden; /* Contains the app and prevents body scroll */
         display: flex;
         flex-direction: column;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
       }
 
       body.is-mobile {
@@ -519,6 +523,7 @@
           width: 100%;
           max-width: 90rem; /* Increased max width */
           height: 95vh;
+          height: 95dvh;
           background-color: var(--color-card-bg);
           border-radius: 1rem;
           box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
@@ -671,6 +676,7 @@
         z-index: 60;
         transform: translateX(100%);
         transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        padding-bottom: env(safe-area-inset-bottom);
       }
       .quran-info-panel.open { transform: translateX(0); }
       [dir="rtl"] .quran-info-panel { right: auto; left: 0; border-left: none; border-right: 1px solid var(--color-border); transform: translateX(-100%); }

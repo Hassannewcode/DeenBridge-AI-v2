@@ -1,5 +1,4 @@
 import { quranText } from '../data/quran';
-// Fix: Import Surah and Ayah types from the central types.ts file.
 import type { Ayah, Surah } from '../types';
 
 export const SURAH_NAMES = [

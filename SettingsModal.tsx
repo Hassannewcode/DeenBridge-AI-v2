@@ -10,6 +10,7 @@ import ArabicFontSwitcher from './ArabicFontSwitcher';
 import TTSSettings from './TTSSettings';
 import { useFocusTrap } from '../lib/focus';
 import { useA11y } from '../lib/a11y';
+import { triggerHapticFeedback } from '../lib/haptics';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -66,7 +67,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
     const message = t('settingsSaved');
     setToastMessage(message);
     announce(message);
-    if (navigator.vibrate) navigator.vibrate(50);
+    triggerHapticFeedback(profile, 'success');
     setTimeout(onClose, 300);
   };
 

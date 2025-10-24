@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
 import type { Session, LiveServerMessage } from '@google/genai';
-import { generateSystemInstruction, buildGeminiHistory } from '../services/geminiService';
+import { generateSystemInstruction } from '../services/geminiService';
 import { createAudioBlob, decode, decodeAudioData } from '../utils/audioUtils';
 import type { Denomination, UserProfile, Message } from '../types';
 import { CloseIcon, LoadingSpinner, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 import LiveVisualizer from './LiveVisualizer';
+import { useFocusTrap } from '../lib/focus';
 
 interface LiveConversationModalProps {
   isOpen: boolean;
@@ -25,12 +26,14 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
   const [aiTranscript, setAiTranscript] = useState('');
   const [isMicActive, setIsMicActive] = useState(false);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   
-  // Ref to track mic state inside the audio processor callback, which can be stale.
   const isMicActiveRef = useRef(isMicActive); 
   useEffect(() => {
     isMicActiveRef.current = isMicActive;
   }, [isMicActive]);
+
+  useFocusTrap(modalRef, isOpen);
   
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,7 +53,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         nextStartTime: number;
     } = { stream: null, inputContext: null, outputContext: null, source: null, processor: null, outputSources: new Set(), nextStartTime: 0 };
     
-    // Flag to prevent async operations from running after cleanup has started.
     let isCancelled = false;
 
     const startSession = async () => {
@@ -70,10 +72,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
         audioResources = { stream, inputContext, outputContext, source, processor, outputSources: new Set(), nextStartTime: 0 };
         
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-        const systemInstruction = generateSystemInstruction(denomination, profile);
-        // The `history` from previous messages is not directly supported by `ai.live.connect`.
-        // Context is managed within the session or via systemInstruction.
-        // const history = buildGeminiHistory(messages);
+        const systemInstruction = generateSystemInstruction(denomination, profile, true); // Use live conversation prompt
         
         const transcriptParts = { user: '', ai: '' };
 
@@ -100,7 +99,6 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
                 if (isMicActiveRef.current) {
                   const inputData = e.inputBuffer.getChannelData(0);
                   const pcmBlob = createAudioBlob(inputData);
-                  // FIX: Use sessionPromise.then to ensure the session object is available and avoid race conditions, as per Gemini API guidelines.
                   sessionPromise.then((session) => {
                     session.sendRealtimeInput({ media: pcmBlob });
                   });
@@ -169,7 +167,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
 
     startSession();
 
-    return () => { // Cleanup function runs when isOpen changes or component unmounts
+    return () => { 
       isCancelled = true;
       session?.close();
       
@@ -217,7 +215,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black z-50 flex flex-col animate-fade-in-up" onClick={onClose}>
-        <div className="w-full h-full max-w-4xl mx-auto flex-1 flex flex-col" onClick={e => e.stopPropagation()}>
+        <div ref={modalRef} className="w-full h-full max-w-4xl mx-auto flex-1 flex flex-col" onClick={e => e.stopPropagation()}>
             <header className="flex-shrink-0 p-4 flex justify-between items-center text-white">
                 <div className="text-sm font-semibold text-slate-300 w-32"><StatusIndicator /></div>
                 <h2 className="text-xl font-bold">{t('liveConversationTitle')}</h2>

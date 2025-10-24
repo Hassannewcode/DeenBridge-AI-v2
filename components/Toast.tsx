@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertIcon, CheckIcon, CloseIcon } from './icons';
+import { useA11y } from '../lib/a11y';
 
 interface ToastProps {
   message: string;
@@ -9,15 +10,18 @@ interface ToastProps {
 
 const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
   const [visible, setVisible] = useState(false);
+  const { announce } = useA11y();
 
   useEffect(() => {
     setVisible(true); // Animate in
+    announce(`${type}: ${message}`);
+
     const timer = setTimeout(() => {
       handleClose();
     }, 4000); // Auto-dismiss after 4 seconds
 
     return () => clearTimeout(timer);
-  }, [message, type]); // Rerun effect if message or type changes
+  }, [message, type, announce]); // Rerun effect if message or type changes
 
   const handleClose = () => {
     setVisible(false);

@@ -4,6 +4,8 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DeviceProvider } from './contexts/DeviceContext';
 import registerServiceWorker from './registerServiceWorker';
+import ErrorBoundary from './components/ErrorBoundary';
+import { A11yProvider } from './contexts/A11yContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -30,9 +32,26 @@ const injectManifest = () => {
       "display": "standalone",
       "background_color": "#f8f5f0",
       "theme_color": "#1a3a6b",
+      "prefer_related_applications": false,
       "icons": [
         { "src": icon192, "sizes": "192x192", "type": "image/svg+xml" },
         { "src": icon512, "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+      ],
+      "shortcuts": [
+        {
+          "name": "New Chat",
+          "short_name": "New",
+          "description": "Start a new chat session",
+          "url": "/?action=new-chat",
+          "icons": [{ "src": icon192, "sizes": "192x192" }]
+        },
+        {
+          "name": "Read Quran",
+          "short_name": "Quran",
+          "description": "Open the Quran reader",
+          "url": "/?action=read-quran",
+          "icons": [{ "src": icon192, "sizes": "192x192" }]
+        }
       ]
     };
 
@@ -52,11 +71,15 @@ injectManifest();
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <DeviceProvider>
-        <App />
-      </DeviceProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <DeviceProvider>
+          <A11yProvider>
+            <App />
+          </A11yProvider>
+        </DeviceProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
 

@@ -8,9 +8,6 @@ interface MessageInputProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
   onStartLiveConversation: () => void;
-  isListening: boolean;
-  onToggleListening: () => void;
-  isSpeechRecognitionSupported: boolean;
   file: { name: string; mimeType: string; data: string } | null;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveFile: () => void;
@@ -19,7 +16,6 @@ interface MessageInputProps {
 const MessageInput: React.FC<MessageInputProps> = ({ 
     input, setInput, handleSubmit, isLoading, 
     onStartLiveConversation,
-    isListening, onToggleListening, isSpeechRecognitionSupported,
     file, onFileChange, onRemoveFile
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,9 +27,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     const hasContent = input.trim() || file;
     
-    const placeholderText = isListening 
-      ? "Listening... Speak now."
-      : file 
+    const placeholderText = file 
         ? t('inputPlaceholderWithFile')
         : t('inputPlaceholder');
 
@@ -72,7 +66,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholderText}
-          className={`w-full text-[var(--color-text-primary)] ps-20 pe-24 py-3 sm:ps-28 sm:pe-32 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
+          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
           disabled={isLoading}
           aria-label="Chat input"
         />
@@ -97,23 +91,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
             </button>
              <button
                 type="button"
-                onClick={onToggleListening}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors 
-                    ${!isSpeechRecognitionSupported ? 'opacity-50 cursor-not-allowed' : ''}
-                    ${isListening ? 'bg-red-500/10 text-red-500 animate-pulse-red-glow' : 'text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]'}`
-                }
-                disabled={isLoading || !isSpeechRecognitionSupported}
-                aria-label={isListening ? "Stop listening" : "Dictate with voice"}
-                title={isSpeechRecognitionSupported ? (isListening ? "Stop listening" : "Dictate with voice") : "Voice-to-text is not supported by your browser."}
-            >
-                <MicrophoneIcon className="w-5 h-5" />
-            </button>
-        </div>
-
-        {/* Right-side Icons */}
-        <div className="absolute end-1 sm:end-2 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2">
-             <button
-                type="button"
                 onClick={onStartLiveConversation}
                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-[var(--color-text-subtle)] hover:bg-[var(--color-border)]"
                 disabled={isLoading}
@@ -122,9 +99,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
             >
                 <PhoneIcon className="w-5 h-5" />
             </button>
+        </div>
+
+        {/* Right-side Icons */}
+        <div className="absolute end-1 sm:end-2 top-1/2 -translate-y-1/2 flex items-center">
             <button
               type="submit"
-              className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-full text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-[var(--color-text-inverted)] flex items-center justify-center shadow-lg hover:shadow-xl hover:from-[var(--color-accent)] hover:to-[var(--color-accent-hover)] disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all transform hover:scale-110 active:scale-95 disabled:scale-100 disabled:shadow-none"
               disabled={isLoading || !hasContent}
               aria-label={isLoading ? "Sending..." : "Send message"}
             >

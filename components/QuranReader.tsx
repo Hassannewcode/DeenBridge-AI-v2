@@ -9,6 +9,7 @@ import { useLocale } from '../contexts/LocaleContext';
 import useLocalStorage from '../hooks/useLocalStorage';
 import QuranInfoPanel from './QuranInfoPanel';
 import SurahInfoPanel from './SurahInfoPanel';
+import { useFocusTrap } from '../lib/focus';
 
 // --- Sub-Components ---
 
@@ -72,7 +73,10 @@ const QuranReader: React.FC<{
   
   const quranData = useMemo(() => parseQuranText(), []);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
+  
+  useFocusTrap(modalRef, isOpen);
 
   useEffect(() => {
     if (isOpen) {
@@ -154,7 +158,7 @@ const QuranReader: React.FC<{
       style={{ animationDuration: '0.3s' }}
       onClick={onClose}
     >
-      <div className="quran-reader-modal" onClick={e => e.stopPropagation()}>
+      <div ref={modalRef} className="quran-reader-modal" onClick={e => e.stopPropagation()}>
         {/* Backdrop for side panels on mobile */}
         {isPanelOpen && <div onClick={handleClosePanels} className="absolute inset-0 bg-black/40 z-50 transition-opacity lg:hidden" aria-hidden="true" />}
         <aside className="quran-reader-nav flex flex-col">
