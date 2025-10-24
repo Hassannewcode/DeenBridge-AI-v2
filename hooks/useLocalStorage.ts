@@ -1,4 +1,4 @@
-import { useState, Dispatch, SetStateAction } from 'react';
+import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 
 function useLocalStorage<T,>(key: string, initialValue: T): [T, Dispatch<SetStateAction<T>>] {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -27,6 +27,28 @@ function useLocalStorage<T,>(key: string, initialValue: T): [T, Dispatch<SetStat
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === key) {
+        try {
+          // When a value is cleared, event.newValue is null.
+          const newValue = event.newValue ? JSON.parse(event.newValue) : initialValue;
+          setStoredValue(newValue);
+        } catch(error) {
+          console.error(`Error parsing new value for ${key} from localStorage during storage event:`, error);
+          setStoredValue(initialValue);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [key, initialValue]);
+
 
   return [storedValue, setValue];
 }
