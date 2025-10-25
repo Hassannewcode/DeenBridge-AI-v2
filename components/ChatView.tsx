@@ -3,18 +3,17 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-// FIX: Import missing PinIcon and PinFilledIcon
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
 import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
-import { GoogleGenAI } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
 import { triggerHapticFeedback } from '../lib/haptics';
+import { useDevice } from '../contexts/DeviceContext';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
@@ -44,12 +43,10 @@ interface ChatViewProps {
   denomination: Denomination;
   onOpenSettings: () => void;
   profile: UserProfile;
-  isMobile: boolean;
-  isOnline: boolean;
   setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profile, isMobile, isOnline, setToastInfo }) => {
+const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profile, setToastInfo }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -64,6 +61,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
+  const { isMobile } = useDevice();
 
   const { activeChats, pinnedChats } = useMemo(() => {
     const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);

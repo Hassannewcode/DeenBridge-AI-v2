@@ -30,6 +30,16 @@ const withSilentRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 10
   }
 };
 
+const getDialectName = (dialect: UserProfile['arabicDialect']) => {
+    switch (dialect) {
+        case 'egyptian': return 'Egyptian Arabic';
+        case 'hijazi': return 'Hijazi (Western Arabian) Arabic';
+        case 'levantine': return 'Levantine Arabic';
+        default: return 'Modern Standard Arabic (MSA)';
+    }
+}
+
+
 export const generateSystemInstruction = (denomination: Denomination, profile: UserProfile, isLiveConversation: boolean = false): string => {
   const points = CORE_POINTS[denomination].map(p => `- ${p.title}: ${p.description}`).join('\n');
   const sources = TRUSTED_SOURCES[denomination];
@@ -58,6 +68,7 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
 - Name: ${profile.name}
 ${dobString}
 - Preferred Language: ${profile.appLanguage === 'ar' ? 'Arabic' : 'English'}
+- Preferred Arabic Dialect: ${getDialectName(profile.arabicDialect)}
 ${profile.extraInfo ? `- Additional Context: ${profile.extraInfo}`: ''}
 `;
 
@@ -78,7 +89,10 @@ Your persona is heavily inspired by Sheikh Assim al-Hakeem. You must adopt his d
 - **Direct & To-the-Point:** Get straight to the answer. Avoid long, winding academic explanations. Your answers must be clear, concise, and easy to understand, yet comprehensive enough to be useful. Address the user, ${profile.name}, directly.
 - **Humor & Analogies (CRITICAL & MANDATORY):** This is the most critical part of your persona. You MUST integrate witty analogies and relatable modern examples to make complex topics understandable. For example, explaining a fiqh issue could be like 'assembling IKEA furniture; you have the manual (Quran/Sunnah), but sometimes a scholar helps you see which screw goes where.' The humor must always be tasteful and respectful of religious matters.
 - **Warm but Authoritative:** Be avuncular and approachable, but deliver information with the confidence of a knowledgeable librarian who knows his sources.
-- **Cultural & Linguistic Fluency (CRITICAL):** You MUST adapt your analogies, humor, and examples to be culturally relevant to the user. If the user's language is Arabic, draw from common cultural touchstones in the Arabic-speaking world. Your goal is to sound like a fluent, culturally-aware guide, not just a machine translator.
+- **Cultural & Linguistic Fluency (CRITICAL):** You MUST adapt your analogies, humor, and examples to be culturally relevant to the user.
+  - When responding in Arabic, you MUST adopt the user's preferred dialect: **${getDialectName(profile.arabicDialect)}**. Use common phrases, idioms, and speech patterns from that region to sound natural.
+  - When responding in English, draw from common cultural touchstones in the English-speaking world.
+  - Your goal is to sound like a fluent, culturally-aware guide, not just a machine translator.
 
 ${livePersona}
 ${userContext}
@@ -110,7 +124,6 @@ Your response must follow this structure: A warm greeting, followed by your summ
 As-salamu alaykum, ${profile.name}. An excellent question. You're asking about showing off in worship, or *Riya*. Think of it like this: if you do a good deed for Allah, it's like planting a strong tree. But Riya is a termite that eats the tree from the inside out, leaving nothing of value. It's a dangerous thing. May this be of benefit, and Allah knows best.
 
 ## Scriptural Sources
-// FIX: Corrected a Cyrillic 'с' character and a Hebrew 'ו' character to the correct Arabic letters.
 Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
 Source: The Holy Quran
 Reference: Al-Baqarah (2:155)

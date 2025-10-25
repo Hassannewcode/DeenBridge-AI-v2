@@ -9,7 +9,7 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Initialize state as a class property instead of in the constructor to resolve typing issues.
+  // FIX: Initialize state as a class property to resolve issues with 'this' context in the constructor.
   state: ErrorBoundaryState = {
     hasError: false,
     error: null,
@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  // FIX: Converted to an arrow function to automatically bind `this`, removing the need for a constructor.
+  // FIX: Use an arrow function to automatically bind 'this', resolving errors with accessing 'this.state' and 'this.setState'.
   handleDiagnose = async () => {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });

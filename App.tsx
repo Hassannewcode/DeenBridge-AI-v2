@@ -31,8 +31,8 @@ const defaultProfile: UserProfile = {
   arabicDialect: 'msa',
   liveChatMode: 'toggle',
   ttsSettings: {
-    voice: 'Kore',
-    pitch: 0.9,
+    voice: 'Charon',
+    pitch: 1.15,
     rate: 1,
   },
   uiScale: 100,
@@ -124,9 +124,6 @@ const App: React.FC = () => {
               denomination={denomination} 
               onOpenSettings={() => setIsSettingsOpen(true)}
               profile={profile}
-              isMobile={isMobile}
-              isOnline={isOnline}
-              setToastInfo={setToastInfo}
             />
             <Suspense fallback={null}>
               <SettingsModal 

@@ -107,7 +107,6 @@ export interface UserProfile {
   enableHaptics: boolean;
   onboardingComplete: boolean;
   enableGoogleSearch: boolean;
-  // FIX: appLanguage is restricted to supported locales for type safety.
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
   quranFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
