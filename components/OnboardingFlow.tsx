@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Denomination } from '../types';
 import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon, GoogleIcon } from './icons';
 import AgeDisclaimerModal from './AgeDisclaimerModal';
 import { useLocale } from '../contexts/LocaleContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import DobInput from './DobInput';
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 interface OnboardingFlowProps {
   onComplete: (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => void;
@@ -36,19 +38,58 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
   const [hasShownAgeDisclaimer, setHasShownAgeDisclaimer] = useState(false);
   const { t, locale } = useLocale();
 
+  const handleNext = useCallback(() => setStep(prev => Math.min(prev + 1, 4)), []);
+  const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) {
+        console.warn("Google Client ID is not configured. Google Sign-In will be disabled.");
+        return;
+    }
+    if (!window.google) {
+        console.warn("Google Identity Services script not loaded yet.");
+        return;
+    }
+
+    const handleCredentialResponse = (response: any) => {
+        if (response.credential) {
+            try {
+                const decoded: { name: string, email: string, picture: string } = JSON.parse(atob(response.credential.split('.')[1]));
+                setName(decoded.name || '');
+                handleNext();
+            } catch (e) {
+                console.error("Error decoding Google JWT:", e);
+                setToastInfo({ message: 'Could not sign in with Google.', type: 'error' });
+            }
+        }
+    };
+
+    window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse
+    });
+
+  }, [handleNext, setToastInfo]);
+
+
   useEffect(() => {
     document.body.setAttribute('data-step', String(step));
   }, [step]);
-  
-  const handleNext = () => setStep(prev => Math.min(prev + 1, 4));
-  const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
   
   const handleDenominationSelect = (den: Denomination) => {
     setDenomination(den);
   };
 
   const handleGoogleSignIn = () => {
-    setToastInfo({ message: 'Google Sign-In is coming soon!', type: 'success' });
+    if (!GOOGLE_CLIENT_ID) {
+      setToastInfo({ message: 'Google Sign-In is not configured.', type: 'error' });
+      return;
+    }
+    if (window.google?.accounts?.id) {
+        window.google.accounts.id.prompt();
+    } else {
+        setToastInfo({ message: 'Google Sign-In is not ready yet. Please try again in a moment.', type: 'error' });
+    }
   };
   
   const handleFormSubmit = (e: React.FormEvent) => {
