@@ -23,6 +23,11 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=El+Messiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;700&display=swap');
       
+      /* Native Feel & Mobile Viewport Fix */
+      * {
+        -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+      }
+
       /* THEME VARIABLES */
       :root[data-theme='light'] {
         --color-bg: #f8f5f0;
@@ -144,11 +149,6 @@
         --quran-text-color: #e8d8c0;
       }
 
-      /* Responsive Scaling & Mobile Viewport Fix */
-      :root {
-        --app-height: 100vh;
-      }
-      
       html {
         font-size: 16px;
         scroll-behavior: smooth;
@@ -170,20 +170,18 @@
         color: var(--color-user-message-text);
       }
 
-      html {
-        height: 100%;
-        overflow: hidden;
-      }
-
       body {
         font-family: 'Inter', sans-serif;
         background-color: var(--color-bg);
         background-image: var(--body-bg-image), linear-gradient(to bottom, var(--color-bg-gradient-start), var(--color-bg-gradient-end)); 
         color: var(--color-text-secondary);
         transition: background-color .5s, color .5s;
-        height: var(--app-height);
-        overflow: hidden;
+        height: 100vh; /* Fallback for older browsers */
+        height: 100dvh;
+        width: 100vw;
+        overflow: hidden; /* Body itself shouldn't scroll */
         -webkit-overflow-scrolling: touch;
+        position: fixed; /* Prevents pull-to-refresh and other weird scroll behaviors */
       }
       
       #root {
@@ -776,6 +774,24 @@
       .group:hover .fade-out-edge {
         -webkit-mask-image: none;
         mask-image: none;
+      }
+      
+      /* Custom Scrollbars for a more native feel on WebKit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--color-text-subtle) 50%, transparent);
+        border-radius: 4px;
+        border: 2px solid transparent; /* Creates padding around thumb */
+        background-clip: content-box;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: color-mix(in srgb, var(--color-text-subtle) 70%, transparent);
       }
     </style>
   <script type="importmap">

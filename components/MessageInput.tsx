@@ -1,5 +1,4 @@
-import React, { useRef } from 'react';
-// FIX: Import PhoneIcon
+import React, { useRef, useEffect } from 'react';
 import { MinaretArrowIcon, LoadingSpinner, MicrophoneIcon, PaperclipIcon, CloseIcon, FileIcon, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 
@@ -20,6 +19,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     file, onFileChange, onRemoveFile
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { t } = useLocale();
 
     const handleAttachClick = () => {
@@ -32,6 +32,23 @@ const MessageInput: React.FC<MessageInputProps> = ({
         ? t('inputPlaceholderWithFile')
         : t('inputPlaceholder');
 
+    // Auto-resize textarea based on content
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (textarea) {
+            textarea.style.height = 'auto'; // Reset height to allow shrinking
+            const scrollHeight = textarea.scrollHeight;
+            textarea.style.height = `${scrollHeight}px`;
+        }
+    }, [input]);
+    
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            // Programmatically find and submit the form
+            e.currentTarget.closest('form')?.requestSubmit();
+        }
+    };
 
   return (
     <div className="p-4 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_50%)] backdrop-blur-md border-t border-[var(--color-border)]">
@@ -62,12 +79,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
           </div>
       )}
       <form onSubmit={handleSubmit} className="relative">
-        <input
-          type="text"
+        <textarea
+          ref={textareaRef}
+          rows={1}
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholderText}
-          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors input-focus-glow placeholder:text-[var(--color-text-subtle)]`}
+          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-all placeholder:text-[var(--color-text-subtle)] resize-none overflow-y-auto leading-normal`}
+          style={{ maxHeight: '140px' }} // Approx. 5 lines
           disabled={isLoading}
           aria-label="Chat input"
         />

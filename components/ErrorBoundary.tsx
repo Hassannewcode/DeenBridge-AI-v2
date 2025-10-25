@@ -9,13 +9,16 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Initialize state as a class property for modern React syntax and to resolve potential `this` context issues.
-  state: ErrorBoundaryState = {
-    hasError: false,
-    error: null,
-    aiDiagnosis: null,
-    isDiagnosing: false,
-  };
+  // FIX: Switched to constructor-based state initialization to ensure `this` context is correctly bound, resolving errors where `setState` and `props` were not found.
+  constructor(props: React.PropsWithChildren<{}>) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      aiDiagnosis: null,
+      isDiagnosing: false,
+    };
+  }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };

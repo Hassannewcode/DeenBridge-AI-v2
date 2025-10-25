@@ -13,15 +13,6 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-// --- Mobile Viewport Height Fix ---
-// This ensures the app's height is correct even when mobile browser UI (like the keyboard) appears.
-const setAppHeight = () => {
-    document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-};
-window.addEventListener('resize', setAppHeight);
-setAppHeight(); // Set initial height
-
-
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
