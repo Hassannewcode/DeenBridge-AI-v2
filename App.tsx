@@ -28,7 +28,6 @@ const defaultProfile: UserProfile = {
   translationLanguage: 'English',
   quranFont: 'uthmanic',
   uiFont: 'inter',
-  arabicDialect: 'msa',
   liveChatMode: 'toggle',
   ttsSettings: {
     voice: 'Charon',
@@ -38,6 +37,8 @@ const defaultProfile: UserProfile = {
   uiScale: 100,
   quranReaderLayout: 'split',
   basmalahStyle: 'text',
+  // FIX: Add default value for new arabicDialect property.
+  arabicDialect: 'msa',
 };
 
 const App: React.FC = () => {

@@ -14,7 +14,6 @@ import { useDevice } from '../contexts/DeviceContext';
 import InstallPWAButton from './InstallPWAButton';
 import { useGoogleSignIn, GoogleProfile } from '../hooks/useGoogleSignIn';
 import UIFontSwitcher from './UIFontSwitcher';
-import ArabicDialectSwitcher from './ArabicDialectSwitcher';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -250,11 +249,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
               <ArabicFontSwitcher 
                   currentFont={localProfile.quranFont} 
                   onFontChange={(font) => setLocalProfile(prev => ({ ...prev, quranFont: font }))}
-              />
-
-              <ArabicDialectSwitcher
-                currentDialect={localProfile.arabicDialect}
-                onDialectChange={(dialect) => setLocalProfile(prev => ({ ...prev, arabicDialect: dialect }))}
               />
               
               <TTSSettings

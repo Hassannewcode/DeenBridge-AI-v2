@@ -1,5 +1,5 @@
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah } from '../types';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect } from '../types';
 import { CORE_POINTS } from '../constants';
 import { TRUSTED_SOURCES } from '../data/sources';
 import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
@@ -30,19 +30,6 @@ const withSilentRetry = async <T,>(fn: () => Promise<T>, retries = 2, delay = 10
   }
 };
 
-const getDialectName = (dialect: UserProfile['arabicDialect']) => {
-    switch (dialect) {
-        case 'egyptian': return 'Egyptian Arabic';
-        case 'hijazi': return 'Hijazi (Western Arabian) Arabic';
-        case 'levantine': return 'Levantine Arabic';
-        case 'gulf': return 'Gulf Arabic (Khaliji)';
-        case 'iraqi': return 'Iraqi Arabic';
-        case 'maghrebi': return 'Maghrebi Arabic (Darija)';
-        default: return 'Modern Standard Arabic (MSA)';
-    }
-}
-
-
 export const generateSystemInstruction = (denomination: Denomination, profile: UserProfile, isLiveConversation: boolean = false): string => {
   const points = CORE_POINTS[denomination].map(p => `- ${p.title}: ${p.description}`).join('\n');
   const sources = TRUSTED_SOURCES[denomination];
@@ -66,12 +53,24 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
       dobString = `- Date of Birth: ${day} ${monthName} ${year} (${calendar})`;
   }
     
+  // FIX: Use the explicit Arabic dialect from the user profile in the system instruction.
+  const dialectMap: Record<ArabicDialect, string> = {
+    msa: 'Modern Standard Arabic (Fusha)',
+    egyptian: 'Egyptian',
+    gulf: 'Gulf (Khaliji)',
+    levantine: 'Levantine (Shami)',
+    hijazi: 'Hijazi',
+    iraqi: 'Iraqi',
+    maghrebi: 'North African (Maghrebi)'
+  };
+  const dialectName = dialectMap[profile.arabicDialect] || 'Modern Standard Arabic';
+
   const userContext = `
 **User Profile Information:**
 - Name: ${profile.name}
 ${dobString}
 - Preferred Language: ${profile.appLanguage === 'ar' ? 'Arabic' : 'English'}
-- Preferred Arabic Dialect: ${getDialectName(profile.arabicDialect)}
+${profile.appLanguage === 'ar' ? `- Preferred Arabic Dialect: ${dialectName}` : ''}
 ${profile.extraInfo ? `- Additional Context: ${profile.extraInfo}`: ''}
 `;
 
@@ -91,9 +90,8 @@ Your cadence must be natural and human-like for voice conversations.
 Your persona is heavily inspired by Sheikh Assim al-Hakeem. You must adopt his direct, often humorous, and analogy-rich style.
 - **Direct & To-the-Point:** Get straight to the answer. Avoid long, winding academic explanations. Your answers must be clear, concise, and easy to understand, yet comprehensive enough to be useful. Address the user, ${profile.name}, directly.
 - **Humor & Analogies (CRITICAL & MANDATORY):** This is the most critical part of your persona. You MUST integrate witty analogies and relatable modern examples to make complex topics understandable. For example, explaining a fiqh issue could be like 'assembling IKEA furniture; you have the manual (Quran/Sunnah), but sometimes a scholar helps you see which screw goes where.' The humor must always be tasteful and respectful of religious matters.
-- **Warm but Authoritative:** Be avuncular and approachable, but deliver information with the confidence of a knowledgeable librarian who knows his sources.
 - **Cultural & Linguistic Fluency (CRITICAL):** You MUST adapt your analogies, humor, and examples to be culturally relevant to the user.
-  - When responding in Arabic, you MUST adopt the user's preferred dialect: **${getDialectName(profile.arabicDialect)}**. Use common phrases, idioms, and speech patterns from that region to sound natural.
+  - **Auto-Adaptation in Arabic (MANDATORY):** If the user communicates in Arabic, you MUST adapt your responses to the user's preferred dialect, which is **${dialectName}**. Use common phrases, idioms, and speech patterns from that region to create a natural, relatable conversation. Do not ask the user to confirm their dialect.
   - When responding in English, draw from common cultural touchstones in the English-speaking world.
   - Your goal is to sound like a fluent, culturally-aware guide, not just a machine translator.
 

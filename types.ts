@@ -97,6 +97,9 @@ export interface ChatSession {
   isPinned?: boolean;
 }
 
+// FIX: Add ArabicDialect type for dialect selection feature.
+export type ArabicDialect = 'msa' | 'egyptian' | 'gulf' | 'levantine' | 'hijazi' | 'iraqi' | 'maghrebi';
+
 export interface UserProfile {
   name: string;
   email: string | null;
@@ -111,7 +114,6 @@ export interface UserProfile {
   translationLanguage: string;
   quranFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
   uiFont: 'inter' | 'amiri' | 'native';
-  arabicDialect: 'msa' | 'egyptian' | 'hijazi' | 'levantine' | 'gulf' | 'iraqi' | 'maghrebi';
   liveChatMode: 'toggle' | 'holdToTalk';
   ttsSettings: {
     voice: string; // 'native' or Gemini voice names like 'Zephyr'
@@ -121,6 +123,8 @@ export interface UserProfile {
   uiScale: number; // Percentage value for UI/text scaling
   quranReaderLayout: 'split' | 'stacked'; // Layout choice for the Quran reader
   basmalahStyle: 'text' | 'image';
+  // FIX: Add arabicDialect property to support dialect selection.
+  arabicDialect: ArabicDialect;
 }
 
 // For Quranic Analysis Service
