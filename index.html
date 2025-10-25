@@ -208,7 +208,7 @@
       html[data-quran-font='amiri'] [dir="rtl"] .font-amiri,
       html[data-quran-font='amiri'] .qr-ayah-text,
       html[data-quran-font='amiri'] .qr-surah-title-arabic,
-      html[data-quran-font='amiri'] .qr-basmalah,
+      html[data-quran-font='amiri'] .qr-basmalah-text,
       html[data-quran-font='amiri'] .qr-ayah-marker-text,
       html[data-quran-font='amiri'] .hr-hadith-arabic,
       html[data-quran-font='amiri'] .dr-dua-arabic {
@@ -218,7 +218,7 @@
       html[data-quran-font='lateef'] [dir="rtl"] .font-amiri,
       html[data-quran-font='lateef'] .qr-ayah-text,
       html[data-quran-font='lateef'] .qr-surah-title-arabic,
-      html[data-quran-font='lateef'] .qr-basmalah,
+      html[data-quran-font='lateef'] .qr-basmalah-text,
       html[data-quran-font='lateef'] .qr-ayah-marker-text,
       html[data-quran-font='lateef'] .hr-hadith-arabic,
       html[data-quran-font='lateef'] .dr-dua-arabic {
@@ -228,7 +228,7 @@
       html[data-quran-font='noto'] [dir="rtl"] .font-amiri,
       html[data-quran-font='noto'] .qr-ayah-text,
       html[data-quran-font='noto'] .qr-surah-title-arabic,
-      html[data-quran-font='noto'] .qr-basmalah,
+      html[data-quran-font='noto'] .qr-basmalah-text,
       html[data-quran-font='noto'] .qr-ayah-marker-text,
       html[data-quran-font='noto'] .hr-hadith-arabic,
       html[data-quran-font='noto'] .dr-dua-arabic {
@@ -238,7 +238,7 @@
       html[data-quran-font='uthmanic'] [dir="rtl"] .font-amiri,
       html[data-quran-font='uthmanic'] .qr-ayah-text,
       html[data-quran-font='uthmanic'] .qr-surah-title-arabic,
-      html[data-quran-font='uthmanic'] .qr-basmalah,
+      html[data-quran-font='uthmanic'] .qr-basmalah-text,
       html[data-quran-font='uthmanic'] .qr-ayah-marker-text,
       html[data-quran-font='uthmanic'] .hr-hadith-arabic,
       html[data-quran-font='uthmanic'] .dr-dua-arabic {
@@ -248,7 +248,7 @@
       html[data-quran-font='cairo'] [dir="rtl"] .font-amiri,
       html[data-quran-font='cairo'] .qr-ayah-text,
       html[data-quran-font='cairo'] .qr-surah-title-arabic,
-      html[data-quran-font='cairo'] .qr-basmalah,
+      html[data-quran-font='cairo'] .qr-basmalah-text,
       html[data-quran-font='cairo'] .qr-ayah-marker-text,
       html[data-quran-font='cairo'] .hr-hadith-arabic,
       html[data-quran-font='cairo'] .dr-dua-arabic {
@@ -258,7 +258,7 @@
       html[data-quran-font='tajawal'] [dir="rtl"] .font-amiri,
       html[data-quran-font='tajawal'] .qr-ayah-text,
       html[data-quran-font='tajawal'] .qr-surah-title-arabic,
-      html[data-quran-font='tajawal'] .qr-basmalah,
+      html[data-quran-font='tajawal'] .qr-basmalah-text,
       html[data-quran-font='tajawal'] .qr-ayah-marker-text,
       html[data-quran-font='tajawal'] .hr-hadith-arabic,
       html[data-quran-font='tajawal'] .dr-dua-arabic {
@@ -268,7 +268,7 @@
       html[data-quran-font='elmessiri'] [dir="rtl"] .font-amiri,
       html[data-quran-font='elmessiri'] .qr-ayah-text,
       html[data-quran-font='elmessiri'] .qr-surah-title-arabic,
-      html[data-quran-font='elmessiri'] .qr-basmalah,
+      html[data-quran-font='elmessiri'] .qr-basmalah-text,
       html[data-quran-font='elmessiri'] .qr-ayah-marker-text,
       html[data-quran-font='elmessiri'] .hr-hadith-arabic,
       html[data-quran-font='elmessiri'] .dr-dua-arabic {
@@ -278,7 +278,7 @@
       html[data-quran-font='ibm'] [dir="rtl"] .font-amiri,
       html[data-quran-font='ibm'] .qr-ayah-text,
       html[data-quran-font='ibm'] .qr-surah-title-arabic,
-      html[data-quran-font='ibm'] .qr-basmalah,
+      html[data-quran-font='ibm'] .qr-basmalah-text,
       html[data-quran-font='ibm'] .qr-ayah-marker-text,
       html[data-quran-font='ibm'] .hr-hadith-arabic,
       html[data-quran-font='ibm'] .dr-dua-arabic {
@@ -288,7 +288,7 @@
       html[data-quran-font='readex'] [dir="rtl"] .font-amiri,
       html[data-quran-font='readex'] .qr-ayah-text,
       html[data-quran-font='readex'] .qr-surah-title-arabic,
-      html[data-quran-font='readex'] .qr-basmalah,
+      html[data-quran-font='readex'] .qr-basmalah-text,
       html[data-quran-font='readex'] .qr-ayah-marker-text,
       html[data-quran-font='readex'] .hr-hadith-arabic,
       html[data-quran-font='readex'] .dr-dua-arabic {
@@ -537,14 +537,12 @@
       [dir="rtl"] .quran-reader-main.panel-open { padding-right: 2rem; padding-left: 420px; }
 
       .qr-page-container {
-        max-width: 80rem;
+        max-width: 75rem;
         margin: 0 auto;
-        padding: 0.5rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        border: 25px solid;
-        border-image-source: url('https://raw.githubusercontent.com/Hassannewcode/My-Image-library/main/DeenBridge/islamic%20border%20Quran.png?raw=true');
-        border-image-slice: 40;
-        border-image-repeat: round;
+        padding: 1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid color-mix(in srgb, var(--quran-border-color) 50%, transparent);
+        box-shadow: inset 0 0 0 4px var(--quran-page-bg), inset 0 0 0 5px color-mix(in srgb, var(--quran-border-color) 50%, transparent);
         background-color: var(--quran-page-bg);
       }
       .qr-page {
@@ -557,8 +555,9 @@
       .qr-surah-header {
         text-align: center;
         margin: 0 auto 2.5rem auto;
-        padding: 1rem;
-        border: 4px double var(--quran-border-color);
+        padding: 1.5rem 1rem;
+        border-top: 2px solid var(--quran-border-color);
+        border-bottom: 2px solid var(--quran-border-color);
         background-color: transparent;
       }
       .qr-surah-title-arabic {
@@ -574,17 +573,18 @@
         letter-spacing: 0.1em;
         margin-top: 0.5rem;
       }
-      .qr-basmalah {
+      .qr-basmalah-text {
+        font-family: 'Amiri', serif;
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        color: var(--quran-text-color);
+        margin-bottom: 2rem;
         text-align: center;
-        margin-bottom: 2.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
       .qr-text-container {
         direction: rtl;
         text-align: justify;
-        line-height: 2.8;
+        line-height: 2.6;
+        word-spacing: 0.1em;
       }
       .qr-ayah {
         position: relative;
@@ -667,14 +667,13 @@
        .hr-page-container {
         max-width: 65rem;
         margin: 0 auto;
-        padding: 0.5rem;
-        border-radius: 8px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        border: 25px solid;
-        border-image-source: url('https://raw.githubusercontent.com/Hassannewcode/My-Image-library/main/DeenBridge/islamic%20border%20Quran.png?raw=true');
-        border-image-slice: 40;
-        border-image-repeat: round;
+        padding: 1rem;
+        border-radius: 4px;
         background-color: var(--quran-page-bg); 
+        border: 1px solid color-mix(in srgb, var(--quran-border-color) 50%, transparent);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1), 
+                    inset 0 0 0 4px var(--quran-page-bg), 
+                    inset 0 0 0 5px color-mix(in srgb, var(--quran-border-color) 50%, transparent);
       }
       .hr-page {
         background: var(--quran-page-bg);
