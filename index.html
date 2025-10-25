@@ -194,14 +194,15 @@
         overscroll-behavior: none; /* Disables pull-to-refresh on mobile */
       }
 
+      /* Default RTL font */
+      [dir="rtl"] body {
+          font-family: 'Amiri', serif;
+      }
+
       /* UI Font Switching */
       html[data-ui-font='inter'] body { font-family: 'Inter', sans-serif; }
       html[data-ui-font='amiri'] body { font-family: 'Amiri', serif; }
       html[data-ui-font='native'] body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; }
-
-      [dir="rtl"] body {
-          font-family: 'Amiri', serif;
-      }
       
       /* Quran Font Switching */
       html[data-quran-font='amiri'] [dir="rtl"] .font-amiri,
@@ -297,9 +298,6 @@
       h1, h2, h3, h4, h5, h6 {
         font-family: inherit;
         color: var(--color-text-primary);
-      }
-       [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
-        font-family: inherit;
       }
 
       .font-amiri { font-family: 'Amiri', serif; }
