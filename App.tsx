@@ -124,6 +124,7 @@ const App: React.FC = () => {
               denomination={denomination} 
               onOpenSettings={() => setIsSettingsOpen(true)}
               profile={profile}
+              setToastInfo={setToastInfo}
             />
             <Suspense fallback={null}>
               <SettingsModal 

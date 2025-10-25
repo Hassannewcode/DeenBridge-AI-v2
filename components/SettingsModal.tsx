@@ -14,6 +14,7 @@ import { useDevice } from '../contexts/DeviceContext';
 import InstallPWAButton from './InstallPWAButton';
 import { useGoogleSignIn, GoogleProfile } from '../hooks/useGoogleSignIn';
 import UIFontSwitcher from './UIFontSwitcher';
+import ArabicDialectSwitcher from './ArabicDialectSwitcher';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -230,6 +231,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                   currentFont={localProfile.quranFont} 
                   onFontChange={(font) => setLocalProfile(prev => ({ ...prev, quranFont: font }))}
               />
+
+              <ArabicDialectSwitcher
+                currentDialect={localProfile.arabicDialect}
+                onDialectChange={(dialect) => setLocalProfile(prev => ({ ...prev, arabicDialect: dialect }))}
+              />
               
               <TTSSettings
                 settings={localProfile.ttsSettings}
@@ -273,7 +279,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('profile')}</h3>
 
-                {localProfile.email ? (
+                {isGoogleReady && localProfile.email ? (
                     <div className="space-y-3">
                         <div className="flex items-center gap-4 p-3 bg-[var(--color-card-quran-bg)] rounded-lg">
                             {localProfile.avatar && <Avatar src={localProfile.avatar} alt={localProfile.name} />}

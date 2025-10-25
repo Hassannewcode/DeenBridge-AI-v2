@@ -35,6 +35,7 @@ export const useGoogleSignIn = (
         }
 
         if (typeof window.google === 'undefined' || typeof window.google.accounts === 'undefined') {
+            // Google script might not have loaded yet, this effect will re-run
             return;
         }
 
@@ -54,10 +55,11 @@ export const useGoogleSignIn = (
         if (isReady && window.google?.accounts?.id) {
             window.google.accounts.id.prompt();
         } else {
+            // Only show an error if the client ID was provided but initialization still failed.
             if (GOOGLE_CLIENT_ID) {
                 setToastInfo({ message: 'Google Sign-In is not available at the moment.', type: 'error' });
             }
-            // Silently fail if not configured
+            // Silently fail if not configured, as the button shouldn't be visible anyway.
         }
     }, [isReady, setToastInfo]);
 
