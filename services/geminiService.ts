@@ -187,7 +187,8 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(imagePart);
     }
 
-    return chat.sendMessageStream({ contents: { parts } });
+    // FIX: Changed `contents` property to `message` for chat.sendMessageStream, which is the correct parameter name.
+    return chat.sendMessageStream({ message: parts });
 };
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {
