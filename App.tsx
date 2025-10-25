@@ -37,6 +37,7 @@ const defaultProfile: UserProfile = {
   },
   uiScale: 100,
   quranReaderLayout: 'split',
+  basmalahStyle: 'text',
 };
 
 const App: React.FC = () => {

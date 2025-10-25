@@ -120,6 +120,7 @@ export interface UserProfile {
   };
   uiScale: number; // Percentage value for UI/text scaling
   quranReaderLayout: 'split' | 'stacked'; // Layout choice for the Quran reader
+  basmalahStyle: 'text' | 'image';
 }
 
 // For Quranic Analysis Service

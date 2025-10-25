@@ -72,6 +72,9 @@ const QuranReader: React.FC<{
   const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
   
   const quranData = useMemo(() => parseQuranText(), []);
+  // FIX: Define surah and surahInfo based on the selectedSurah state to resolve "Cannot find name" errors.
+  const surah = useMemo(() => quranData.find(s => s.number === selectedSurah), [quranData, selectedSurah]);
+  const surahInfo = useMemo(() => SURAH_INFO.find(s => s.number === selectedSurah), [selectedSurah]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
@@ -108,9 +111,6 @@ const QuranReader: React.FC<{
     setSelectedAyah(null);
     setIsSurahInfoOpen(false);
   };
-  
-  const surah = quranData.find(s => s.number === selectedSurah);
-  const surahInfo = SURAH_INFO.find(s => s.number === selectedSurah);
   
   const handleToggleBookmark = (surahNum: number, ayahNum: number) => {
     const sInfo = SURAH_INFO.find(s => s.number === surahNum);
@@ -211,7 +211,16 @@ const QuranReader: React.FC<{
                     {surahInfo && <SurahHeader info={surahInfo} onInfoClick={handleOpenSurahInfo} />}
                     {showBasmalah && (
                       <div className="qr-basmalah">
-                          <p className="qr-basmalah-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+                          {profile.basmalahStyle === 'image' ? (
+                              <img 
+                                  src="https://raw.githubusercontent.com/Hassannewcode/My-Image-library/refs/heads/main/DeenBridge/Bismillah%20TEXT.png" 
+                                  alt="Bismillah" 
+                                  className="qr-basmalah-image"
+                                  loading="lazy"
+                              />
+                          ) : (
+                              <p className="qr-basmalah-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+                          )}
                       </div>
                     )}
                     <div className="qr-text-container">

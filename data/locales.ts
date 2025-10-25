@@ -54,6 +54,9 @@ export const locales = {
     dialectIraqiDescription: 'Spoken in Iraq, with its unique characteristics.',
     dialectMaghrebi: 'Maghrebi',
     dialectMaghrebiDescription: 'Spoken in Morocco, Algeria, and Tunisia.',
+    basmalahStyleTitle: 'Basmalah Style',
+    basmalahStyleText: 'Text',
+    basmalahStyleCalligraphy: 'Calligraphy',
     
     // Onboarding & Denomination
     welcomeTo: 'Welcome to',
@@ -239,6 +242,9 @@ export const locales = {
     dialectIraqiDescription: 'مستخدمة في العراق، ولها خصائصها الفريدة.',
     dialectMaghrebi: 'المغاربية',
     dialectMaghrebiDescription: 'مستخدمة في المغرب، الجزائر، وتونس.',
+    basmalahStyleTitle: 'شكل البسملة',
+    basmalahStyleText: 'نص',
+    basmalahStyleCalligraphy: 'خط فني',
     
     // Onboarding & Denomination
     welcomeTo: 'مرحباً بك في',

@@ -72,6 +72,26 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
     );
 };
 
+const BasmalahStylePreview: React.FC<{ styleType: 'text' | 'image' }> = ({ styleType }) => {
+    if (styleType === 'text') {
+        return (
+            <div className="w-full h-16 border border-[var(--color-border)] rounded-md flex items-center justify-center overflow-hidden bg-[var(--color-card-bg)]">
+                <p className="font-amiri text-2xl text-[var(--color-text-primary)]">بِسْمِ ٱللَّهِ...</p>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="w-full h-16 border border-[var(--color-border)] rounded-md flex items-center justify-center overflow-hidden bg-[var(--color-card-bg)] p-2">
+            <img 
+                src="https://raw.githubusercontent.com/Hassannewcode/My-Image-library/refs/heads/main/DeenBridge/Bismillah%20TEXT.png" 
+                alt="Calligraphy Preview" 
+                className="qr-basmalah-image-preview" 
+            />
+        </div>
+    );
+};
+
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline, onOpenAbout, setToastInfo }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
@@ -243,14 +263,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
               />
 
               <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-[var(--color-primary)]">Quran Reader Layout</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                      {(['split', 'stacked'] as const).map(layout => (
-                          <button key={layout} type="button" onClick={() => setLocalProfile(p => ({...p, quranReaderLayout: layout}))} className={`p-2 rounded-lg border-2 transition-all ${localProfile.quranReaderLayout === layout ? 'border-[var(--color-accent)] ring-2 ring-offset-2 ring-offset-[var(--color-card-bg)] ring-[var(--color-accent)]' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'}`}>
-                              <LayoutPreview layout={layout} isMobile={isMobile} />
-                              <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{layout === 'split' ? 'Split View' : 'Stacked View'}</span>
-                          </button>
-                      ))}
+                  <h3 className="text-lg font-bold text-[var(--color-primary)]">Quran Reader</h3>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Layout</label>
+                    <div className="grid grid-cols-2 gap-3">
+                        {(['split', 'stacked'] as const).map(layout => (
+                            <button key={layout} type="button" onClick={() => setLocalProfile(p => ({...p, quranReaderLayout: layout}))} className={`p-2 rounded-lg border-2 transition-all ${localProfile.quranReaderLayout === layout ? 'border-[var(--color-accent)] ring-2 ring-offset-2 ring-offset-[var(--color-card-bg)] ring-[var(--color-accent)]' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'}`}>
+                                <LayoutPreview layout={layout} isMobile={isMobile} />
+                                <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{layout === 'split' ? 'Split View' : 'Stacked View'}</span>
+                            </button>
+                        ))}
+                    </div>
+                  </div>
+                   <div className="space-y-2">
+                    <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{t('basmalahStyleTitle')}</label>
+                    <div className="grid grid-cols-2 gap-3">
+                        {(['text', 'image'] as const).map(style => (
+                            <button 
+                                key={style} 
+                                type="button" 
+                                onClick={() => setLocalProfile(p => ({...p, basmalahStyle: style}))} 
+                                className={`p-2 rounded-lg border-2 transition-all ${localProfile.basmalahStyle === style ? 'border-[var(--color-accent)] ring-2 ring-offset-2 ring-offset-[var(--color-card-bg)] ring-[var(--color-accent)]' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'}`}
+                            >
+                                <BasmalahStylePreview styleType={style} />
+                                <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{style === 'image' ? t('basmalahStyleCalligraphy') : t('basmalahStyleText')}</span>
+                            </button>
+                        ))}
+                    </div>
                   </div>
               </div>
 

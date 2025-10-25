@@ -9,7 +9,7 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Switched to constructor-based state initialization and method binding to ensure `this` context is correctly handled, resolving type errors with `setState` and `props`.
+  // FIX: The original class component had errors related to `this` context. This is resolved by properly initializing state in the constructor and binding the `handleDiagnose` method, ensuring the 'this' context is correct for accessing 'this.state', 'this.setState', and 'this.props'.
   constructor(props: React.PropsWithChildren<{}>) {
     super(props);
     this.state = {
