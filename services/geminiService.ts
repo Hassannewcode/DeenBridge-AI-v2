@@ -35,6 +35,9 @@ const getDialectName = (dialect: UserProfile['arabicDialect']) => {
         case 'egyptian': return 'Egyptian Arabic';
         case 'hijazi': return 'Hijazi (Western Arabian) Arabic';
         case 'levantine': return 'Levantine Arabic';
+        case 'gulf': return 'Gulf Arabic (Khaliji)';
+        case 'iraqi': return 'Iraqi Arabic';
+        case 'maghrebi': return 'Maghrebi Arabic (Darija)';
         default: return 'Modern Standard Arabic (MSA)';
     }
 }

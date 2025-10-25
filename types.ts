@@ -111,7 +111,7 @@ export interface UserProfile {
   translationLanguage: string;
   quranFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
   uiFont: 'inter' | 'amiri' | 'native';
-  arabicDialect: 'msa' | 'egyptian' | 'hijazi' | 'levantine';
+  arabicDialect: 'msa' | 'egyptian' | 'hijazi' | 'levantine' | 'gulf' | 'iraqi' | 'maghrebi';
   liveChatMode: 'toggle' | 'holdToTalk';
   ttsSettings: {
     voice: string; // 'native' or Gemini voice names like 'Zephyr'
