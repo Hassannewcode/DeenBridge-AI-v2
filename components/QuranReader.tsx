@@ -72,7 +72,6 @@ const QuranReader: React.FC<{
   const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
   
   const quranData = useMemo(() => parseQuranText(), []);
-  // FIX: Define surah and surahInfo based on the selectedSurah state to resolve "Cannot find name" errors.
   const surah = useMemo(() => quranData.find(s => s.number === selectedSurah), [quranData, selectedSurah]);
   const surahInfo = useMemo(() => SURAH_INFO.find(s => s.number === selectedSurah), [selectedSurah]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -141,14 +140,31 @@ const QuranReader: React.FC<{
   if (!isOpen) return null;
 
   const BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ";
-  const showBasmalah = selectedSurah !== 1 && selectedSurah !== 9;
-  let surahAyahs = surah?.ayahs || [];
-  if (selectedSurah !== 1 && surahAyahs[0]?.text.startsWith(BISMILLAH)) {
-    const firstAyahText = surahAyahs[0].text.replace(BISMILLAH, '').trim();
-    const modifiedAyahs = [...surahAyahs];
-    modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstAyahText };
-    surahAyahs = modifiedAyahs.filter(a => a.text);
+  
+  const showBasmalah = profile.bismillahDisplay === 'seperate' && selectedSurah !== 9;
+
+  let ayahsToRender = surah?.ayahs || [];
+  
+  if (profile.bismillahDisplay === 'seperate') {
+      if (selectedSurah === 1) {
+          // For Al-Fatihah, the Basmalah is Ayah 1. We show it in the header,
+          // so we skip rendering it as a separate Ayah.
+          ayahsToRender = ayahsToRender.slice(1);
+      } else if (selectedSurah !== 9 && ayahsToRender[0]?.text.startsWith(BISMILLAH)) {
+          // For other surahs, strip the Basmalah from the first verse text
+          // as it's already shown in the header.
+          const firstAyahText = ayahsToRender[0].text.replace(BISMILLAH, '').trim();
+          const modifiedAyahs = [...ayahsToRender];
+          if (firstAyahText) {
+              modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstAyahText };
+              ayahsToRender = modifiedAyahs;
+          } else {
+              // If stripping the Bismillah leaves the first verse empty, remove it
+              ayahsToRender = modifiedAyahs.slice(1);
+          }
+      }
   }
+
 
   const isPanelOpen = selectedAyah || isSurahInfoOpen;
   const isStackedLayout = profile.quranReaderLayout === 'stacked';
@@ -219,12 +235,12 @@ const QuranReader: React.FC<{
                                   loading="lazy"
                               />
                           ) : (
-                              <p className="qr-basmalah-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+                              <p className="qr-basmalah-text">{BISMILLAH}</p>
                           )}
                       </div>
                     )}
                     <div className="qr-text-container">
-                        {surah && surahAyahs.map(ayah => (
+                        {surah && ayahsToRender.map(ayah => (
                             <Ayah 
                                 key={ayah.number} 
                                 ayah={ayah}

@@ -37,8 +37,8 @@ const defaultProfile: UserProfile = {
   uiScale: 100,
   quranReaderLayout: 'split',
   basmalahStyle: 'text',
-  // FIX: Add default value for new arabicDialect property.
   arabicDialect: 'msa',
+  bismillahDisplay: 'seperate',
 };
 
 const App: React.FC = () => {

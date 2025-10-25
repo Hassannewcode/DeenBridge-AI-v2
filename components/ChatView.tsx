@@ -17,6 +17,7 @@ import { useDevice } from '../contexts/DeviceContext';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
+// FIX: Corrected the import path for LiveConversationModal.
 const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
 
 

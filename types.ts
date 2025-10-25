@@ -97,7 +97,6 @@ export interface ChatSession {
   isPinned?: boolean;
 }
 
-// FIX: Add ArabicDialect type for dialect selection feature.
 export type ArabicDialect = 'msa' | 'egyptian' | 'gulf' | 'levantine' | 'hijazi' | 'iraqi' | 'maghrebi';
 
 export interface UserProfile {
@@ -123,8 +122,8 @@ export interface UserProfile {
   uiScale: number; // Percentage value for UI/text scaling
   quranReaderLayout: 'split' | 'stacked'; // Layout choice for the Quran reader
   basmalahStyle: 'text' | 'image';
-  // FIX: Add arabicDialect property to support dialect selection.
   arabicDialect: ArabicDialect;
+  bismillahDisplay: 'seperate' | 'integrated';
 }
 
 // For Quranic Analysis Service

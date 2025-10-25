@@ -91,6 +91,17 @@ const BasmalahStylePreview: React.FC<{ styleType: 'text' | 'image' }> = ({ style
     );
 };
 
+const BismillahDisplayPreview: React.FC<{ display: 'seperate' | 'integrated' }> = ({ display }) => {
+    return (
+        <div className="w-full h-20 border border-[var(--color-border)] rounded-md flex flex-col overflow-hidden bg-[var(--color-card-bg)] p-1.5 space-y-1.5">
+            {display === 'seperate' && <div className="h-4 w-1/2 mx-auto bg-[var(--color-accent)]/20 rounded-sm"></div>}
+            <div className={`h-2 w-3/4 bg-[var(--color-border)] rounded-sm ${display === 'integrated' ? 'w-full' : ''}`}></div>
+            <div className="h-2 w-full bg-[var(--color-border)] rounded-sm"></div>
+            <div className="h-2 w-5/6 bg-[var(--color-border)] rounded-sm"></div>
+        </div>
+    );
+};
+
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline, onOpenAbout, setToastInfo }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
@@ -281,6 +292,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                             >
                                 <BasmalahStylePreview styleType={style} />
                                 <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{style === 'image' ? t('basmalahStyleCalligraphy') : t('basmalahStyleText')}</span>
+                            </button>
+                        ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{t('bismillahDisplayTitle')}</label>
+                     <div className="grid grid-cols-2 gap-3">
+                        {(['seperate', 'integrated'] as const).map(display => (
+                            <button 
+                                key={display} 
+                                type="button" 
+                                onClick={() => setLocalProfile(p => ({...p, bismillahDisplay: display}))} 
+                                className={`p-2 rounded-lg border-2 transition-all ${localProfile.bismillahDisplay === display ? 'border-[var(--color-accent)] ring-2 ring-offset-2 ring-offset-[var(--color-card-bg)] ring-[var(--color-accent)]' : 'border-[var(--color-border)] hover:border-[var(--color-accent)]'}`}
+                            >
+                                <BismillahDisplayPreview display={display} />
+                                <span className="block mt-2 text-sm font-medium text-[var(--color-text-secondary)] capitalize">{display === 'seperate' ? t('bismillahDisplaySeperate') : t('bismillahDisplayIntegrated')}</span>
                             </button>
                         ))}
                     </div>

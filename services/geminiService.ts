@@ -170,8 +170,12 @@ export const startChat = (denomination: Denomination, messages: Message[], profi
 };
 
 export const sendMessageStream = (chat: Chat, query: string, file?: { data: string; mimeType: string; } | null) => {
-    const textPart = { text: query || (file ? "Summarize, describe, or analyze the contents of this file." : "") };
-    const parts: Part[] = [textPart];
+    // FIX: Correctly handle multipart messages with text and/or a file.
+    const parts: Part[] = [];
+    const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
+    if (textPartContent) {
+        parts.push({ text: textPartContent });
+    }
     
     if (file) {
         const imagePart = {
