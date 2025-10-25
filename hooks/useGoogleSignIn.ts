@@ -34,9 +34,7 @@ export const useGoogleSignIn = (
             return;
         }
 
-        // Check if the Google script has loaded
         if (typeof window.google === 'undefined' || typeof window.google.accounts === 'undefined') {
-            // The GSI script might not be loaded yet. We can't do anything.
             return;
         }
 
@@ -56,8 +54,10 @@ export const useGoogleSignIn = (
         if (isReady && window.google?.accounts?.id) {
             window.google.accounts.id.prompt();
         } else {
-            console.warn('Google Sign-In not ready or configured.');
-            setToastInfo({ message: 'Google Sign-In is not available at the moment.', type: 'error' });
+            if (GOOGLE_CLIENT_ID) {
+                setToastInfo({ message: 'Google Sign-In is not available at the moment.', type: 'error' });
+            }
+            // Silently fail if not configured
         }
     }, [isReady, setToastInfo]);
 
