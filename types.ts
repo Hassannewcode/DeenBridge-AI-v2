@@ -99,6 +99,8 @@ export interface ChatSession {
 
 export interface UserProfile {
   name: string;
+  email: string | null;
+  avatar: string | null;
   dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null;
   extraInfo: string;
   enableSound: boolean;

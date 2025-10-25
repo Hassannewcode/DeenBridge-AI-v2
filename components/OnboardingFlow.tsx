@@ -5,11 +5,10 @@ import AgeDisclaimerModal from './AgeDisclaimerModal';
 import { useLocale } from '../contexts/LocaleContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import DobInput from './DobInput';
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+import { useGoogleSignIn, GoogleProfile } from '../hooks/useGoogleSignIn';
 
 interface OnboardingFlowProps {
-  onComplete: (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => void;
+  onComplete: (data: { name: string; dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null; extraInfo: string; denomination: Denomination; email: string | null; avatar: string | null; }) => void;
   setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
 
@@ -30,6 +29,8 @@ const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode, 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInfo }) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [dob, setDob] = useState<{ day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null>(null);
   const [extraInfo, setExtraInfo] = useState('');
   const [denomination, setDenomination] = useState<Denomination | null>(null);
@@ -41,30 +42,21 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
   const handleNext = useCallback(() => setStep(prev => Math.min(prev + 1, 4)), []);
   const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
 
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || !window.google) {
-        return;
+  const handleGoogleSuccess = useCallback((profile: GoogleProfile) => {
+    setName(profile.name || '');
+    setEmail(profile.email || null);
+    setAvatar(profile.picture || null);
+    // After getting info, automatically move to the next step
+    if (step === 1) {
+      if (!hasShownAgeDisclaimer) {
+        setShowAgeDisclaimer(true);
+        setHasShownAgeDisclaimer(true);
+      }
+      handleNext();
     }
+  }, [handleNext, step, hasShownAgeDisclaimer]);
 
-    const handleCredentialResponse = (response: any) => {
-        if (response.credential) {
-            try {
-                const decoded: { name: string, email: string, picture: string } = JSON.parse(atob(response.credential.split('.')[1]));
-                setName(decoded.name || '');
-                handleNext();
-            } catch (e) {
-                console.error("Error decoding Google JWT:", e);
-                setToastInfo({ message: 'Could not sign in with Google.', type: 'error' });
-            }
-        }
-    };
-
-    window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse
-    });
-
-  }, [handleNext, setToastInfo]);
+  const { signIn, isReady: isGoogleReady } = useGoogleSignIn(handleGoogleSuccess, setToastInfo);
 
 
   useEffect(() => {
@@ -73,14 +65,6 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
   
   const handleDenominationSelect = (den: Denomination) => {
     setDenomination(den);
-  };
-
-  const handleGoogleSignIn = () => {
-    if (window.google?.accounts?.id) {
-        window.google.accounts.id.prompt();
-    } else {
-        setToastInfo({ message: 'Google Sign-In is not configured or ready. Please try again in a moment.', type: 'error' });
-    }
   };
   
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -102,7 +86,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
             day: dob.day || '',
             month: dob.month || '',
         } : null;
-        onComplete({ name, dob: finalDob, extraInfo, denomination });
+        onComplete({ name, dob: finalDob, extraInfo, denomination, email, avatar });
       }
       return;
     }
@@ -174,7 +158,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
                         </div>
                         <div className="space-y-4">
                             <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
-                            {GOOGLE_CLIENT_ID && (
+                            {isGoogleReady && (
                                 <>
                                     <div className="relative flex py-2 items-center">
                                         <div className="flex-grow border-t border-[var(--color-border)]"></div>
@@ -183,7 +167,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={handleGoogleSignIn}
+                                        onClick={signIn}
                                         className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
                                     >
                                         <GoogleIcon />

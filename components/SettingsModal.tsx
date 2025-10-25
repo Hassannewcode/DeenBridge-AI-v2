@@ -12,6 +12,8 @@ import { useA11y } from '../lib/a11y';
 import { triggerHapticFeedback } from '../lib/haptics';
 import { useDevice } from '../contexts/DeviceContext';
 import InstallPWAButton from './InstallPWAButton';
+import { useGoogleSignIn, GoogleProfile } from '../hooks/useGoogleSignIn';
+import UIFontSwitcher from './UIFontSwitcher';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,6 +25,10 @@ interface SettingsModalProps {
   onOpenAbout: () => void;
   setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
+
+const Avatar: React.FC<{ src: string; alt: string }> = ({ src, alt }) => (
+    <img src={src} alt={alt} className="w-12 h-12 rounded-full object-cover border-2 border-white/20 shadow-lg" />
+);
 
 const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
     const commonContent = (
@@ -77,6 +83,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
 
   useFocusTrap(modalRef, isOpen);
 
+  const handleGoogleLinkSuccess = (gProfile: GoogleProfile) => {
+    setLocalProfile(prev => ({
+        ...prev,
+        // Don't override an existing name unless it's empty
+        name: prev.name.trim() === '' ? gProfile.name : prev.name,
+        email: gProfile.email,
+        avatar: gProfile.picture,
+    }));
+    setToastInfo({ message: 'Google Account linked successfully!', type: 'success' });
+    announce('Google Account linked successfully!');
+  };
+  
+  const { signIn: linkWithGoogle, isReady: isGoogleReady } = useGoogleSignIn(handleGoogleLinkSuccess, setToastInfo);
+  
+  const handleUnlink = () => {
+      setLocalProfile(prev => ({
+          ...prev,
+          email: null,
+          avatar: null,
+      }));
+      setToastInfo({ message: 'Google Account unlinked.', type: 'success' });
+      announce('Google Account unlinked.');
+  };
+
   useEffect(() => {
     if (isOpen) {
       setLocalProfile(profile);
@@ -96,10 +126,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
   const handleOpenAbout = () => {
     onClose(); // Close settings modal
     setTimeout(onOpenAbout, 300); // Open about modal after animation
-  };
-  
-  const handleGoogleLink = () => {
-    setToastInfo({ message: 'Linking Google accounts is coming soon!', type: 'success' });
   };
 
   const handleSave = () => {
@@ -194,10 +220,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                       />
                   </div>
               </div>
-
+              
+              <UIFontSwitcher 
+                  currentFont={localProfile.uiFont} 
+                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, uiFont: font }))}
+              />
+              
               <ArabicFontSwitcher 
-                  currentFont={localProfile.arabicFont} 
-                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, arabicFont: font }))}
+                  currentFont={localProfile.quranFont} 
+                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, quranFont: font }))}
               />
               
               <TTSSettings
@@ -241,24 +272,53 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
 
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-[var(--color-primary)]">{t('profile')}</h3>
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{t('displayName')}</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={localProfile.name}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)]
-                        ${isNameValid ? 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]' : 'border-red-400 focus:ring-red-500 focus:border-red-500'}`}
-                    />
-                    <div className="absolute inset-y-0 end-0 pe-3 flex items-center pointer-events-none">
-                      {isNameValid ? <CheckIcon className="text-emerald-500"/> : <AlertIcon className="text-red-500"/>}
+
+                {localProfile.email ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-4 p-3 bg-[var(--color-card-quran-bg)] rounded-lg">
+                            {localProfile.avatar && <Avatar src={localProfile.avatar} alt={localProfile.name} />}
+                            <div className="flex-1 min-w-0">
+                                <p className="font-bold text-lg text-[var(--color-text-primary)] truncate">{localProfile.name}</p>
+                                <p className="text-sm text-[var(--color-text-subtle)] truncate">{localProfile.email}</p>
+                            </div>
+                        </div>
+                        <button type="button" onClick={handleUnlink} className="w-full text-center px-4 py-2.5 bg-red-500/10 border-2 border-red-500/20 text-red-500 hover:bg-red-500/20 hover:border-red-500/40 rounded-lg transition-colors font-semibold active:scale-95">
+                            Unlink Google Account
+                        </button>
                     </div>
-                  </div>
-                  {!isNameValid && <p className="text-xs text-red-600 mt-1">{t('nameRequired')}</p>}
-                </div>
+                ) : (
+                    <>
+                        <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">{t('displayName')}</label>
+                        <div className="relative">
+                            <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={localProfile.name}
+                            onChange={handleInputChange}
+                            className={`w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)]
+                                ${isNameValid ? 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]' : 'border-red-400 focus:ring-red-500 focus:border-red-500'}`}
+                            />
+                            <div className="absolute inset-y-0 end-0 pe-3 flex items-center pointer-events-none">
+                            {isNameValid ? <CheckIcon className="text-emerald-500"/> : <AlertIcon className="text-red-500"/>}
+                            </div>
+                        </div>
+                        {!isNameValid && <p className="text-xs text-red-600 mt-1">{t('nameRequired')}</p>}
+                        </div>
+                        {isGoogleReady && (
+                            <button
+                                type="button"
+                                onClick={linkWithGoogle}
+                                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-quran-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
+                            >
+                                <GoogleIcon />
+                                Link Google Account
+                            </button>
+                        )}
+                    </>
+                )}
+
                 <div>
                   <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">{t('provideYourDOB')}</label>
                   <DobInput value={localProfile.dob} onChange={handleDobChange} onClear={clearDob} />
@@ -274,16 +334,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                       placeholder={t('contextPlaceholder')}
                       className="w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]"
                     />
-                </div>
-                <div className="pt-2">
-                    <button
-                        type="button"
-                        onClick={handleGoogleLink}
-                        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-quran-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
-                    >
-                        <GoogleIcon />
-                        Link Google Account
-                    </button>
                 </div>
               </div>
   

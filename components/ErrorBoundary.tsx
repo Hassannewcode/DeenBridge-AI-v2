@@ -9,20 +9,13 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  public state: ErrorBoundaryState;
-
-  // FIX: State is initialized in the constructor and methods are bound to 'this'
-  // to ensure correct context when they are called.
-  constructor(props: React.PropsWithChildren<{}>) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      aiDiagnosis: null,
-      isDiagnosing: false,
-    };
-    this.handleDiagnose = this.handleDiagnose.bind(this);
-  }
+  // FIX: State is initialized as a class property for modern syntax and to avoid constructor/binding issues.
+  state: ErrorBoundaryState = {
+    hasError: false,
+    error: null,
+    aiDiagnosis: null,
+    isDiagnosing: false,
+  };
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };
@@ -32,8 +25,8 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
   
-  // FIX: Converted to a standard async class method and bound in the constructor.
-  async handleDiagnose() {
+  // FIX: Converted to an arrow function to automatically bind 'this', fixing 'setState' errors.
+  handleDiagnose = async () => {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });
     try {
@@ -149,7 +142,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
         </div>
       );
     }
-    // FIX: 'this.props' is now correctly typed and accessible.
+    // FIX: Refactoring to a modern class component ensures 'this.props' is correctly typed and accessible.
     return this.props.children;
   }
 }

@@ -16,6 +16,8 @@ const AboutModal = lazy(() => import('./components/AboutModal'));
 
 const defaultProfile: UserProfile = {
   name: '',
+  email: null,
+  avatar: null,
   dob: null,
   extraInfo: '',
   enableSound: true,
@@ -46,12 +48,14 @@ const App: React.FC = () => {
   const isOnline = useOnlineStatus();
   const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   
-  const handleOnboardingComplete = (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => {
+  const handleOnboardingComplete = (data: { name: string; dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null; extraInfo: string; denomination: Denomination, email: string | null, avatar: string | null }) => {
     setProfile(prev => ({
       ...prev,
       name: data.name,
       dob: data.dob,
       extraInfo: data.extraInfo,
+      email: data.email,
+      avatar: data.avatar,
       onboardingComplete: true
     }));
     setDenomination(data.denomination);
