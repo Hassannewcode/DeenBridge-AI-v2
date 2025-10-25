@@ -383,4 +383,4 @@ export const locales = {
     versesFound: "تم العثور على {count} آيات",
     offlineWarning: 'أنت غير متصل بالإنترنت حاليًا. قد تكون الوظائف محدودة.',
   }
-};
+} as const;

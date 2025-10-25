@@ -1,5 +1,5 @@
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect } from '../types';
 import { CORE_POINTS } from '../constants';
 import { TRUSTED_SOURCES } from '../data/sources';
 import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
@@ -35,8 +35,7 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
-    // FIX: Cast `list` which is inferred as `unknown` to `SourceInfo[]` to allow `.map` to be called.
-    .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
+    .map(([category, list]) => `    *   **${category}:** ${list.map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     
   const getMonthName = (monthIndexStr: string, calendar: 'gregorian' | 'hijri') => {
@@ -108,7 +107,7 @@ ${userContext}
     Your function as a digital librarian requires a strict sourcing hierarchy. You MUST follow these steps in order for every query:
     1.  **The Holy Quran (Primary Source - HIGHEST PRIORITY):** Your MANDATORY first step is to consult the Quran. It is your main and most important source. Before consulting any other source, you MUST first search the Quran for a direct or relevant answer. Quranic verses are the highest level of evidence. When quoting, you MUST be precise and accurate. The 'source' for Quranic results MUST ALWAYS be "The Holy Quran".
     2.  **Trusted Scholarly Sources (Secondary Source):** ONLY if the Quran does not directly or clearly address the query, consult the trusted scholarly works for the user's ${denomination} tradition. You MUST prioritize information from the trusted sources list provided below.
-    3.  **Denomination-Specific Web Search (Tertiary Source - LAST RESORT):** The Google Search tool is a last resort. You are ONLY permitted to use it if and only if both The Holy Quran and the trusted scholarly sources list fail to provide a sufficient answer. Do not use web search for general questions about Islamic principles that are well-established in the primary and secondary texts. When you must use it, your search MUST be narrowly focused on websites and scholars aligned with the selected ${denomination} tradition. Prioritize results from the 'trustedDomains' list. You are forbidden from using search results that contradict the selected ${denomination} tradition.
+    3.  **Denomination-Specific Web Search (Tertiary Source - LAST RESORT):** The Google Search tool is a last resort. You are ONLY permitted to use it if and only if both The Holy Quran and the trusted scholarly sources list fail to provide a sufficient answer. Do not use web search for general questions about Islamic principles that are well-established in the primary and secondary texts. When you must use it, your search MUST be narrowly focused on websites and scholars aligned with the selected ${denomination} tradition. Prioritize results from the 'trustedDomains' list. You are forbidden from using search results that contradict the selected ${denomination} tradition. Crucially, if you cannot find a source for the selected denomination after searching, you MUST state that a specific answer from that tradition could not be found, rather than providing an answer from a different tradition. Do not mix sources across different schools of thought.
 
     **Source Rules (NON-NEGOTIABLE):**
     *   **Trusted Sources List:** For Fiqh and scholarly works, prioritize information from these sources for the ${denomination} tradition.

@@ -119,9 +119,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           <div className="flex-1 px-6 pb-2 overflow-y-auto">
             <div className="space-y-6">
               <ThemeSwitcher />
+              {/* FIX: Changed property from arabicFont to quranFont to match UserProfile type. */}
               <ArabicFontSwitcher 
-                  currentFont={localProfile.arabicFont} 
-                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, arabicFont: font }))}
+                  currentFont={localProfile.quranFont} 
+                  onFontChange={(font) => setLocalProfile(prev => ({ ...prev, quranFont: font }))}
               />
               
               <TTSSettings
