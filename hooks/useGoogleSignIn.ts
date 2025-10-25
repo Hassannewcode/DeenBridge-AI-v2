@@ -17,6 +17,7 @@ export const useGoogleSignIn = (
     const handleCredentialResponse = useCallback((response: any) => {
         if (response.credential) {
             try {
+                // Decode the JWT to get user profile information
                 const decoded: GoogleProfile = JSON.parse(atob(response.credential.split('.')[1]));
                 onSuccess(decoded);
             } catch (e) {
@@ -33,8 +34,9 @@ export const useGoogleSignIn = (
             return;
         }
 
+        // Check if the Google script has loaded
         if (typeof window.google === 'undefined' || typeof window.google.accounts === 'undefined') {
-             // The GSI script might not be loaded yet. We can't do anything.
+            // The GSI script might not be loaded yet. We can't do anything.
             return;
         }
 

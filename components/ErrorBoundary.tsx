@@ -9,7 +9,8 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: State is initialized as a class property for modern syntax and to avoid constructor/binding issues.
+  // FIX: Initialize state as a class property to ensure `this.state` is always available.
+  // This is a more modern syntax and avoids potential issues with `this` context in the constructor.
   state: ErrorBoundaryState = {
     hasError: false,
     error: null,
@@ -25,7 +26,8 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
   
-  // FIX: Converted to an arrow function to automatically bind 'this', fixing 'setState' errors.
+  // FIX: Converted to an arrow function to automatically bind `this`.
+  // This ensures `this.state` and `this.setState` are correctly referenced.
   handleDiagnose = async () => {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });
@@ -73,8 +75,6 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
               Reload Page
             </button>
             <button
-              // The `reload` method with a boolean argument is deprecated and can cause TypeScript errors.
-              // A standard reload is sufficient, especially with a service worker handling the caching strategy.
               onClick={() => window.location.reload()}
               title="Reloads the app and clears the cache to get the latest code, without affecting your saved data."
               style={{
@@ -142,7 +142,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
         </div>
       );
     }
-    // FIX: Refactoring to a modern class component ensures 'this.props' is correctly typed and accessible.
+
     return this.props.children;
   }
 }

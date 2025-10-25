@@ -5,7 +5,6 @@ import { locales } from '../data/locales';
 type Locale = 'en' | 'ar';
 
 interface LocaleContextType {
-  // FIX: Use the specific Locale type for better type safety.
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: keyof typeof locales.en, replacements?: Record<string, string | number>) => string;
@@ -15,13 +14,11 @@ const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 export const LocaleProvider: React.FC<{ children: React.ReactNode, profile: UserProfile, setProfile: React.Dispatch<React.SetStateAction<UserProfile>> }> = ({ children, profile, setProfile }) => {
   
-  // FIX: The newLocale parameter is now correctly typed as Locale.
   const setLocale = (newLocale: Locale) => {
     setProfile(prev => ({...prev, appLanguage: newLocale}));
   }
 
   const t = (key: keyof typeof locales.en, replacements?: Record<string, string | number>): string => {
-    // FIX: The cast to Locale is no longer needed as profile.appLanguage is now correctly typed.
     const lang = profile.appLanguage || 'en';
     let str = (locales[lang] as any)?.[key] || locales.en[key] || String(key);
     if (replacements) {

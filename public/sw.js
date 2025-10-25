@@ -4,11 +4,12 @@ const PRECACHE_ASSETS = [
     '/index.html',
     '/manifest.json',
     '/icon.svg',
+    '/icon-monochrome.svg',
     // Key external assets for a basic offline shell
     'https://cdn.tailwindcss.com',
     'https://esm.sh/react@19.1.1',
     'https://esm.sh/react-dom@19.1.1/client',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+    'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=El+Messiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;700&display=swap'
 ];
 
 self.addEventListener('install', event => {
