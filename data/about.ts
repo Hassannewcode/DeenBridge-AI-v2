@@ -16,24 +16,24 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 
 ## How to Install (PWA)
 
-DeenBridge is a Progressive Web App (PWA), which means you can install it on your device for a faster, more integrated experience.
+DeenBridge is a Progressive Web App (PWA), which means you can install it on your device for a faster, more integrated experience. You can typically install the app by clicking the **"Install DeenBridge App"** button in the settings menu. If that button isn't visible, you can use these manual methods:
 
-### On Desktop (Chrome, Edge, Brave)
+### Method 1: On Desktop (Chrome, Edge, Brave)
 
 1.  Open DeenBridge in your browser.
 2.  Look for an **install icon** in the address bar (usually looks like a computer with a down arrow).
 3.  Click the icon and then click **"Install"** in the prompt that appears.
 4.  The app will now be available in your applications folder and on your taskbar/dock.
 
-### On iOS (iPhone/iPad)
+### Method 2: On Mobile Devices
 
+#### For iOS (iPhone/iPad)
 1.  Open DeenBridge in the **Safari** browser.
 2.  Tap the **Share** button (a square with an up arrow).
 3.  Scroll down and tap **"Add to Home Screen"**.
 4.  Confirm by tapping **"Add"**. The DeenBridge icon will now be on your Home Screen.
 
-### On Android
-
+#### For Android
 1.  Open DeenBridge in the **Chrome** browser.
 2.  A prompt to **"Add DeenBridge to Home screen"** may appear automatically. If so, tap it.
 3.  If no prompt appears, tap the **three-dot menu** icon in the top-right corner.

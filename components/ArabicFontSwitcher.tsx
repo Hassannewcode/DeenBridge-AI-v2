@@ -2,14 +2,14 @@ import React from 'react';
 import { useLocale } from '../contexts/LocaleContext';
 import { locales } from '../data/locales';
 
-type ArabicFont = 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
+type QuranFont = 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
 
 interface ArabicFontSwitcherProps {
-  currentFont: ArabicFont;
-  onFontChange: (font: ArabicFont) => void;
+  currentFont: QuranFont;
+  onFontChange: (font: QuranFont) => void;
 }
 
-const fontOptions: { name: ArabicFont; style: React.CSSProperties }[] = [
+const fontOptions: { name: QuranFont; style: React.CSSProperties }[] = [
   { name: 'amiri', style: { fontFamily: "'Amiri', serif" } },
   { name: 'lateef', style: { fontFamily: "'Lateef', cursive" } },
   { name: 'noto', style: { fontFamily: "'Noto Naskh Arabic', serif" } },
@@ -21,7 +21,7 @@ const fontOptions: { name: ArabicFont; style: React.CSSProperties }[] = [
   { name: 'readex', style: { fontFamily: "'Readex Pro', sans-serif" } },
 ];
 
-const fontLabels: Record<ArabicFont, keyof typeof locales.en> = {
+const fontLabels: Record<QuranFont, keyof typeof locales.en> = {
     amiri: 'fontAmiri',
     lateef: 'fontLateef',
     noto: 'fontNoto',
@@ -39,7 +39,7 @@ const ArabicFontSwitcher: React.FC<ArabicFontSwitcherProps> = ({ currentFont, on
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-[var(--color-primary)] mb-2">{t('arabicFont')}</h3>
+      <h3 className="text-lg font-bold text-[var(--color-primary)] mb-2">Quran Font</h3>
       <div className="grid grid-cols-3 gap-2">
         {fontOptions.map((option) => (
           <button

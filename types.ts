@@ -1,5 +1,3 @@
-
-
 // Add global type for Google Identity Services client
 declare global {
   interface Window {
@@ -107,9 +105,12 @@ export interface UserProfile {
   enableHaptics: boolean;
   onboardingComplete: boolean;
   enableGoogleSearch: boolean;
+  // FIX: appLanguage is restricted to supported locales for type safety.
   appLanguage: 'en' | 'ar';
   translationLanguage: string;
-  arabicFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
+  quranFont: 'amiri' | 'lateef' | 'noto' | 'uthmanic' | 'cairo' | 'tajawal' | 'elmessiri' | 'ibm' | 'readex';
+  uiFont: 'inter' | 'amiri' | 'native';
+  arabicDialect: 'msa' | 'egyptian' | 'hijazi' | 'levantine';
   liveChatMode: 'toggle' | 'holdToTalk';
   ttsSettings: {
     voice: string; // 'native' or Gemini voice names like 'Zephyr'

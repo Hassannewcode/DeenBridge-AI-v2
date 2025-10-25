@@ -42,12 +42,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
   const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) {
-        console.warn("Google Client ID is not configured. Google Sign-In will be disabled.");
-        return;
-    }
-    if (!window.google) {
-        console.warn("Google Identity Services script not loaded yet.");
+    if (!GOOGLE_CLIENT_ID || !window.google) {
         return;
     }
 
@@ -81,14 +76,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
   };
 
   const handleGoogleSignIn = () => {
-    if (!GOOGLE_CLIENT_ID) {
-      setToastInfo({ message: 'Google Sign-In is not configured.', type: 'error' });
-      return;
-    }
     if (window.google?.accounts?.id) {
         window.google.accounts.id.prompt();
     } else {
-        setToastInfo({ message: 'Google Sign-In is not ready yet. Please try again in a moment.', type: 'error' });
+        setToastInfo({ message: 'Google Sign-In is not configured or ready. Please try again in a moment.', type: 'error' });
     }
   };
   
@@ -183,19 +174,23 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
                         </div>
                         <div className="space-y-4">
                             <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
-                            <div className="relative flex py-2 items-center">
-                                <div className="flex-grow border-t border-[var(--color-border)]"></div>
-                                <span className="flex-shrink mx-4 text-xs text-[var(--color-text-subtle)] uppercase">Or</span>
-                                <div className="flex-grow border-t border-[var(--color-border)]"></div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={handleGoogleSignIn}
-                                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
-                            >
-                                <GoogleIcon />
-                                Sign in with Google
-                            </button>
+                            {GOOGLE_CLIENT_ID && (
+                                <>
+                                    <div className="relative flex py-2 items-center">
+                                        <div className="flex-grow border-t border-[var(--color-border)]"></div>
+                                        <span className="flex-shrink mx-4 text-xs text-[var(--color-text-subtle)] uppercase">Or</span>
+                                        <div className="flex-grow border-t border-[var(--color-border)]"></div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleGoogleSignIn}
+                                        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
+                                    >
+                                        <GoogleIcon />
+                                        Sign in with Google
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </form>
                     </div>

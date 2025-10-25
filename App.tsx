@@ -24,7 +24,9 @@ const defaultProfile: UserProfile = {
   enableGoogleSearch: true,
   appLanguage: 'en',
   translationLanguage: 'English',
-  arabicFont: 'uthmanic',
+  quranFont: 'uthmanic',
+  uiFont: 'inter',
+  arabicDialect: 'msa',
   liveChatMode: 'toggle',
   ttsSettings: {
     voice: 'Kore',
@@ -72,8 +74,9 @@ const App: React.FC = () => {
   }, [isMobile, setProfile]);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-arabic-font', profile.arabicFont || 'uthmanic');
-  }, [profile.arabicFont]);
+    document.documentElement.setAttribute('data-quran-font', profile.quranFont || 'uthmanic');
+    document.documentElement.setAttribute('data-ui-font', profile.uiFont || 'inter');
+  }, [profile.quranFont, profile.uiFont]);
 
   useEffect(() => {
     if (isMobile) {
