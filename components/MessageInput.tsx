@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+// FIX: Import PhoneIcon
 import { MinaretArrowIcon, LoadingSpinner, MicrophoneIcon, PaperclipIcon, CloseIcon, FileIcon, PhoneIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 

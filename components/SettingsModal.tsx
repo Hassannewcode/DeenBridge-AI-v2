@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { UserProfile } from '../types';
-import { AlertIcon, CheckIcon, CloseIcon } from './icons';
-import Toast from './Toast';
+import { AlertIcon, CheckIcon, CloseIcon, GoogleIcon } from './icons';
 import ThemeSwitcher from './ThemeSwitcher';
 import DobInput from './DobInput';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -21,6 +20,7 @@ interface SettingsModalProps {
   onResetDenomination: () => void;
   isOnline: boolean;
   onOpenAbout: () => void;
+  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
 
 const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }> = ({ layout, isMobile }) => {
@@ -65,9 +65,8 @@ const LayoutPreview: React.FC<{ layout: 'split' | 'stacked', isMobile: boolean }
 };
 
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline, onOpenAbout }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile, setProfile, onResetDenomination, isOnline, onOpenAbout, setToastInfo }) => {
   const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const isNameValid = localProfile.name.trim().length > 2;
   const { t } = useLocale();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -97,6 +96,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
     onClose(); // Close settings modal
     setTimeout(onOpenAbout, 300); // Open about modal after animation
   };
+  
+  const handleGoogleLink = () => {
+    setToastInfo({ message: 'Linking Google accounts is coming soon!', type: 'success' });
+  };
 
   const handleSave = () => {
     if (!isNameValid) return;
@@ -117,7 +120,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
 
     setProfile(profileToSave);
     const message = t('settingsSaved');
-    setToastMessage(message);
+    setToastInfo({ message: message, type: 'success' });
     announce(message);
     triggerHapticFeedback(profile, 'success');
     setTimeout(onClose, 300);
@@ -271,6 +274,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                       className="w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]"
                     />
                 </div>
+                <div className="pt-2">
+                    <button
+                        type="button"
+                        onClick={handleGoogleLink}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-quran-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
+                    >
+                        <GoogleIcon />
+                        Link Google Account
+                    </button>
+                </div>
               </div>
   
               <div className="space-y-4">
@@ -307,7 +320,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           </div>
         </div>
       </div>
-      {toastMessage && <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />}
     </>
   );
 };

@@ -9,10 +9,13 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  constructor(props: React.PropsWithChildren<{}>) {
-    super(props);
-    this.state = { hasError: false, error: null, aiDiagnosis: null, isDiagnosing: false };
-  }
+  // FIX: Initialize state as a class property to resolve TypeScript errors regarding 'state' not existing.
+  state: ErrorBoundaryState = {
+    hasError: false,
+    error: null,
+    aiDiagnosis: null,
+    isDiagnosing: false,
+  };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };
@@ -69,7 +72,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
               Reload Page
             </button>
             <button
-              // FIX: The `reload` method with a boolean argument is deprecated and can cause TypeScript errors.
+              // The `reload` method with a boolean argument is deprecated and can cause TypeScript errors.
               // A standard reload is sufficient, especially with a service worker handling the caching strategy.
               onClick={() => window.location.reload()}
               title="Reloads the app and clears the cache to get the latest code, without affecting your saved data."

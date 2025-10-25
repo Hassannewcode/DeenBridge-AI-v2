@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
+// FIX: Import SwitchHorizontalIcon
 import { SwitchHorizontalIcon } from './icons';
 import { useLocale } from '../contexts/LocaleContext';
 

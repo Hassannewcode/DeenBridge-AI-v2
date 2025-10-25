@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+// FIX: Import BookmarkIcon and BookmarkFilledIcon
 import { CloseIcon, BookmarkIcon, BookmarkFilledIcon, LoadingSpinner } from './icons';
 import TranslationMenu from './TranslationMenu';
 import { useTranslation } from '../hooks/useTranslation';

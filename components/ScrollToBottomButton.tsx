@@ -1,4 +1,5 @@
 import React from 'react';
+// FIX: Import missing ChevronDownIcon
 import { ChevronDownIcon } from './icons';
 
 interface ScrollToBottomButtonProps {

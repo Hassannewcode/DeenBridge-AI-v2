@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Denomination } from '../types';
-import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon } from './icons';
+import { SunniIcon, ShiaIcon, SufiIcon, IbadiIcon, GoogleIcon } from './icons';
 import AgeDisclaimerModal from './AgeDisclaimerModal';
 import { useLocale } from '../contexts/LocaleContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -8,6 +8,7 @@ import DobInput from './DobInput';
 
 interface OnboardingFlowProps {
   onComplete: (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => void;
+  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
 }
 
 const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode, isSelected: boolean }> = ({ onSelect, children, isSelected }) => (
@@ -24,7 +25,7 @@ const SelectorCard: React.FC<{ onSelect: () => void, children: React.ReactNode, 
 );
 
 
-const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
+const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInfo }) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [dob, setDob] = useState<{ day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null>(null);
@@ -44,6 +45,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
   
   const handleDenominationSelect = (den: Denomination) => {
     setDenomination(den);
+  };
+
+  const handleGoogleSignIn = () => {
+    setToastInfo({ message: 'Google Sign-In is coming soon!', type: 'success' });
   };
   
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -135,7 +140,22 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
                                 required
                             />
                         </div>
-                        <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
+                        <div className="space-y-4">
+                            <NextButton disabled={!name.trim()}>{t('next')}</NextButton>
+                            <div className="relative flex py-2 items-center">
+                                <div className="flex-grow border-t border-[var(--color-border)]"></div>
+                                <span className="flex-shrink mx-4 text-xs text-[var(--color-text-subtle)] uppercase">Or</span>
+                                <div className="flex-grow border-t border-[var(--color-border)]"></div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleGoogleSignIn}
+                                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95"
+                            >
+                                <GoogleIcon />
+                                Sign in with Google
+                            </button>
+                        </div>
                     </form>
                     </div>
 

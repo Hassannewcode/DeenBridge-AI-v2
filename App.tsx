@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import React, { useEffect, lazy, Suspense, useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
 import DenominationSelector from './components/DenominationSelector';
@@ -9,6 +9,7 @@ import { useDevice } from './contexts/DeviceContext';
 import A11yAnnouncer from './components/A11yAnnouncer';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import OfflineBanner from './components/OfflineBanner';
+import Toast from './components/Toast';
 
 const SettingsModal = lazy(() => import('./components/SettingsModal'));
 const AboutModal = lazy(() => import('./components/AboutModal'));
@@ -41,6 +42,7 @@ const App: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = React.useState(false);
   const { isMobile } = useDevice();
   const isOnline = useOnlineStatus();
+  const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   
   const handleOnboardingComplete = (data: { name: string, dob: { day: string; month: string; year: string; calendar: 'gregorian' | 'hijri' } | null, extraInfo: string, denomination: Denomination }) => {
     setProfile(prev => ({
@@ -105,18 +107,19 @@ const App: React.FC = () => {
   return (
     <LocaleProvider profile={profile} setProfile={setProfile}>
       {!isOnline && <OfflineBanner />}
+      {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       <main className="flex-1 flex w-full font-sans min-h-0">
         {!profile.onboardingComplete ? (
-          <OnboardingFlow onComplete={handleOnboardingComplete} />
+          <OnboardingFlow onComplete={handleOnboardingComplete} setToastInfo={setToastInfo} />
         ) : denomination ? (
           <>
-            {/* FIX: Pass isMobile and isOnline props to ChatView to satisfy its prop types. */}
             <ChatView 
               denomination={denomination} 
               onOpenSettings={() => setIsSettingsOpen(true)}
               profile={profile}
               isMobile={isMobile}
               isOnline={isOnline}
+              setToastInfo={setToastInfo}
             />
             <Suspense fallback={null}>
               <SettingsModal 
@@ -127,6 +130,7 @@ const App: React.FC = () => {
                 onResetDenomination={handleResetDenomination}
                 isOnline={isOnline}
                 onOpenAbout={() => setIsAboutOpen(true)}
+                setToastInfo={setToastInfo}
               />
               <AboutModal 
                 isOpen={isAboutOpen}

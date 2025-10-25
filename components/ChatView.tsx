@@ -3,11 +3,11 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
+// FIX: Import missing PinIcon and PinFilledIcon
 import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
-import Toast from './Toast';
 import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
 import { GoogleGenAI } from '@google/genai';
@@ -40,8 +40,16 @@ const playNotificationSound = () => {
     }
 };
 
+interface ChatViewProps {
+  denomination: Denomination;
+  onOpenSettings: () => void;
+  profile: UserProfile;
+  isMobile: boolean;
+  isOnline: boolean;
+  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
+}
 
-const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile, isMobile: boolean, isOnline: boolean }> = ({ denomination, onOpenSettings, profile, isMobile, isOnline }) => {
+const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profile, isMobile, isOnline, setToastInfo }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -56,9 +64,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
-
-  // --- Toast State ---
-  const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const { activeChats, pinnedChats } = useMemo(() => {
     const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
@@ -125,7 +130,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         setChat(null);
       }
     }
-  }, [activeChatId, chats, denomination, profile]);
+  }, [activeChatId, chats, denomination, profile, setToastInfo]);
 
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -574,7 +579,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                 />
               </div>
           </div>
-          {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       </div>
     </SpeechProvider>
   );
