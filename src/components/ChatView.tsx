@@ -3,17 +3,21 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './icons';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
+import Toast from './Toast';
 import { SpeechProvider } from '../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLocale } from '../contexts/LocaleContext';
 import ScrollToBottomButton from './ScrollToBottomButton';
 import { triggerHapticFeedback } from '../lib/haptics';
 import { useDevice } from '../contexts/DeviceContext';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
+
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
@@ -39,14 +43,8 @@ const playNotificationSound = () => {
     }
 };
 
-interface ChatViewProps {
-  denomination: Denomination;
-  onOpenSettings: () => void;
-  profile: UserProfile;
-  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
-}
 
-const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profile, setToastInfo }) => {
+const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile }> = ({ denomination, onOpenSettings, profile }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -62,6 +60,9 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
   const { isMobile } = useDevice();
+
+  // --- Toast State ---
+  const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const { activeChats, pinnedChats } = useMemo(() => {
     const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
@@ -128,7 +129,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
         setChat(null);
       }
     }
-  }, [activeChatId, chats, denomination, profile, setToastInfo]);
+  }, [activeChatId, chats, denomination, profile]);
 
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -528,7 +529,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
                       </button>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center shadow-inner overflow-hidden">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
                           <DeenBridgeLogoIcon />
                       </div>
                       <div>
@@ -577,6 +578,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
                 />
               </div>
           </div>
+          {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       </div>
     </SpeechProvider>
   );

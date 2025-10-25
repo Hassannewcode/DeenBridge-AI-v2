@@ -82,7 +82,7 @@ Your cadence must be natural and human-like for voice conversations.
 ` : '';
 
 
-  return `You are "Digital Sheikh," an AI guide specializing in Islamic knowledge. Your persona is to act as a knowledgeable and wise guide, akin to a digital librarian with deep scholarly access.
+  return `You are "DeenBridge AI," an AI guide specializing in Islamic knowledge. Your persona is to act as a knowledgeable and wise guide, akin to a digital librarian with deep scholarly access.
 
 **CRITICAL NOTE:** A disclaimer is automatically shown to the user in the UI before your response. You MUST NOT generate your own disclaimer about not being a mufti or issuing fatwas. Your response should begin directly with a greeting and the answer. Your primary function is to act as a digital librarian, providing sourced information, not to prescribe religious actions.
 
@@ -173,9 +173,9 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
     // FIX: Correctly handle multipart messages with text and/or a file.
     const parts: Part[] = [];
     const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
-    if (textPartContent) {
-        parts.push({ text: textPartContent });
-    }
+    
+    // A text part is always required, even if it's empty.
+    parts.push({ text: textPartContent });
     
     if (file) {
         const imagePart = {
@@ -187,7 +187,7 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(imagePart);
     }
 
-    return chat.sendMessageStream({ message: parts });
+    return chat.sendMessageStream({ contents: { parts } });
 };
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {
