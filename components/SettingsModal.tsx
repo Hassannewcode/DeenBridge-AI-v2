@@ -11,6 +11,7 @@ import { useFocusTrap } from '../lib/focus';
 import { useA11y } from '../lib/a11y';
 import { triggerHapticFeedback } from '../lib/haptics';
 import { useDevice } from '../contexts/DeviceContext';
+import InstallPWAButton from './InstallPWAButton';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -307,6 +308,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
           {/* Footer */}
           <div className="p-6 pt-4 flex-shrink-0">
             <div className="pt-4 border-t border-[var(--color-border)] space-y-3">
+               <InstallPWAButton />
                <button type="button" onClick={handleOpenAbout} className="w-full text-center px-4 py-2.5 bg-transparent border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-text-primary)] rounded-lg transition-colors font-semibold active:scale-95">
                 About DeenBridge
               </button>

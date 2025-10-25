@@ -14,17 +14,31 @@ DeenBridge was built to address the need for a reliable, source-driven tool for 
 *   **User-Centric Design:** From the onboarding flow that personalizes the AI's tone to the multiple color themes, the experience is designed to be welcoming, accessible, and intuitive.
 *   **Privacy First:** DeenBridge operates entirely on the frontend. No user data, profile information, or chat history is ever sent to a backend server. All data is stored securely in the user's local browser storage.
 
-## Features
+## How to Install (PWA)
 
-*   **Dual Denomination Support:** Users can select either the Sunni or Shia school of thought to tailor the AI's knowledge base to the most relevant sources.
-*   **Persona-Driven AI:** The AI guide is inspired by the direct, humorous, and analogy-rich style of prominent scholars, making complex topics more approachable.
-*   **Verifiable Sources:** Every response is grounded in a curated list of trusted Tafsir and Fiqh literature. Web search results are clearly marked as trusted or unverified.
-*   **On-the-fly Translation & Transliteration:** Scriptural texts can be translated into over 100 languages or transliterated with a single click.
-*   **Installable PWA:** DeenBridge is a fully-featured Progressive Web App, installable on desktop and mobile devices for a native-app feel and offline access.
-*   **Customizable Themes:** Choose from four beautiful themes (Light, Dark, Majlis, Madinah) to suit your preference.
-*   **Personalized Experience:** An onboarding flow captures user details (name, age, context) to tailor the AI's communication style.
-*   **Multimedia & Voice Input:** Supports file uploads (images, documents) and includes a voice-to-text feature for hands-free queries.
-*   **Secure & Private:** 100% client-side application. Your data stays with you.
+DeenBridge is a Progressive Web App (PWA), which means you can install it on your device for a faster, more integrated experience.
+
+### On Desktop (Chrome, Edge, Brave)
+
+1.  Open DeenBridge in your browser.
+2.  Look for an **install icon** in the address bar (usually looks like a computer with a down arrow).
+3.  Click the icon and then click **"Install"** in the prompt that appears.
+4.  The app will now be available in your applications folder and on your taskbar/dock.
+
+### On iOS (iPhone/iPad)
+
+1.  Open DeenBridge in the **Safari** browser.
+2.  Tap the **Share** button (a square with an up arrow).
+3.  Scroll down and tap **"Add to Home Screen"**.
+4.  Confirm by tapping **"Add"**. The DeenBridge icon will now be on your Home Screen.
+
+### On Android
+
+1.  Open DeenBridge in the **Chrome** browser.
+2.  A prompt to **"Add DeenBridge to Home screen"** may appear automatically. If so, tap it.
+3.  If no prompt appears, tap the **three-dot menu** icon in the top-right corner.
+4.  Tap **"Install app"** or **"Add to Home screen"**.
+5.  Follow the on-screen instructions. The app will be added to your app drawer and Home Screen.
 
 ## Disclaimer
 
