@@ -86,7 +86,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholderText}
-          className={`w-full text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-all placeholder:text-[var(--color-text-subtle)] resize-none overflow-y-auto leading-normal whitespace-pre-wrap`}
+          className={`w-full text-[16px] text-[var(--color-text-primary)] ps-20 pe-16 sm:ps-28 sm:pe-20 py-3 sm:py-4 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-3xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-all placeholder:text-[var(--color-text-subtle)] resize-none overflow-y-auto leading-normal whitespace-pre-wrap`}
           style={{ maxHeight: '140px' }} // Approx. 5 lines
           disabled={isLoading}
           aria-label="Chat input"

@@ -331,3 +331,11 @@ export const ArrowDownTrayIcon = ({ className = "w-5 h-5" }) => (
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
     </svg>
 );
+
+export const IOSShareIcon = ({ className = "w-full h-full" }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 5L12 17"/>
+        <path d="M9 14L12 17L15 14"/>
+        <path d="M21 11.5v5.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5.5"/>
+    </svg>
+);

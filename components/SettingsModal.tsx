@@ -363,7 +363,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                             name="name"
                             value={localProfile.name}
                             onChange={handleInputChange}
-                            className={`w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)]
+                            className={`w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] text-[16px]
                                 ${isNameValid ? 'border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]' : 'border-red-400 focus:ring-red-500 focus:border-red-500'}`}
                             />
                             <div className="absolute inset-y-0 end-0 pe-3 flex items-center pointer-events-none">
@@ -398,7 +398,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, profile,
                       value={localProfile.extraInfo}
                       onChange={handleInputChange}
                       placeholder={t('contextPlaceholder')}
-                      className="w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]"
+                      className="w-full px-3 py-2 bg-[color:rgb(from_var(--color-card-bg)_r_g_b_/_80%)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] text-[16px]"
                     />
                 </div>
               </div>

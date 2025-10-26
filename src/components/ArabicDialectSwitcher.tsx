@@ -2,6 +2,8 @@ import React from 'react';
 import type { UserProfile, ArabicDialect } from '../types';
 import { useLocale } from '../contexts/LocaleContext';
 import { CheckIcon } from './icons';
+// FIX: Import the 'locales' object to resolve type definitions.
+// Fix: Imported the `locales` object to correctly resolve the type for the component's key prop.
 import { locales } from '../data/locales';
 
 interface ArabicDialectSwitcherProps {

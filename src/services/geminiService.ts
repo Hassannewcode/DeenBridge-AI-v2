@@ -1,5 +1,5 @@
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect } from '../types';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
 import { CORE_POINTS } from '../constants';
 import { TRUSTED_SOURCES } from '../data/sources';
 import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
@@ -35,7 +35,8 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
-    .map(([category, list]) => `    *   **${category}:** ${list.map(s => `${s.name} (${s.url})`).join(', ')}`)
+    // FIX: Cast `list` which is inferred as `unknown` to `SourceInfo[]` to allow `.map` to be called.
+    .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     
   const getMonthName = (monthIndexStr: string, calendar: 'gregorian' | 'hijri') => {
@@ -53,7 +54,6 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
       dobString = `- Date of Birth: ${day} ${monthName} ${year} (${calendar})`;
   }
     
-  // FIX: Use the explicit Arabic dialect from the user profile in the system instruction.
   const dialectMap: Record<ArabicDialect, string> = {
     msa: 'Modern Standard Arabic (Fusha)',
     egyptian: 'Egyptian',
@@ -170,7 +170,6 @@ export const startChat = (denomination: Denomination, messages: Message[], profi
 };
 
 export const sendMessageStream = (chat: Chat, query: string, file?: { data: string; mimeType: string; } | null) => {
-    // FIX: Correctly handle multipart messages with text and/or a file.
     const parts: Part[] = [];
     const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
     
@@ -187,7 +186,6 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(imagePart);
     }
 
-    // FIX: Changed `contents` property to `message` for chat.sendMessageStream, which is the correct parameter name.
     return chat.sendMessageStream({ message: parts });
 };
 

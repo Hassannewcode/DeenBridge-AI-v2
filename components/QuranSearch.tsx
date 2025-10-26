@@ -124,7 +124,7 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t('quranSearchPlaceholder')}
-                    className="mt-2 w-full px-4 py-2.5 text-base bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]"
+                    className="mt-2 w-full px-4 py-2.5 text-[16px] bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]"
                 />
                 <button type="submit" className="mt-3 w-full text-center px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-[var(--color-text-inverted)] rounded-lg font-semibold transition-colors active:scale-95 disabled:from-slate-400 disabled:to-slate-500" disabled={isLoading}>
                     {isLoading ? t('loading') : t('search')}
@@ -158,7 +158,7 @@ const QuranSearch: React.FC<QuranSearchProps> = ({ isOpen, onClose, profile }) =
                             <p className="text-[var(--color-text-secondary)] italic">{analysisResult.statistical_summary}</p>
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-[var(--color-primary)] mb-2">
+                            <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
                                 {t('relevantVerses')}
                                 {analysisResult.relevant_verses.length > 0 && <span className="text-sm font-normal text-[var(--color-text-subtle)]"> ({t('versesFound', { count: analysisResult.relevant_verses.length })})</span>}
                             </h3>

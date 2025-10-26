@@ -122,7 +122,7 @@ const TranslationMenu: React.FC<TranslationMenuProps> = ({
             placeholder={t('searchLanguage')}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-3 py-1.5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] text-sm text-[var(--color-text-primary)]"
+            className="w-full px-3 py-1.5 bg-[var(--color-card-bg)] border border-[var(--color-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] text-[16px] text-[var(--color-text-primary)]"
             />
         </div>
         <ul className="flex-1 overflow-y-auto text-sm">

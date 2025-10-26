@@ -151,7 +151,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder={t('enterYourName')}
-                                className="w-full text-center text-base sm:text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
+                                className="w-full text-center text-[16px] sm:text-lg px-4 py-3 bg-transparent border-b-2 border-[var(--color-border)] focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
                                 autoFocus
                                 required
                             />
@@ -248,7 +248,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete, setToastInf
                                 onChange={(e) => setExtraInfo(e.target.value)}
                                 rows={4}
                                 placeholder={t('contextPlaceholderOnboarding')}
-                                className="w-full text-lg px-4 py-3 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
+                                className="w-full text-[16px] sm:text-lg px-4 py-3 bg-[var(--color-card-bg)] border-2 border-[var(--color-border)] rounded-lg focus:outline-none focus:border-[var(--color-accent)] transition-colors text-[var(--color-text-primary)]"
                             />
                         </div>
                         <div className="space-y-3">

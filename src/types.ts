@@ -37,6 +37,13 @@ export interface Source {
   author: string;
 }
 
+// FIX: Export the SourceInfo interface so it can be imported in other files.
+// Fix: Exported the SourceInfo interface to resolve import error.
+export interface SourceInfo {
+    name: string;
+    url: string;
+}
+
 export interface ScripturalResult {
   text: string;
   source: Source;

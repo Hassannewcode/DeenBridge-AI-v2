@@ -82,7 +82,7 @@ const DobInput: React.FC<DobInputProps> = ({ value, onChange, onClear }) => {
     const days = Array.from({ length: 31 }, (_, i) => i + 1);
     const months = calendar === 'gregorian' ? GREGORIAN_MONTHS : HIJRI_MONTHS;
 
-    const inputClasses = "w-full px-3 py-2 bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]";
+    const inputClasses = "w-full px-3 py-2 bg-[var(--color-card-bg)] border rounded-lg focus:outline-none focus:ring-2 transition-all text-[var(--color-text-primary)] border-[var(--color-border)] focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] text-[16px]";
 
     return (
         <div>
