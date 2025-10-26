@@ -1,24 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
-import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
-import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
-import { Denomination, MessageSender } from '../types';
-import useLocalStorage from '../hooks/useLocalStorage';
-// FIX: Corrected import path for icons to match the new `common` directory structure.
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './icons';
+import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../../services/geminiService';
+import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../../types';
+import { Denomination, MessageSender } from '../../types';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from '../common/icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
 import MessageBubble from './MessageBubble';
-import { SpeechProvider } from '../contexts/SpeechContext';
+import { SpeechProvider } from '../../contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
-import LanguageSwitcher from './LanguageSwitcher';
-import { useLocale } from '../contexts/LocaleContext';
-import ScrollToBottomButton from './ScrollToBottomButton';
-import { triggerHapticFeedback } from '../lib/haptics';
-import { useDevice } from '../contexts/DeviceContext';
+import LanguageSwitcher from '../common/LanguageSwitcher';
+import { useLocale } from '../../contexts/LocaleContext';
+import ScrollToBottomButton from '../common/ScrollToBottomButton';
+import { triggerHapticFeedback } from '../../lib/haptics';
+import { useDevice } from '../../contexts/DeviceContext';
 
-const QuranReader = lazy(() => import('./QuranReader'));
-const QuranSearch = lazy(() => import('./QuranSearch'));
-// FIX: Corrected the import path for LiveConversationModal.
+const QuranReader = lazy(() => import('../quran/QuranReader'));
+const QuranSearch = lazy(() => import('../quran/QuranSearch'));
 const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
 
 

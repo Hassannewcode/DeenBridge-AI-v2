@@ -126,7 +126,7 @@ Your response must follow this structure: A warm greeting, followed by your summ
 As-salamu alaykum, ${profile.name}. An excellent question. You're asking about showing off in worship, or *Riya*. Think of it like this: if you do a good deed for Allah, it's like planting a strong tree. But Riya is a termite that eats the tree from the inside out, leaving nothing of value. It's a dangerous thing. May this be of benefit, and Allah knows best.
 
 ## Scriptural Sources
-Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
+Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُsِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
 Source: The Holy Quran
 Reference: Al-Baqarah (2:155)
 Author: N/A
@@ -171,11 +171,10 @@ export const startChat = (denomination: Denomination, messages: Message[], profi
 };
 
 export const sendMessageStream = (chat: Chat, query: string, file?: { data: string; mimeType: string; } | null) => {
-    // FIX: Correctly handle multipart messages with text and/or a file.
     const parts: Part[] = [];
     const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
     
-    // A text part is always required, even if it's empty.
+    // FIX: A text part is always required, even if it's empty when a file is present.
     parts.push({ text: textPartContent });
     
     if (file) {
@@ -188,7 +187,6 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(imagePart);
     }
 
-    // FIX: Changed `contents` property to `message` for chat.sendMessageStream, which is the correct parameter name.
     return chat.sendMessageStream({ message: parts });
 };
 
