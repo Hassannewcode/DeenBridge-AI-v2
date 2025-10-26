@@ -1,9 +1,4 @@
-import { Denomination } from '../types';
-
-interface SourceInfo {
-    name: string;
-    url: string;
-}
+import { Denomination, SourceInfo } from '../types';
 
 interface TrustedSourceCollection {
     [category: string]: SourceInfo[] | string[];
