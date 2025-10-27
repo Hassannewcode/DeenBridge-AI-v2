@@ -95,7 +95,6 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
 
     if (action === 'new-chat') {
         handleNewChat();
-        // Clean the URL
         window.history.replaceState({}, document.title, window.location.pathname);
     } else if (action === 'read-quran') {
         setIsQuranReaderOpen(true);
@@ -531,7 +530,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
                       <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ms-2 rounded-full text-[var(--color-text-primary)] hover:bg-[var(--color-border)] transition-colors active:scale-90 md:hidden" aria-label="Open chat history">
                           <MenuIcon />
                       </button>
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 p-1 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center shadow-inner text-white">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[var(--color-primary)] rounded-lg flex items-center justify-center shadow-inner overflow-hidden">
                           <DeenBridgeLogoIcon />
                       </div>
                       <div>
