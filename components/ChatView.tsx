@@ -105,7 +105,7 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
         setIsQuranSearchOpen(true);
         window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [handleNewChat, setIsQuranReaderOpen, setIsQuranSearchOpen]);
+  }, [handleNewChat]);
   
  useEffect(() => {
     if (chats.length === 0) {

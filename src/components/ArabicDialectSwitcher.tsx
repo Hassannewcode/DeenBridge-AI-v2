@@ -51,7 +51,7 @@ const ArabicDialectSwitcher: React.FC<ArabicDialectSwitcherProps> = ({ currentDi
       </div>
       
       {dialectGroups.map(group => (
-        <div key={group.titleKey} className="space-y-2">
+        <div key={group.titleKey as string} className="space-y-2">
             <h4 className="font-semibold text-sm text-[var(--color-text-secondary)] border-b border-[var(--color-border)] pb-1">{t(group.titleKey)}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {group.options.map(option => (

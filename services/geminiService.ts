@@ -35,7 +35,6 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
-    // FIX: Cast `list` which is inferred as `unknown` to `SourceInfo[]` to allow `.map` to be called.
     .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     
@@ -54,7 +53,6 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
       dobString = `- Date of Birth: ${day} ${monthName} ${year} (${calendar})`;
   }
     
-  // FIX: Use the explicit Arabic dialect from the user profile in the system instruction.
   const dialectMap: Record<ArabicDialect, string> = {
     msa: 'Modern Standard Arabic (Fusha)',
     egyptian: 'Egyptian',

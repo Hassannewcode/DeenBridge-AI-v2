@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deenbridge-cache-v11'; // Version bumped for update
+const CACHE_NAME = 'deenbridge-cache-v12'; // Version bumped for update
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
