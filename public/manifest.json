@@ -4,10 +4,15 @@
   "description": "An AI-powered Islamic reference application that provides verifiable information from pre-vetted sources.",
   "start_url": "/",
   "scope": "/",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f172a",
   "theme_color": "#1a3a6b",
+  "categories": ["education", "books", "lifestyle"],
   "icons": [
     {
       "src": "/icon.svg",
@@ -30,18 +35,48 @@
   ],
   "shortcuts": [
     {
-      "name": "New Chat",
-      "short_name": "New",
-      "description": "Start a new chat session",
+      "name": "Start a New Chat",
+      "short_name": "New Chat",
+      "description": "Begin a new conversation with DeenBridge",
       "url": "/?action=new-chat",
-      "icons": [{ "src": "/icon.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/new_chat.svg", "sizes": "96x96", "type": "image/svg+xml", "purpose": "any" }]
     },
     {
-      "name": "Read Quran",
+      "name": "Read the Holy Quran",
       "short_name": "Quran",
-      "description": "Open the Quran reader",
+      "description": "Open the Quran reader to browse and search",
       "url": "/?action=read-quran",
-      "icons": [{ "src": "/icon.svg", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/read_quran.svg", "sizes": "96x96", "type": "image/svg+xml", "purpose": "any" }]
+    },
+    {
+      "name": "Quran Topic Analysis",
+      "short_name": "Analysis",
+      "description": "Analyze a topic throughout the Quran",
+      "url": "/?action=quran-analysis",
+      "icons": [{ "src": "/icons/quran_analysis.svg", "sizes": "96x96", "type": "image/svg+xml", "purpose": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/main/Images/Screenshot%201.png",
+      "sizes": "1284x2778",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Main chat interface with an AI response."
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/main/Images/Screenshot%202.png",
+      "sizes": "1284x2778",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "The immersive Quran reader experience."
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/main/Images/Screenshot%203.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "DeenBridge on a desktop, showing the responsive layout."
     }
   ]
 }

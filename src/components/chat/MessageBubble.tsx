@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import type { Message, Denomination, UserProfile } from '../../types';
 import { MessageSender } from '../../types';
-import { DeenBridgeAIIcon, CitationIcon, FileIcon, VolumeUpIcon, StopCircleIcon, LoadingSpinner } from '../common/icons';
+import { DeenBridgeLogoIcon as DeenBridgeAIIcon, CitationIcon, FileIcon, VolumeUpIcon, StopCircleIcon, LoadingSpinner } from '../common/icons';
 import WebSourceCard from '../cards/WebSourceCard';
 import QuranVerseCard from '../cards/QuranVerseCard';
 import SkeletonLoader from '../common/SkeletonLoader';

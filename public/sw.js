@@ -1,10 +1,14 @@
-const CACHE_NAME = 'deenbridge-cache-v9'; // Version bumped for update
+const CACHE_NAME = 'deenbridge-cache-v11'; // Version bumped for update
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
     '/icon.svg',
     '/icon-monochrome.svg',
+    // New shortcut icons
+    '/icons/new_chat.svg',
+    '/icons/read_quran.svg',
+    '/icons/quran_analysis.svg',
     // Key external assets for a basic offline shell
     'https://cdn.tailwindcss.com',
     'https://esm.sh/react@19.1.1',

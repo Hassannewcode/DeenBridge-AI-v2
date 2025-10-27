@@ -97,13 +97,15 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
 
     if (action === 'new-chat') {
         handleNewChat();
-        // Clean the URL
         window.history.replaceState({}, document.title, window.location.pathname);
     } else if (action === 'read-quran') {
         setIsQuranReaderOpen(true);
         window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (action === 'quran-analysis') {
+        setIsQuranSearchOpen(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [handleNewChat]);
+  }, [handleNewChat, setIsQuranReaderOpen, setIsQuranSearchOpen]);
   
  useEffect(() => {
     if (chats.length === 0) {
