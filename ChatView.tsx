@@ -1,28 +1,24 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
-import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from '../services/geminiService';
-import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
-import { Denomination, MessageSender } from '../types';
-import useLocalStorage from '../hooks/useLocalStorage';
-import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './icons';
-import MessageInput from './MessageInput';
-import EmptyState from './EmptyState';
-import MessageBubble from './MessageBubble';
-import Toast from './Toast';
-import { SpeechProvider } from '../contexts/SpeechContext';
+import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } from './services/geminiService';
+import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from './types';
+import { Denomination, MessageSender } from './types';
+import useLocalStorage from './hooks/useLocalStorage';
+import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './components/icons';
+import MessageInput from './components/MessageInput';
+import EmptyState from './components/EmptyState';
+import MessageBubble from './components/MessageBubble';
+import { SpeechProvider } from './contexts/SpeechContext';
 import type { Chat, GenerateContentResponse } from '@google/genai';
-import { GoogleGenAI } from '@google/genai';
-import LanguageSwitcher from './LanguageSwitcher';
-import { useLocale } from '../contexts/LocaleContext';
-import ScrollToBottomButton from './ScrollToBottomButton';
-import { triggerHapticFeedback } from '../lib/haptics';
-import { useDevice } from '../contexts/DeviceContext';
-import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import { useLocale } from './contexts/LocaleContext';
+import ScrollToBottomButton from './components/ScrollToBottomButton';
+import { triggerHapticFeedback } from './lib/haptics';
+import { useDevice } from './contexts/DeviceContext';
 
 
-const QuranReader = lazy(() => import('./QuranReader'));
-const QuranSearch = lazy(() => import('./QuranSearch'));
-// FIX: Corrected invalid import path.
-const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
+const QuranReader = lazy(() => import('./components/QuranReader'));
+const QuranSearch = lazy(() => import('./components/QuranSearch'));
+const LiveConversationModal = lazy(() => import('./components/LiveConversationModal'));
 
 
 // --- Audio Utility ---
@@ -44,8 +40,15 @@ const playNotificationSound = () => {
     }
 };
 
+// FIX: Update component props to accept setToastInfo and lift state management to App.tsx.
+interface ChatViewProps {
+  denomination: Denomination;
+  onOpenSettings: () => void;
+  profile: UserProfile;
+  setToastInfo: (info: { message: string, type: 'success' | 'error' } | null) => void;
+}
 
-const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => void, profile: UserProfile }> = ({ denomination, onOpenSettings, profile }) => {
+const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profile, setToastInfo }) => {
   const [chats, setChats] = useLocalStorage<ChatSession[]>(`deenbridge-chats-${denomination}`, []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>(`deenbridge-active-chat-${denomination}`, null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -61,9 +64,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t, locale } = useLocale();
   const { isMobile } = useDevice();
-
-  // --- Toast State ---
-  const [toastInfo, setToastInfo] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const { activeChats, pinnedChats } = useMemo(() => {
     const sortedChats = [...chats].sort((a, b) => b.createdAt - a.createdAt);
@@ -102,6 +102,9 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
     } else if (action === 'read-quran') {
         setIsQuranReaderOpen(true);
         window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (action === 'quran-analysis') {
+        setIsQuranSearchOpen(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [handleNewChat]);
   
@@ -130,7 +133,7 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
         setChat(null);
       }
     }
-  }, [activeChatId, chats, denomination, profile]);
+  }, [activeChatId, chats, denomination, profile, setToastInfo]);
 
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -579,7 +582,6 @@ const ChatView: React.FC<{ denomination: Denomination; onOpenSettings: () => voi
                 />
               </div>
           </div>
-          {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       </div>
     </SpeechProvider>
   );

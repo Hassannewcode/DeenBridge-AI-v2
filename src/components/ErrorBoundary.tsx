@@ -9,7 +9,6 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Reverted to class property for state initialization and arrow function for handleDiagnose to fix 'this' context issues.
   state: ErrorBoundaryState = {
     hasError: false,
     error: null,

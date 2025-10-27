@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { useEnhancedSpeech } from '../hooks/useEnhancedSpeech';
 import type { UserProfile } from '../types';
+// FIX: Update import path for Toast component to match refactored structure.
 import Toast from '../components/common/Toast';
 
 interface SpeechContextType {
