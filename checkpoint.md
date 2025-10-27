@@ -1,3 +1,23 @@
+# Checkpoint: Branding Unification & UI Polish
+
+This checkpoint focuses on a complete visual overhaul to establish a strong, consistent, and professional brand identity for DeenBridge, centered around the new definitive "mosque" logo provided by the user.
+
+## 1. Unified Brand Identity
+
+-   **New Mosque Logo:** The previous "bridge" logo has been completely replaced across the entire application with the new, elegant mosque design. This includes the main PWA icon, the monochrome icon for notifications, the animated splash screen, and all instances of the logo within the app UI.
+-   **UI Shape Consistency:** Inconsistent container shapes for the logo (circles, sharp squares) have been standardized to a modern, soft-cornered rounded square (`rounded-2xl`). This creates a cohesive "squircle" aesthetic that matches the main app icon and enhances the overall professional look.
+
+## 2. Redesigned Splash Screen
+
+-   The animated splash screen has been updated to use the new mosque logo.
+-   The layout has been changed to a vertical stack (logo, title, loading dots) to perfectly match the user's provided design for a cleaner launch experience.
+
+## 3. Stability Improvement
+
+-   **Error Boundary Fix:** A bug fix was re-applied to the `ErrorBoundary` component's constructor to ensure correct state initialization and prevent potential runtime errors, improving overall app stability.
+
+---
+
 # Checkpoint: Major Refactor & Feature Polish
 
 This checkpoint marks a significant architectural refactor and a series of feature enhancements to improve maintainability, user experience, and stability.
