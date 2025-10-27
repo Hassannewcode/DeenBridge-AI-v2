@@ -1,13 +1,13 @@
 import React, { useEffect, lazy, Suspense, useState } from 'react';
-import useLocalStorage from './hooks/useLocalStorage';
-import { Denomination, UserProfile } from './types';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { Denomination, UserProfile } from '../types';
 import DenominationSelector from './components/onboarding/DenominationSelector';
 import ChatView from './components/chat/ChatView';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
-import { LocaleProvider } from './contexts/LocaleContext';
-import { useDevice } from './contexts/DeviceContext';
+import { LocaleProvider } from '../contexts/LocaleContext';
+import { useDevice } from '../contexts/DeviceContext';
 import A11yAnnouncer from './components/common/A11yAnnouncer';
-import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import OfflineBanner from './components/common/OfflineBanner';
 import Toast from './components/common/Toast';
 

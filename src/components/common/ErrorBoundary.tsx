@@ -1,5 +1,4 @@
 import React from 'react';
-// FIX: Corrected import path for geminiService after file restructuring.
 import { getErrorDiagnosis } from '../../services/geminiService';
 
 interface ErrorBoundaryState {
@@ -10,7 +9,6 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Use class property for state initialization to resolve errors with `this.state`
   state: ErrorBoundaryState = {
     hasError: false,
     error: null,
@@ -26,7 +24,6 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  // FIX: Use arrow function to automatically bind `this` context.
   handleDiagnose = async () => {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });
@@ -145,5 +142,4 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
   }
 }
 
-// FIX: Add default export
 export default ErrorBoundary;

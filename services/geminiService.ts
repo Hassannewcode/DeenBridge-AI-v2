@@ -172,11 +172,7 @@ export const startChat = (denomination: Denomination, messages: Message[], profi
 };
 
 export const sendMessageStream = (chat: Chat, query: string, file?: { data: string; mimeType: string; } | null) => {
-    const parts: Part[] = [];
-    const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
-    
-    // FIX: A text part is always required, even if it's empty when a file is present.
-    parts.push({ text: textPartContent });
+    const parts: Part[] = [{ text: query }];
     
     if (file) {
         const imagePart = {
@@ -188,6 +184,8 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(imagePart);
     }
 
+    // If there is a file but the query is empty, the parts array will be [{text: ''}, {inlineData: ...}]
+    // which is what the API expects.
     return chat.sendMessageStream({ message: parts });
 };
 
