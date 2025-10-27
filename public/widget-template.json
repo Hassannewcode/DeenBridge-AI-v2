@@ -1,0 +1,46 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "Container",
+            "items": [
+                {
+                    "type": "Image",
+                    "url": "https://deen-bridge-ai-v2.vercel.app/icon.svg",
+                    "size": "Small",
+                    "horizontalAlignment": "Center"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "DeenBridge",
+                    "weight": "Bolder",
+                    "size": "Medium",
+                    "horizontalAlignment": "Center"
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "Your AI Islamic Digital Librarian",
+                    "isSubtle": true,
+                    "spacing": "None",
+                    "size": "Small",
+                    "horizontalAlignment": "Center",
+                    "wrap": true
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Execute",
+            "title": "New Chat",
+            "verb": "newChat"
+        },
+        {
+            "type": "Action.Execute",
+            "title": "Read Quran",
+            "verb": "readQuran"
+        }
+    ]
+}

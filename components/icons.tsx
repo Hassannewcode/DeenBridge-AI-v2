@@ -3,7 +3,7 @@ import React from 'react';
 // App Logo (matches PWA icon)
 export const DeenBridgeLogoIcon = () => (
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-1.5">
-        <path d="M5 17 A 7 7 0 0 1 19 17 M9 12 A 3 3 0 0 1 15 12 M12 7 L10.5 9.5 H 13.5 Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" transform="translate(0, 1)"/>
+        <path d="M5 17 H 19 M5 17 A 7 7 0 0 1 19 17 M9 14 L 12 10 L 15 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
 );
 

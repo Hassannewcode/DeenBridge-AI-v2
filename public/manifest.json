@@ -56,6 +56,15 @@
       "icons": [{ "src": "/icons/quran_analysis.svg", "sizes": "96x96", "type": "image/svg+xml", "purpose": "any" }]
     }
   ],
+  "widgets": [
+    {
+      "name": "DeenBridge Actions",
+      "short_name": "DeenBridge",
+      "description": "Quickly start a new chat or open the Quran.",
+      "tag": "deenbridge-widget",
+      "ms_ac_template": "/widget-template.json"
+    }
+  ],
   "screenshots": [
     {
       "src": "https://raw.githubusercontent.com/Hassannewcode/DeenBridge-AI-v2/main/Images/Screenshot%201.png",
