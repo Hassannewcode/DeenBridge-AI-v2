@@ -39,7 +39,6 @@ const playNotificationSound = () => {
     }
 };
 
-// FIX: Update props to accept setToastInfo from App.tsx
 interface ChatViewProps {
   denomination: Denomination;
   onOpenSettings: () => void;
@@ -100,6 +99,9 @@ const ChatView: React.FC<ChatViewProps> = ({ denomination, onOpenSettings, profi
         window.history.replaceState({}, document.title, window.location.pathname);
     } else if (action === 'read-quran') {
         setIsQuranReaderOpen(true);
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (action === 'quran-analysis') {
+        setIsQuranSearchOpen(true);
         window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [handleNewChat]);

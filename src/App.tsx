@@ -1,18 +1,18 @@
 import React, { useEffect, lazy, Suspense, useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
-import DenominationSelector from './components/DenominationSelector';
-import ChatView from './components/ChatView';
-import OnboardingFlow from './components/OnboardingFlow';
+import DenominationSelector from './components/onboarding/DenominationSelector';
+import ChatView from './components/chat/ChatView';
+import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { useDevice } from './contexts/DeviceContext';
-import A11yAnnouncer from './components/A11yAnnouncer';
+import A11yAnnouncer from './components/common/A11yAnnouncer';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
-import OfflineBanner from './components/OfflineBanner';
-import Toast from './components/Toast';
+import OfflineBanner from './components/common/OfflineBanner';
+import Toast from './components/common/Toast';
 
-const SettingsModal = lazy(() => import('./components/SettingsModal'));
-const AboutModal = lazy(() => import('./components/AboutModal'));
+const SettingsModal = lazy(() => import('./components/settings/SettingsModal'));
+const AboutModal = lazy(() => import('./components/settings/AboutModal'));
 
 const defaultProfile: UserProfile = {
   name: '',
