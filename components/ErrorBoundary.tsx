@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { getErrorDiagnosis } from '../services/geminiService';
 
@@ -10,7 +11,6 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Initialize state as a class property and use arrow functions for methods to ensure correct `this` context.
   state: ErrorBoundaryState = {
     hasError: false,
     error: null,

@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
 import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
 import { CORE_POINTS } from '../constants';
@@ -35,6 +36,7 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
+    // FIX: Cast `list` which is inferred as `SourceInfo[] | string[]` to `SourceInfo[]` to allow `.map` to be called.
     .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     
@@ -172,9 +174,10 @@ export const startChat = (denomination: Denomination, messages: Message[], profi
 
 export const sendMessageStream = (chat: Chat, query: string, file?: { data: string; mimeType: string; } | null) => {
     const parts: Part[] = [];
+    // FIX: Add default text content when a file is present but the query is empty.
+    const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
     
-    // A text part is always required, even if it's empty.
-    parts.push({ text: query });
+    parts.push({ text: textPartContent });
     
     if (file) {
         const filePart = {
@@ -186,7 +189,7 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(filePart);
     }
 
-    return chat.sendMessageStream({ message: parts });
+    return chat.sendMessageStream({ content: parts });
 };
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {

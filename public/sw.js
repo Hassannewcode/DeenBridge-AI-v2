@@ -1,18 +1,18 @@
-const CACHE_NAME = 'deenbridge-cache-v12'; // Version bumped for update
+const CACHE_NAME = 'deenbridge-cache-v14'; // Version bumped for update
 const PRECACHE_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
     '/icon.svg',
     '/icon-monochrome.svg',
-    // New shortcut icons
+    '/src/index.tsx', 
     '/icons/new_chat.svg',
     '/icons/read_quran.svg',
     '/icons/quran_analysis.svg',
-    // Key external assets for a basic offline shell
     'https://cdn.tailwindcss.com',
-    'https://esm.sh/react@19.1.1',
-    'https://esm.sh/react-dom@19.1.1/client',
+    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
+    'https://accounts.google.com/gsi/client',
     'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=El+Messiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Inter:wght@400;500;600;700&family=Lateef:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;700&display=swap'
 ];
 
@@ -22,7 +22,9 @@ self.addEventListener('install', event => {
         .then(cache => {
             console.log('[Service Worker] Precaching app shell');
             const promises = PRECACHE_ASSETS.map(url => {
-                return cache.add(new Request(url, { cache: 'reload' })).catch(err => {
+                // For external resources, use no-cors to prevent opaque response issues
+                const request = new Request(url, { mode: url.startsWith('http') ? 'no-cors' : 'same-origin' });
+                return cache.add(request).catch(err => {
                     console.warn(`[Service Worker] Failed to precache ${url}:`, err);
                 });
             });
@@ -87,7 +89,6 @@ self.addEventListener('fetch', event => {
                     }
                     return networkResponse;
                 }).catch(err => {
-                    console.warn(`[Service Worker] Fetch failed for ${request.url}:`, err);
                     // This catch is to prevent the promise from rejecting if the network fails.
                     // If there's a cachedResponse, it would have already been returned.
                 });

@@ -3,7 +3,6 @@ import { startChat, sendMessageStream, parseMarkdownResponse, generateTitle } fr
 import type { Message, UserProfile, WebSource, GroundingChunk, ChatSession } from '../types';
 import { Denomination, MessageSender } from '../types';
 import useLocalStorage from '../hooks/useLocalStorage';
-// FIX: Corrected import path for icons to match the new `common` directory structure.
 import { SettingsIcon, DeenBridgeLogoIcon, MenuIcon, PlusIcon, MessageSquareIcon, TrashIcon, PencilIcon, PinIcon, PinFilledIcon, LoadingSpinner, QuranAnalysisIcon, QuranIcon, PhoneIcon } from './icons';
 import MessageInput from './MessageInput';
 import EmptyState from './EmptyState';
@@ -18,7 +17,6 @@ import { useDevice } from '../contexts/DeviceContext';
 
 const QuranReader = lazy(() => import('./QuranReader'));
 const QuranSearch = lazy(() => import('./QuranSearch'));
-// FIX: Corrected the import path for LiveConversationModal.
 const LiveConversationModal = lazy(() => import('./LiveConversationModal'));
 
 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
@@ -93,6 +94,7 @@ const LiveConversationModal: React.FC<LiveConversationModalProps> = ({ isOpen, o
     }
     cleanup();
     onClose();
+// FIX: Removed erroneous 'on' from the useCallback dependency array.
   }, [cleanup, onClose, onTurnComplete, userTranscript, aiTranscript]);
 
   const handleReconnect = useCallback(() => {

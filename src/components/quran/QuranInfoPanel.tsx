@@ -1,15 +1,15 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 // FIX: Import BookmarkIcon and BookmarkFilledIcon
-import { CloseIcon, BookmarkIcon, BookmarkFilledIcon, LoadingSpinner } from './icons';
-import TranslationMenu from './TranslationMenu';
-import { useTranslation } from '../hooks/useTranslation';
-import { getVerseTafsir } from '../services/geminiService';
-import { SURAH_INFO } from '../data/surah-info';
+import { CloseIcon, BookmarkIcon, BookmarkFilledIcon, LoadingSpinner } from '../common/icons';
+import TranslationMenu from '../common/TranslationMenu';
+import { useTranslation } from '../../hooks/useTranslation';
+import { getVerseTafsir } from '../../services/geminiService';
+import { SURAH_INFO } from '../../data/surah-info';
 // Fix: Import Surah, Ayah, and QuranBookmark from the central types file.
-import type { Surah, Ayah, UserProfile, QuranBookmark } from '../types';
-import { useLocale } from '../contexts/LocaleContext';
-import MarkdownRenderer from './MarkdownRenderer';
+import type { Surah, Ayah, UserProfile, QuranBookmark } from '../../types';
+import { useLocale } from '../../contexts/LocaleContext';
+import MarkdownRenderer from '../common/MarkdownRenderer';
 
 interface QuranInfoPanelProps {
     surah: Surah;

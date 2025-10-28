@@ -30,4 +30,17 @@ root.render(
   </React.StrictMode>
 );
 
+// Handle splash screen removal after app is hydrated
+window.addEventListener('load', () => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        // Start fade out animation
+        splash.classList.add('fade-out');
+        // Remove from DOM after animation completes
+        setTimeout(() => {
+            splash.remove();
+        }, 500); // Must match CSS transition duration
+    }
+});
+
 registerServiceWorker();

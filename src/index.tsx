@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { ThemeProvider } from '../contexts/ThemeContext';
-import { DeviceProvider } from '../contexts/DeviceContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { DeviceProvider } from './contexts/DeviceContext';
 import registerServiceWorker from './registerServiceWorker';
-import ErrorBoundary from '../components/ErrorBoundary';
-import { A11yProvider } from '../contexts/A11yContext';
-import { PWAInstallProvider } from '../contexts/PWAInstallContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import { A11yProvider } from './contexts/A11yContext';
+import { PWAInstallProvider } from './contexts/PWAInstallContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -29,5 +29,18 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+// Handle splash screen removal after app is hydrated
+window.addEventListener('load', () => {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        // Start fade out animation
+        splash.classList.add('fade-out');
+        // Remove from DOM after animation completes
+        setTimeout(() => {
+            splash.remove();
+        }, 500); // Must match CSS transition duration
+    }
+});
 
 registerServiceWorker();

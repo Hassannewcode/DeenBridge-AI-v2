@@ -1,3 +1,4 @@
+
 export const locales = {
   en: {
     // Settings

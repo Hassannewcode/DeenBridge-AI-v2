@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 // FIX: Import missing CopyIcon and ShareIcon
 import { MoreHorizontalIcon, CheckIcon, CopyIcon, ShareIcon } from './icons';
-import { LANGUAGES } from '../data/languages';
-import { useClickOutside } from '../hooks/useClickOutside';
-import { useLocale } from '../contexts/LocaleContext';
+import { LANGUAGES } from '../../data/languages';
+import { useClickOutside } from '../../hooks/useClickOutside';
+import { useLocale } from '../../contexts/LocaleContext';
 
 interface TranslationMenuProps {
   isLoading: string | null;
