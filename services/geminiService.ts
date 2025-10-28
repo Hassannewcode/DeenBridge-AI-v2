@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
 import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
 import { CORE_POINTS } from '../constants';
@@ -189,7 +190,8 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
         parts.push(filePart);
     }
 
-    return chat.sendMessageStream({ content: parts });
+    // FIX: Use 'message' property instead of 'content' for sendMessageStream
+    return chat.sendMessageStream({ message: parts });
 };
 
 export const getGenerativeText = async (prompt: string): Promise<string> => {
