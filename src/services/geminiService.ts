@@ -1,8 +1,10 @@
+
+
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from './types';
-import { CORE_POINTS } from './constants';
-import { TRUSTED_SOURCES } from './data/sources';
-import { GREGORIAN_MONTHS, HIJRI_MONTHS } from './data/calendars';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
+import { CORE_POINTS } from '../constants';
+import { TRUSTED_SOURCES } from '../data/sources';
+import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
 
 // The API key is now sourced from environment variables for security.
 const API_KEY = process.env.API_KEY;
@@ -35,6 +37,7 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
+    // FIX: Cast `list` which is inferred as `SourceInfo[] | string[]` to `SourceInfo[]` to allow `.map` to be called.
     .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     

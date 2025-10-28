@@ -2,7 +2,7 @@ import React, { useEffect, lazy, Suspense, useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
 import DenominationSelector from './components/DenominationSelector';
-import ChatView from './components/ChatView';
+import ChatView from './ChatView';
 import OnboardingFlow from './components/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { useDevice } from './contexts/DeviceContext';

@@ -10,13 +10,17 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBoundaryState> {
-  // FIX: Initialize state as a class property and use arrow functions for methods to ensure correct `this` context.
-  state: ErrorBoundaryState = {
-    hasError: false,
-    error: null,
-    aiDiagnosis: null,
-    isDiagnosing: false,
-  };
+  // FIX: Refactored to use a constructor for state initialization and method binding to ensure correct `this` context.
+  constructor(props: React.PropsWithChildren<{}>) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      aiDiagnosis: null,
+      isDiagnosing: false,
+    };
+    this.handleDiagnose = this.handleDiagnose.bind(this);
+  }
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };
@@ -26,7 +30,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  handleDiagnose = async () => {
+  async handleDiagnose() {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });
     try {
