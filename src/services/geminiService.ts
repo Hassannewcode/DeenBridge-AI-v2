@@ -1,8 +1,8 @@
 import { GoogleGenAI, Chat, Content, GenerateContentResponse, Part } from "@google/genai";
-import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from '../types';
-import { CORE_POINTS } from '../constants';
-import { TRUSTED_SOURCES } from '../data/sources';
-import { GREGORIAN_MONTHS, HIJRI_MONTHS } from '../data/calendars';
+import { Denomination, GeminiResponse, ScripturalResult, WebSource, GroundingChunk, Message, MessageSender, UserProfile, Surah, ArabicDialect, SourceInfo } from './types';
+import { CORE_POINTS } from './constants';
+import { TRUSTED_SOURCES } from './data/sources';
+import { GREGORIAN_MONTHS, HIJRI_MONTHS } from './data/calendars';
 
 // The API key is now sourced from environment variables for security.
 const API_KEY = process.env.API_KEY;
@@ -35,7 +35,6 @@ export const generateSystemInstruction = (denomination: Denomination, profile: U
   const sources = TRUSTED_SOURCES[denomination];
   const trustedSourcesString = Object.entries(sources)
     .filter(([key]) => key !== 'trustedDomains') // Exclude trustedDomains from this list
-    // FIX: Cast `list` which is inferred as `unknown` to `SourceInfo[]` to allow `.map` to be called.
     .map(([category, list]) => `    *   **${category}:** ${(list as SourceInfo[]).map(s => `${s.name} (${s.url})`).join(', ')}`)
     .join('\n');
     
@@ -95,6 +94,7 @@ Your persona is heavily inspired by Sheikh Assim al-Hakeem. You must adopt his d
   - When responding in English, draw from common cultural touchstones in the English-speaking world.
   - Your goal is to sound like a fluent, culturally-aware guide, not just a machine translator.
 
+MAIN: ${denomination} THIS IS THE PRIMARY THING FROM THE USER CONTEXT, the ${denomination} tradition, you must be the best of ${denomination}, the most of ${denomination}, ALWAYS STAY FOCUSED TO THE ${denomination} AT ALL TIMES, please do ${denomination} for everything and use ${denomination}, always be it. AT ALL TIMES as said. ALWAYS answer in  ${denomination} tradition, never try to do other than that.
 ${livePersona}
 ${userContext}
 **ADAPTABILITY & SELF-TRAINING (MANDATORY):** You MUST adapt your language, tone, and the complexity of your analogies/explanations to the user profile and conversational context.
@@ -107,7 +107,8 @@ ${userContext}
     Your function as a digital librarian requires a strict sourcing hierarchy. You MUST follow these steps in order for every query:
     1.  **The Holy Quran (Primary Source - HIGHEST PRIORITY):** Your MANDATORY first step is to consult the Quran. It is your main and most important source. Before consulting any other source, you MUST first search the Quran for a direct or relevant answer. Quranic verses are the highest level of evidence. When quoting, you MUST be precise and accurate. The 'source' for Quranic results MUST ALWAYS be "The Holy Quran".
     2.  **Trusted Scholarly Sources (Secondary Source):** ONLY if the Quran does not directly or clearly address the query, consult the trusted scholarly works for the user's ${denomination} tradition. You MUST prioritize information from the trusted sources list provided below.
-    3.  **Denomination-Specific Web Search (Tertiary Source - LAST RESORT):** The Google Search tool is a last resort. You are ONLY permitted to use it if and only if both The Holy Quran and the trusted scholarly sources list fail to provide a sufficient answer. Do not use web search for general questions about Islamic principles that are well-established in the primary and secondary texts. When you must use it, your search MUST be narrowly focused on websites and scholars aligned with the selected ${denomination} tradition. Prioritize results from the 'trustedDomains' list. You are forbidden from using search results that contradict the selected ${denomination} tradition. Crucially, if you cannot find a source for the selected denomination after searching, you MUST state that a specific answer from that tradition could not be found, rather than providing an answer from a different tradition. Do not mix sources across different schools of thought.
+    3.  **Denomination-Specific Web Search (Tertiary Source - LAST RESORT):** The Google Search tool is a last resort. You are ONLY permitted to use it if and only if both The Holy Quran and the trusted scholarly sources list fail to provide a sufficient answer. Do not use web search for general questions about Islamic principles that are well-established in the primary and secondary texts. When you must use it, your search MUST be narrowly focused on websites and scholars aligned with the selected ${denomination} tradition. Prioritize results from the 'trustedDomains' list. You are forbidden from using search results that contradict the selected ${denomination} tradition.
+    Crucially, if you cannot find a source for the selected denomination after searching, you MUST state that a specific answer from that tradition could not be found, rather than providing an answer from a different tradition. Do not mix sources across different schools of thought.
 
     **Source Rules (NON-NEGOTIABLE):**
     *   **Trusted Sources List:** For Fiqh and scholarly works, prioritize information from these sources for the ${denomination} tradition.
@@ -125,7 +126,7 @@ Your response must follow this structure: A warm greeting, followed by your summ
 As-salamu alaykum, ${profile.name}. An excellent question. You're asking about showing off in worship, or *Riya*. Think of it like this: if you do a good deed for Allah, it's like planting a strong tree. But Riya is a termite that eats the tree from the inside out, leaving nothing of value. It's a dangerous thing. May this be of benefit, and Allah knows best.
 
 ## Scriptural Sources
-Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
+Text: وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُsِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ
 Source: The Holy Quran
 Reference: Al-Baqarah (2:155)
 Author: N/A
@@ -173,17 +174,16 @@ export const sendMessageStream = (chat: Chat, query: string, file?: { data: stri
     const parts: Part[] = [];
     const textPartContent = query || (file ? "Summarize, describe, or analyze the contents of this file." : "");
     
-    // A text part is always required, even if it's empty.
     parts.push({ text: textPartContent });
     
     if (file) {
-        const imagePart = {
+        const filePart = {
             inlineData: {
                 mimeType: file.mimeType,
                 data: file.data,
             },
         };
-        parts.push(imagePart);
+        parts.push(filePart);
     }
 
     return chat.sendMessageStream({ message: parts });

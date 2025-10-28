@@ -4,7 +4,7 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DeviceProvider } from './contexts/DeviceContext';
 import registerServiceWorker from './registerServiceWorker';
-import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
 import { A11yProvider } from './contexts/A11yContext';
 import { PWAInstallProvider } from './contexts/PWAInstallContext';
 
