@@ -1,6 +1,7 @@
 import React, { useEffect, lazy, Suspense, useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
+// FIX: Updated import paths to reflect component reorganization into subdirectories.
 import DenominationSelector from './components/onboarding/DenominationSelector';
 import ChatView from './components/chat/ChatView';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
@@ -119,4 +120,39 @@ const App: React.FC = () => {
       {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       <main className="flex-1 flex w-full font-sans min-h-0">
         {!profile.onboardingComplete ? (
-          <OnboardingFlow on
+          <OnboardingFlow onComplete={handleOnboardingComplete} setToastInfo={setToastInfo} />
+        ) : denomination ? (
+          <>
+            <ChatView 
+              denomination={denomination} 
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              profile={profile}
+              setToastInfo={setToastInfo}
+            />
+            <Suspense fallback={null}>
+              <SettingsModal 
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                profile={profile}
+                setProfile={setProfile}
+                onResetDenomination={handleResetDenomination}
+                isOnline={isOnline}
+                onOpenAbout={() => setIsAboutOpen(true)}
+                setToastInfo={setToastInfo}
+              />
+              <AboutModal 
+                isOpen={isAboutOpen}
+                onClose={() => setIsAboutOpen(false)}
+              />
+            </Suspense>
+          </>
+        ) : (
+          <DenominationSelector onSelect={setDenomination} />
+        )}
+      </main>
+      <A11yAnnouncer />
+    </LocaleProvider>
+  );
+};
+
+export default App;
