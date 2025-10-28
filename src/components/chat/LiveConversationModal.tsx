@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { GoogleGenAI, Modality } from '@google/genai';
@@ -5,6 +6,7 @@ import type { Session, LiveServerMessage } from '@google/genai';
 import { generateSystemInstruction } from '../../services/geminiService';
 import { createAudioBlob, decode, decodeAudioData } from '../../utils/audioUtils';
 import type { Denomination, UserProfile, Message } from '../../types';
+// FIX: Import PhoneIcon
 import { CloseIcon, LoadingSpinner, PhoneIcon } from '../common/icons';
 import { useLocale } from '../../contexts/LocaleContext';
 import LiveVisualizer from './LiveVisualizer';

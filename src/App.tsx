@@ -1,18 +1,18 @@
 import React, { useEffect, lazy, Suspense, useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
 import { Denomination, UserProfile } from './types';
-import DenominationSelector from './components/DenominationSelector';
-import ChatView from './ChatView';
-import OnboardingFlow from './components/OnboardingFlow';
+import DenominationSelector from './components/onboarding/DenominationSelector';
+import ChatView from './components/chat/ChatView';
+import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import { LocaleProvider } from './contexts/LocaleContext';
 import { useDevice } from './contexts/DeviceContext';
-import A11yAnnouncer from './components/A11yAnnouncer';
+import A11yAnnouncer from './components/common/A11yAnnouncer';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
-import OfflineBanner from './components/OfflineBanner';
-import Toast from './components/Toast';
+import OfflineBanner from './components/common/OfflineBanner';
+import Toast from './components/common/Toast';
 
-const SettingsModal = lazy(() => import('./components/SettingsModal'));
-const AboutModal = lazy(() => import('./components/AboutModal'));
+const SettingsModal = lazy(() => import('./components/settings/SettingsModal'));
+const AboutModal = lazy(() => import('./components/common/AboutModal'));
 
 const defaultProfile: UserProfile = {
   name: '',
@@ -119,39 +119,4 @@ const App: React.FC = () => {
       {toastInfo && <Toast message={toastInfo.message} type={toastInfo.type} onClose={() => setToastInfo(null)} />}
       <main className="flex-1 flex w-full font-sans min-h-0">
         {!profile.onboardingComplete ? (
-          <OnboardingFlow onComplete={handleOnboardingComplete} setToastInfo={setToastInfo} />
-        ) : denomination ? (
-          <>
-            <ChatView 
-              denomination={denomination} 
-              onOpenSettings={() => setIsSettingsOpen(true)}
-              profile={profile}
-              setToastInfo={setToastInfo}
-            />
-            <Suspense fallback={null}>
-              <SettingsModal 
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
-                profile={profile}
-                setProfile={setProfile}
-                onResetDenomination={handleResetDenomination}
-                isOnline={isOnline}
-                onOpenAbout={() => setIsAboutOpen(true)}
-                setToastInfo={setToastInfo}
-              />
-              <AboutModal 
-                isOpen={isAboutOpen}
-                onClose={() => setIsAboutOpen(false)}
-              />
-            </Suspense>
-          </>
-        ) : (
-          <DenominationSelector onSelect={setDenomination} />
-        )}
-      </main>
-      <A11yAnnouncer />
-    </LocaleProvider>
-  );
-};
-
-export default App;
+          <OnboardingFlow on
