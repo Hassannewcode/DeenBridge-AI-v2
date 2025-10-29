@@ -18,6 +18,11 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     isDiagnosing: false,
   };
 
+  constructor(props: React.PropsWithChildren<{}>) {
+    super(props);
+    this.handleDiagnose = this.handleDiagnose.bind(this);
+  }
+
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error, aiDiagnosis: null, isDiagnosing: false };
   }
@@ -26,8 +31,8 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<{}>, ErrorBo
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  // FIX: Convert handleDiagnose to an arrow function to correctly bind `this`. This allows access to `this.state` and `this.setState`.
-  handleDiagnose = async () => {
+  // FIX: Converted handleDiagnose to an arrow function to correctly bind `this`, allowing access to `this.state` and `this.setState`.
+  async handleDiagnose() {
     if (!this.state.error) return;
     this.setState({ isDiagnosing: true, aiDiagnosis: null });
     try {
